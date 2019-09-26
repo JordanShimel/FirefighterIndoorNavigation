@@ -1,3 +1,3 @@
 # FireFighterBaseUnit
 
-Code for remote unit for Fire Fighter senior project
+Code for base unit for Fire Fighter senior project
