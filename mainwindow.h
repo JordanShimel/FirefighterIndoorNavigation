@@ -1,8 +1,7 @@
 //FireFighterRemoteUnit mainwindow header file
 //Contains definitions for mainwindow elements
-//TODO: Add Connect/Disconnect buttons
 //TODO?: Add config options
-/*
+
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
@@ -20,8 +19,13 @@ public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
+private slots:
+    void on_pushButtonPreview_clicked();
+
+    void on_pushButtonConnect_clicked();
+
 private:
     Ui::MainWindow *ui;
 };
 
-#endif // MAINWINDOW_H*/
+#endif // MAINWINDOW_H
