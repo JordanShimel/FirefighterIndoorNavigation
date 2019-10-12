@@ -1,6 +1,7 @@
 # FireFighterRemoteUnit
 
 Code for remote unit for Fire Fighter senior project
+
 1 - Overview
 This module will be responsible for capturing stereo video from the Intel RealSense D435i camera, converting it into a ROSBag, and transmitting it over Wi-Fi to the base unit.  It will run on an UPBoard using Ubuntu 16.04, with an attached Wi-Fi module.  This unit will have a point-to-point Wi-Fi connection to the base unit.
 
