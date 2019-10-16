@@ -1,26 +1,31 @@
+//viewerWidget header file
+//viewerWidget handles creating a preview window for camera outputs and displaying live camera data in that window
+
 #ifndef VIEWER_HPP
 #define VIEWER_HPP
 
 //GLFW is used to do the video output for the viewer window
 #include <GLFW/glfw3.h>
 
-//Intel's RealSense library is used to process video data into OpenGL textures
+//Intel RealSense library provides camera functions
+//be sure to include this before any Qt includes
+//odd linker errors can result otherwise
 #include <librealsense2/rs.hpp>
 
+//STL libraries
 //cmath is needed for cos and sin functions for drawing circles
+//map is used to map ints to rs2::frames for the show function
 #include <cmath>
-
-//map is needed because the show function is given the frames as a map of frameIDs to frame data
 #include <map>
 
-//viewer class, manages preview window using GLFW and OpenGL
-class viewer
+//viewerWidget class, manages preview window using GLFW and OpenGL
+class viewerWidget
 {
     public:
         //constructor creates and activates a GLFW window
-        viewer();
+        viewerWidget();
         //destructor closes GLFW window
-        ~viewer();
+        ~viewerWidget();
         //close hooks into the close button to set shouldClose flag to 1, so bool operator can return correct value to main program window
         void close();
         //bool returns true to main program while window is open, enabling the "while(rscViewer)" loop to operate

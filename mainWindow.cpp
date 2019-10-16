@@ -1,151 +1,201 @@
-//FireFighterRemoteUnit mainwindow code file
-//TODO?: Implement local configuration system
+//mainWindow code file
+//mainWindow handles the GUI for the remote unit application
 
-//RealSense Cross Platform API
-//Used to provide Intel RealSense Camera interface
-#include <librealsense2/rs.hpp>
+#include "mainWindow.hpp"
 
-#include "mainwindow.h"
-#include "ui_mainwindow.h"
-
-//STL includes required for frame maps and vectors
-#include <map>
-#include <vector>
-
-//viewer class handles the preview window
-#include "viewer.hpp"
-
-MainWindow::MainWindow(QWidget *parent)
-    : QMainWindow(parent)
-    , ui(new Ui::MainWindow)
+//public: constructor
+//creates ui instance
+//connects Qt Signals used by the application
+mainWindow::mainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWindow)
 {
-    //Initialize UI
+    //initialize UI
     ui->setupUi(this);
-    //Initialize status message and buttons
-    ui->pushButtonPreview->setEnabled(true);
-    ui->pushButtonConnect->setEnabled(true);
-    ui->labelStatus->setText("Initialization complete.");
-    ui->labelStatus->setEnabled(true);
+
+    //connection to allow application to close rather than hang if ROS has to shutdown unexpectedly
+    QObject::connect(&rosNode, SIGNAL(rosShutdown()), this, SLOT(close()));    
+
+    //connection to allow logging pane to automatically update when new events occur
+    ui->listViewConnectLogging->setModel(rosNode.getLogModel());
+    QObject::connect(&rosNode, SIGNAL(logUpdated()), this, SLOT(updateConnectLog()));
 }
 
-MainWindow::~MainWindow()
+//public: destructor
+//deletes ui and closes application
+mainWindow::~mainWindow()
 {
     delete ui;
 }
 
-void MainWindow::on_pushButtonPreview_clicked()
+//private slot: on_pushButtonPreview_clicked
+//creates a preview window for live data from camera
+void mainWindow::on_pushButtonPreview_clicked()
 {
-    //Create librealsense context for managing devices
+    //create librealsense context for managing devices
     rs2::context rscContext;
-    ui->labelStatus->setText("rs2::context rscContext;");
 
-    //Create device list
+    //create device list
     rs2::device_list rscDevices;
 
-    //Get list of connected devices
+    //get list of connected devices
     try
     {
         rscDevices = rscContext.query_devices();
     }
+    //return if list cannot be obtained
     catch(const rs2::error & e)
     {
-        ui->labelStatus->setText("rscDevices = rscContext.query_devices(); failed.");
+        //display error and return
+        showError("Could not query RealSense devices.");
         return;
     }
 
-    //Get number of connected devices
+    //get number of connected devices
     size_t rscDeviceCount = rscDevices.size();
 
-    //Verify number of devices
+    //number should be 1, as application is only meant to be used in situation with 1 camera
     if(rscDeviceCount == 0)
     {
-        ui->labelStatus->setText("No camera detected, ensure the R435 is connected and retry.");
+        //display error and return
+        showError("No RealSense device detected.");
         return;
     }
     else if(rscDeviceCount == 1)
     {
-        ui->labelStatus->setText("Camera detected");
-        ui->labelStatus->update();
+        //disable preview button
+        //TODO: find out why this doesn't work(thread?)
+        ui->pushButtonPreview->setEnabled(false);
 
-        //Create interface for first device
+        //create interface for first(only) device
         rs2::device rscDevice = rscDevices[0];
 
-        //Get serial number of device
+        //get serial number of device
         const char* rscSerial = rscDevice.get_info(RS2_CAMERA_INFO_SERIAL_NUMBER);
 
-        //Create RS2 pipeline based on the current context
+        //create RS2 pipeline based on the current context
         rs2::pipeline rscPipe(rscContext);
 
-        //Create RS2 config
+        //create RS2 config
         //TODO: Determine optimum config settings
         rs2::config rscConfig;
 
-        //Enable the device(via serial number)
+        //enable the device(via serial number)
         rscConfig.enable_device(rscSerial);
 
-        //Start RS2 pipeline for device
+        //start RS2 pipeline for device
         rscPipe.start(rscConfig);
 
-        //Initialize colorizer for device(changes depth data into RGB)
+        //create colorizer for device(changes depth data into RGB)
         rs2::colorizer *rscColorizer = new rs2::colorizer();
 
-        //Keep track of the last frame of each stream available to make the presentation persistent
+        //keep track of the last frame of each stream available to make the output persistent
         std::map<int, rs2::frame> rscRenderFrames;
 
-        //Create a simple OpenGL window for rendering
-        //TODO: Switch to Qt OpenGL Widget
-        class viewer rscViewer;
+        //create a viewerWidget for rendering
+        class viewerWidget rscViewer;
 
-        //Main app loop, run while app window is open
-        //TODO: Replace with something based on Qt
+        //main app loop, run while viewerWidget is open
         while(rscViewer)
         {
-            //Create a vector to hold new frames from the device
+            //create a vector to hold new frames from the device
             std::vector<rs2::frame> rscNewFrames;
 
-            //Create RS2 frameset
+            //create RS2 frameset
             rs2::frameset rscFrameset;
 
-            //Check to see if the frameset has new frames
+            //check to see if the frameset has new frames
             if(rscPipe.poll_for_frames(&rscFrameset))
             {
-                //Iterate through any new frames until frameset is empty
+                //iterate through any new frames until frameset is empty
                 for(const rs2::frame& rscFrame : rscFrameset)
-                    //Place new frames into new_frames vector
+                    //place new frames into new_frames vector
                     rscNewFrames.emplace_back(rscFrame);
             }
 
-            //Iterate through new_frames vector
+            //iterate through new_frames vector
             for(const auto& rscFrame : rscNewFrames)
             {
-                //Apply the colorizer and store the colorized frame
+                //apply the colorizer and add to map
                 rscRenderFrames[rscFrame.get_profile().unique_id()] = rscColorizer->process(rscFrame);
             }
 
-            //Present all the collected frames with openGl mosaic
-            //TODO: Replace with Qt based renderer
+            //output the new frames
             rscViewer.show(rscRenderFrames);
         }
 
-        //Stop RS2 pipeline
+        //stop RS2 pipeline
         rscPipe.stop();
+
+        //reenable preview button
+        ui->pushButtonPreview->setEnabled(true);
     }
     else if(rscDeviceCount > 1)
     {
-        ui->labelStatus->setText("Multiple cameras detected, remove all but one R435 and retry.");
+        //display error and return
+        showError("More than 1 RealSense device detected.");
         return;
     }
     else
     {
-        ui->labelStatus->setText("Negative or non number of cameras detected, shouldn't be possible, fix please");
+        //display error and return
+        showError("Unknown number of RealSense devices detected.");
         return;
     }
-
-    ui->labelStatus->setText("Preview ended.");
-    ui->labelStatus->update();
 }
 
-void MainWindow::on_pushButtonConnect_clicked()
+//private slot: on_pushButtonConnect_clicked
+//creates ROS node if one doesn't already exist
+//starts publishing selected data on ROS node
+//subsequent clicks will toggle publishing QThread
+void mainWindow::on_pushButtonPublish_clicked()
 {
+    if(isPublishing == false)
+    {
+        //attempt to start rosNodeWidget with inputted values
+        if(!rosNode.init("http://localhost:11311/", "localhost"))
+        {
+            //if we fail, it should be because the addresses for ROS master and/or ROS local are incorrect
+            showError("Could not connect to ROS master.");
+        }
+        else
+        {
+            //set publishing flag to true and update button
+            isPublishing = true;
+            ui->pushButtonPublish->setText("Stop Publishing");
+        }
+    }
+    else
+    {
+        //attempt to terminate publishing QThread
+        if(rosNode.stop())
+        {
+            //set publishing flag to false and update button
+            isPublishing = false;
+            ui->pushButtonPublish->setText("Publish");
+        }
+        else
+        {
+            //show error
+            showError("Could not stop publisher.");
+        }
+    }
+}
 
+//private slot: updateConnectLog
+//scrolls the connection log to the bottom
+//triggered by signal from rosNodeWidget
+void mainWindow::updateConnectLog()
+{
+    //scroll log to bottom
+    ui->listViewConnectLogging->scrollToBottom();
+}
+
+//private: showError
+//outputs error message with passed text
+void mainWindow::showError(QString errorMessage)
+{
+    //display error and return
+    QMessageBox errorMessageBox;
+    errorMessageBox.setText(errorMessage);
+    errorMessageBox.exec();
+    return;
 }

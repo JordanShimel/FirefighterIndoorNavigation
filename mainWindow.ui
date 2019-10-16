@@ -6,55 +6,42 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>323</width>
-    <height>213</height>
+    <width>1009</width>
+    <height>655</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>FireFighterRemoteUnit</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <widget class="QPushButton" name="pushButtonPreview">
+   <widget class="QWidget" name="gridLayoutWidget_2">
     <property name="geometry">
      <rect>
       <x>10</x>
       <y>10</y>
-      <width>89</width>
-      <height>25</height>
+      <width>991</width>
+      <height>601</height>
      </rect>
     </property>
-    <property name="text">
-     <string>Preview</string>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="pushButtonConnect">
-    <property name="geometry">
-     <rect>
-      <x>110</x>
-      <y>10</y>
-      <width>89</width>
-      <height>25</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Connect</string>
-    </property>
-   </widget>
-   <widget class="QLabel" name="labelStatus">
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>50</y>
-      <width>301</width>
-      <height>131</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>TextLabel</string>
-    </property>
-    <property name="wordWrap">
-     <bool>true</bool>
-    </property>
+    <layout class="QGridLayout" name="gridLayout">
+     <item row="2" column="0" colspan="2">
+      <widget class="QListView" name="listViewConnectLogging"/>
+     </item>
+     <item row="0" column="1">
+      <widget class="QPushButton" name="pushButtonPublish">
+       <property name="text">
+        <string>Publish</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="0">
+      <widget class="QPushButton" name="pushButtonPreview">
+       <property name="text">
+        <string>Preview</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
    </widget>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
@@ -63,7 +50,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>323</width>
+     <width>1009</width>
      <height>22</height>
     </rect>
    </property>
