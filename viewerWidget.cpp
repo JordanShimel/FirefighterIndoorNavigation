@@ -1,9 +1,12 @@
-#include "viewer.hpp"
+//viewerWidget code file
+//viewerWidget handles creating a preview window for camera outputs and displaying live camera data in that window
+
+#include "viewerWidget.hpp"
 
 //public: constructor
 //initializes private class variables
 //creates empty GLFW window
-viewer::viewer()
+viewerWidget::viewerWidget()
 {
     //TODO?: change from hard coded height and width
     windowHeight = 1280;
@@ -24,7 +27,7 @@ viewer::viewer()
 
 //public: destructor
 //terminates GLFW window
-viewer::~viewer()
+viewerWidget::~viewerWidget()
 {
     glfwDestroyWindow(previewWindow);
     glfwTerminate();
@@ -33,7 +36,7 @@ viewer::~viewer()
 //public: close
 //intercepts default destructor functionality to set should close flag
 //this flag is used by the bool function to let the calling program know when to stop sending this class frame data
-void viewer::close()
+void viewerWidget::close()
 {
     glfwSetWindowShouldClose(previewWindow, 1);
 }
@@ -41,14 +44,14 @@ void viewer::close()
 //public: bool
 //allows the viewer class to return a proper bool value when tested
 //used to allow "while(rscViewer)" in main program
-viewer::operator bool()
+viewerWidget::operator bool()
 {
     return !glfwWindowShouldClose(previewWindow);
 }
 
 //public: show
 //renders a set of frames in the preview window
-void viewer::show(const std::map<int, rs2::frame> rscFrames)
+void viewerWidget::show(const std::map<int, rs2::frame> rscFrames)
 {
     //check to ensure the frame map has frames
     if(rscFrames.size())
@@ -100,7 +103,7 @@ void viewer::show(const std::map<int, rs2::frame> rscFrames)
 
 //private: showMotionFrame
 //handles display of motion frame data, either accelerometer or gyroscope
-void viewer::showMotionFrame(const rs2::motion_frame &rscFrame, const int xLoc, const int yLoc)
+void viewerWidget::showMotionFrame(const rs2::motion_frame &rscFrame, const int xLoc, const int yLoc)
 {
     //if there's somehow no frame, return before everything breaks
     if(!rscFrame)
@@ -166,7 +169,7 @@ void viewer::showMotionFrame(const rs2::motion_frame &rscFrame, const int xLoc, 
 
 //private: drawMotionFrameAxes
 //draws a red, green, and blue set of arrows along the x, y, and z axes
-void viewer::drawMotionFrameAxes()
+void viewerWidget::drawMotionFrameAxes()
 {
     //set line width
     glLineWidth(4);
@@ -219,7 +222,7 @@ void viewer::drawMotionFrameAxes()
 
 //private: drawMotionFrameCircle
 //draws a circle, skewed and stretched to appear 3d
-void viewer::drawMotionFrameCircle(float xx, float xy, float xz, float yx, float yy, float yz)
+void viewerWidget::drawMotionFrameCircle(float xx, float xy, float xz, float yx, float yy, float yz)
 {
     glColor3f(0.5, 0.5, 0.5);
     glLineWidth(2);
@@ -240,7 +243,7 @@ void viewer::drawMotionFrameCircle(float xx, float xy, float xz, float yx, float
 
 //private: showVideoFrame
 //handles display of video frame data, either depth or rgb
-void viewer::showVideoFrame(const rs2::video_frame &rscFrame, const int xLoc, const int yLoc)
+void viewerWidget::showVideoFrame(const rs2::video_frame &rscFrame, const int xLoc, const int yLoc)
 {
     //if there's somehow no frame, return before everything breaks
     if(!rscFrame)
