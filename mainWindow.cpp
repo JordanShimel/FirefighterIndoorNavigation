@@ -6,17 +6,13 @@
 //public: constructor
 //creates ui instance
 //connects Qt Signals used by the application
-mainWindow::mainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWindow)
+mainWindow::mainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::mainWindow)
 {
     //initialize UI
     ui->setupUi(this);
 
     //connection to allow application to close rather than hang if ROS has to shutdown unexpectedly
-    QObject::connect(&rosNode, SIGNAL(rosShutdown()), this, SLOT(close()));    
-
-    //connection to allow logging pane to automatically update when new events occur
-    ui->listViewConnectLogging->setModel(rosNode.getLogModel());
-    QObject::connect(&rosNode, SIGNAL(logUpdated()), this, SLOT(updateConnectLog()));
+    QObject::connect(&rosNode, SIGNAL(rosShutdown()), this, SLOT(close()));
 }
 
 //public: destructor
@@ -158,9 +154,12 @@ void mainWindow::on_pushButtonPublish_clicked()
         }
         else
         {
-            //set publishing flag to true and update button
+            //set publishing flag to true and update buttons
             isPublishing = true;
             ui->pushButtonPublish->setText("Stop Publishing");
+            ui->pushButtonPreview->setText("Camera Test "
+                                           "(Disabled while publishing)");
+            ui->pushButtonPreview->setEnabled(false);
         }
     }
     else
@@ -171,6 +170,8 @@ void mainWindow::on_pushButtonPublish_clicked()
             //set publishing flag to false and update button
             isPublishing = false;
             ui->pushButtonPublish->setText("Publish");
+            ui->pushButtonPreview->setText("Camera Test");
+            ui->pushButtonPreview->setEnabled(true);
         }
         else
         {
@@ -178,15 +179,6 @@ void mainWindow::on_pushButtonPublish_clicked()
             showError("Could not stop publisher.");
         }
     }
-}
-
-//private slot: updateConnectLog
-//scrolls the connection log to the bottom
-//triggered by signal from rosNodeWidget
-void mainWindow::updateConnectLog()
-{
-    //scroll log to bottom
-    ui->listViewConnectLogging->scrollToBottom();
 }
 
 //private: showError

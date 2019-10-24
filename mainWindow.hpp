@@ -13,12 +13,12 @@
 //odd linker errors can result otherwise
 #include <librealsense2/rs.hpp>
 
-//viewerWidget class handles the preview window
-#include "viewerWidget.hpp"
-
 //rosNodeWidget handles ROS node connection
 //and publishing of data
 #include "rosNodeWidget.hpp"
+
+//viewerWidget class handles the preview window
+#include "viewerWidget.hpp"
 
 //the auto-generated ui_mainwindow contains declarations for all the Qt elements built in the designer
 #include "ui_mainWindow.h"
@@ -29,12 +29,10 @@
 //allows the creation of simple message boxes
 #include <QMessageBox>
 
-QT_BEGIN_NAMESPACE
-    namespace Ui
-    {
-        class MainWindow;
-    }
-QT_END_NAMESPACE
+namespace Ui
+{
+    class mainWindow;
+}
 
 //mainWindow class, manages main GUI
 class mainWindow : public QMainWindow
@@ -56,12 +54,9 @@ class mainWindow : public QMainWindow
         //subsequent click will toggle the state of the publishing QThread
         void on_pushButtonPublish_clicked();
 
-        //updateConnectLog fires on receipt of a signal from rosNodeWidget, allowing the log panel to automatically update
-        void updateConnectLog();
-
     private:
         //ui is used to access all the GUI Qt elements
-        Ui::MainWindow *ui;
+        Ui::mainWindow *ui;
         //rosNode is used to assign a persistent ROS node to this window
         rosNodeWidget rosNode;
         //flag to determine behavior of publish button

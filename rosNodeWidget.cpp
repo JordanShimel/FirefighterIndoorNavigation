@@ -53,22 +53,16 @@ bool rosNodeWidget::init(const std::string &rosMasterAddress, const std::string 
 
         //create a handle to our node
         ros::NodeHandle remoteUnitNodeHandle;
-        log(std::string("Node Handle created"));
 
-        //publish accel
-
-        //publish depth
+        //assign publishers to this node
+        //acceleration publisher
+        //depth publisher
         image_transport::ImageTransport imageTransportDepth(remoteUnitNodeHandle);
         publisherDepth = imageTransportDepth.advertise("rscDepth", 1);
-        log(std::string("Depth Publisher created"));
+        //gyroscope publisher
 
-        //publish gyro
-
-        //publish video
-        image_transport::ImageTransport imageTransportVideo(remoteUnitNodeHandle);
-        publisherVideo = imageTransportVideo.advertise("rscVideo", 1);
-        log(std::string("Video Publisher created"));
-
+        //starts Qt thread to run the publisher
+        //does thread stuff and has thread call run()
         start();
         return true;
     }
@@ -111,7 +105,6 @@ void rosNodeWidget::run()
         rscPipe.start(rscConfig);
         rs2::colorizer rscColorizer;
         std::map<int, rs2::frame> rscPublishFrames;
-        rs2::frameset rscFrameSet;
 
         //create variables used to build messages
         //height of camera output
@@ -127,28 +120,22 @@ void rosNodeWidget::run()
         sensor_msgs::ImagePtr messageDepth;
         //gyroscope message
 
-        //video message
-        rs2::frame rscPublishVideoFrame;
-        sensor_msgs::ImagePtr messageVideo;
-
-
         //rosLoopRate is how many times the while loop will attempt to run per second
-        ros::Rate rosLoopRate(1);
+        ros::Rate rosLoopRate(10);
         while(ros::ok())
         {
-            log(std::string("ROS OK"));
+            std::vector<rs2::frame> rscNewFrames;
+            rs2::frameset rscFrameSet;
 
             if(rscPipe.poll_for_frames(&rscFrameSet))
             {
                 //TODO: move into publish function
-                log(std::string("Frames polled successfully"));
                 rscPublishDepthFrame = rscFrameSet.get_depth_frame().apply_filter(rscColorizer);
                 width = rscPublishDepthFrame.as<rs2::video_frame>().get_width();
                 height = rscPublishDepthFrame.as<rs2::video_frame>().get_height();
                 cv::Mat imageDepth(cv::Size(width, height), CV_8UC3, (void*)rscPublishDepthFrame.get_data(), cv::Mat:: AUTO_STEP);
                 messageDepth = cv_bridge::CvImage(std_msgs::Header(), "bgr8", imageDepth).toImageMsg();
                 publisherDepth.publish(messageDepth);
-                log(std::string("Sent depth frame"));
             }
 
             ros::spinOnce();
@@ -181,26 +168,6 @@ bool rosNodeWidget::stop()
 {
     terminate();
     return true;
-}
-
-//TODO: comments
-void rosNodeWidget::log(const std::string &msg)
-{
-    logModel.insertRows(logModel.rowCount(), 1);
-
-    std::stringstream message;
-
-    ROS_DEBUG_STREAM(msg);
-    message << ros::Time::now() << ": " << msg;
-
-    QVariant new_row(QString(message.str().c_str()));
-    logModel.setData(logModel.index(logModel.rowCount() - 1), new_row);
-    Q_EMIT logUpdated();
-}
-
-QStringListModel *rosNodeWidget::getLogModel()
-{
-    return &logModel;
 }
 
 //private: publish

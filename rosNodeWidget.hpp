@@ -18,7 +18,7 @@
 //OpenCV is used to convert data from Realsense format to OpenCV format
 #include <opencv2/core.hpp>
 
-//cv_bridge is used to convert data from OpenCV format to ROS image message format
+//cv_bridge is used to convert data between OpenCV format and ROS image message format
 #include <cv_bridge/cv_bridge.h>
 
 //ROS image transport header is used to publish image message data
@@ -54,16 +54,11 @@ class rosNodeWidget : public QThread
         void run();
         //stop terminates the QThread publishing ROS messages
         bool stop();
-        //log adds an entry to the connection log pane in the main window
-        void log(const std::string &msg);
-        //getLogModel is used along with the logUpdated signal to link the connection log pane to this class
-        QStringListModel* getLogModel();
 
     Q_SIGNALS:
         //rosShutdown is used to signal an unexpected stopping of the ROS node to the main application
         void rosShutdown();
-        //logUpdated is used to signal a new entry has been added to the log, so the main window logging pane will update appropriately
-        void logUpdated();
+
 
     private:
         //ROS publisher for acceleration data
@@ -74,9 +69,6 @@ class rosNodeWidget : public QThread
         ros::Publisher publisherGyro;
         //ROS image publisher for video data
         image_transport::Publisher publisherVideo;
-
-        //logModel is the QString list that log entries are added to
-        QStringListModel logModel;
 
         //publish is called by run and takes care of publishing a single set of messages
         void publish(const std::map<int, rs2::frame> rscFrames);
