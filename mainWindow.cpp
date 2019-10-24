@@ -12,6 +12,18 @@ mainWindow::mainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::mainWi
     //initialize UI
     ui->setupUi(this);
 
+    //connection to allow application to close rather than hang if ROS has to shutdown unexpectedly
+    QObject::connect(&rosNode, SIGNAL(rosShutdown()), this, SLOT(close()));
+
+    //connection to detect receipt of new acceleration data
+    //TODO:implement
+    //connection to detect receipt of new depth data, prompting output to update
+    QObject::connect(&rosNode, SIGNAL(receivedDepth()), this, SLOT(updateDepth()));
+    //connection to detect receipt of new gyroscope data
+    //TODO:implement
+
+    //temporary location for logic to start ROS node
+    rosNode.init("http://localhost:11311/", "localhost");
 }
 
 //public: destructor
@@ -19,4 +31,11 @@ mainWindow::mainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::mainWi
 mainWindow::~mainWindow()
 {
     delete ui;
+}
+
+void mainWindow::updateDepth()
+{
+    QPixmap buffer = QPixmap::fromImage(rosNode.getDepth());
+    ui->tabCamera1labelDepthImage->setPixmap(buffer);
+
 }
