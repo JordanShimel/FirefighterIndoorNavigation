@@ -35,9 +35,17 @@ class mainWindow : public QMainWindow
         //destructor closes UI window and terminates application
         ~mainWindow();
 
+    private slots:
+        //TODO:updateAccel
+        //updateDepth fires on receipt of a signal for rosNodeWidget, prompting depth data update
+        void updateDepth();
+        //TODO:updateGyro
+
     private:
         //ui is used to access all the GUI Qt elements
         Ui::mainWindow *ui;
+        //rosNode is used to assign a persistent ROS node to this window
+        rosNodeWidget rosNode;
 };
 
 #endif

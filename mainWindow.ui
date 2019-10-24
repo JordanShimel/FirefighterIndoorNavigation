@@ -30,16 +30,6 @@
      <attribute name="title">
       <string>Camera 1</string>
      </attribute>
-     <widget class="QOpenGLWidget" name="tabCamera1openGLWidgetCamera">
-      <property name="geometry">
-       <rect>
-        <x>10</x>
-        <y>10</y>
-        <width>441</width>
-        <height>341</height>
-       </rect>
-      </property>
-     </widget>
      <widget class="QOpenGLWidget" name="tabCamera1openGLWidgetPointcloud">
       <property name="geometry">
        <rect>
@@ -92,6 +82,19 @@
       </property>
       <property name="alignment">
        <set>Qt::AlignCenter</set>
+      </property>
+     </widget>
+     <widget class="QLabel" name="tabCamera1labelDepthImage">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>10</y>
+        <width>640</width>
+        <height>512</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Placeholder</string>
       </property>
      </widget>
     </widget>
