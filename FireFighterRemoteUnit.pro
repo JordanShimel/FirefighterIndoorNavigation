@@ -48,16 +48,6 @@ DEPENDPATH += /opt/ros/kinetic/lib/x86_64-linux-gnu
 LIBS += -L/opt/ros/kinetic/lib/x86_64-linux-gnu/ -lopencv_core3 -lopencv_imgcodecs3 -lopencv_imgproc3
 
 #OpenCV libraries
-INCLUDEPATH += ~/SLAM_BASE/OpenCV/build/include/opencv4/
-DEPENDPATH += ~/SLAM_BASE/OpenCV/build/include/
-LIBS += -L~/SLAM_BASE/OpenCV/build/lib/ -lopencv_core
-
-unix:!macx: LIBS += -L$$PWD/../../../../OpenCV/build/lib/ -lopencv_core
-
-INCLUDEPATH += $$PWD/../../../../OpenCV/build/include
-DEPENDPATH += $$PWD/../../../../OpenCV/build/include
-
-unix:!macx: LIBS += -L$$PWD/../../../../../../../usr/lib/x86_64-linux-gnu/ -lglfw
-
-INCLUDEPATH += $$PWD/../../../../../../../usr/lib/x86_64-linux-gnu
-DEPENDPATH += $$PWD/../../../../../../../usr/lib/x86_64-linux-gnu
+INCLUDEPATH += /usr/local/include/opencv4/
+DEPENDPATH += /usr/local/include/
+LIBS += -L/usr/local/lib -lopencv_core

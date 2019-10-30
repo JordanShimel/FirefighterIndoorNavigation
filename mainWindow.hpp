@@ -47,20 +47,24 @@ class mainWindow : public QMainWindow
         ~mainWindow();
 
     private slots:
-        //on_pushButtonPreview_clicked uses viewerWidget class to generate a preview of live camera data
-        void on_pushButtonPreview_clicked();
-        //on_pushButtonPublish_clicked uses rosNodeWidget to initialize a ROS node if one does not exist
+        //on_pushButtonTest_clicked uses viewerWidget class to generate a preview of live camera data
+        void on_pushButtonTest_clicked();
+        //on_pushButtonSend_clicked uses rosNodeWidget to initialize a ROS node if one does not exist
         //it then creates a QThread to begin publishing on that node
         //subsequent click will toggle the state of the publishing QThread
-        void on_pushButtonPublish_clicked();
+        void on_pushButtonSend_clicked();
+        //on_pushButtonConfig_clicked makes the config fields visible and hides the main ui elements
+        void on_pushButtonConfig_clicked();
 
-    private:
+private:
         //ui is used to access all the GUI Qt elements
         Ui::mainWindow *ui;
         //rosNode is used to assign a persistent ROS node to this window
         rosNodeWidget rosNode;
         //flag to determine behavior of publish button
         bool isPublishing = false;
+        //flag to determine config mode
+        bool isConfig = false;
 
         //showError displays an error window
         void showError(QString errorMessage);
