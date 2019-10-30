@@ -3,6 +3,7 @@
 
 #include "mainWindow.hpp"
 
+#include <iostream>//DEBUG:TODO:REMOVE
 //public: constructor
 //creates ui instance
 //connects Qt Signals used by the application
@@ -10,6 +11,31 @@ mainWindow::mainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::mainWi
 {
     //initialize UI
     ui->setupUi(this);
+
+    //set initial visibility
+    ui->labelRosMasterIP->setVisible(false);
+    ui->textEditRosMasterIP->setVisible(false);
+    ui->textEditRosMasterIP->setText("http://jordan-VirtualBox:11311/");
+
+    ui->labelRosLocalIP->setVisible(false);
+    ui->textEditRosLocalIP->setVisible(false);
+    ui->textEditRosLocalIP->setText("jordan-VirtualBox");
+
+    ui->labelDepthTopicName->setVisible(false);
+    ui->textEditDepthTopicName->setVisible(false);
+    ui->textEditDepthTopicName->setText("rscDepth");
+
+    ui->labelDepthTopicPublish->setVisible(false);
+    ui->checkBoxDepthTopicPublish->setVisible(false);
+    ui->checkBoxDepthTopicPublish->setCheckState(Qt::CheckState::Checked);
+
+    ui->labelVideoTopicName->setVisible(false);
+    ui->textEditVideoTopicName->setVisible(false);
+    ui->textEditVideoTopicName->setText("rscVideo");
+
+    ui->labelVideoTopicPublish->setVisible(false);
+    ui->checkBoxVideoTopicPublish->setVisible(false);
+    ui->checkBoxVideoTopicPublish->setCheckState(Qt::CheckState::Unchecked);
 
     //connection to allow application to close rather than hang if ROS has to shutdown unexpectedly
     QObject::connect(&rosNode, SIGNAL(rosShutdown()), this, SLOT(close()));
@@ -24,7 +50,7 @@ mainWindow::~mainWindow()
 
 //private slot: on_pushButtonPreview_clicked
 //creates a preview window for live data from camera
-void mainWindow::on_pushButtonPreview_clicked()
+void mainWindow::on_pushButtonTest_clicked()
 {
     //create librealsense context for managing devices
     rs2::context rscContext;
@@ -59,7 +85,7 @@ void mainWindow::on_pushButtonPreview_clicked()
     {
         //disable preview button
         //TODO: find out why this doesn't work(thread?)
-        ui->pushButtonPreview->setEnabled(false);
+        ui->pushButtonTest->setEnabled(false);
 
         //create interface for first(only) device
         rs2::device rscDevice = rscDevices[0];
@@ -122,7 +148,7 @@ void mainWindow::on_pushButtonPreview_clicked()
         rscPipe.stop();
 
         //reenable preview button
-        ui->pushButtonPreview->setEnabled(true);
+        ui->pushButtonTest->setEnabled(true);
     }
     else if(rscDeviceCount > 1)
     {
@@ -143,12 +169,20 @@ void mainWindow::on_pushButtonPreview_clicked()
 //creates ROS node if one doesn't already exist
 //starts publishing selected data on ROS node
 //subsequent clicks will toggle publishing QThread
-void mainWindow::on_pushButtonPublish_clicked()
+void mainWindow::on_pushButtonSend_clicked()
 {
+    std::cout << ui->textEditRosMasterIP->toPlainText().toStdString() << std::endl
+              << ui->textEditRosLocalIP->toPlainText().toStdString() << std::endl
+              << ui->textEditDepthTopicName->toPlainText().toStdString() << std::endl
+              << ui->checkBoxDepthTopicPublish->isChecked() << std::endl
+              << ui->textEditVideoTopicName->toPlainText().toStdString() << std::endl
+              << ui->checkBoxVideoTopicPublish->isChecked();//DEBUG:TODO:REMOVE
     if(isPublishing == false)
     {
         //attempt to start rosNodeWidget with inputted values
-        if(!rosNode.init("http://localhost:11311/", "localhost"))
+        if(!rosNode.init(ui->textEditRosMasterIP->toPlainText().toStdString(), ui->textEditRosLocalIP->toPlainText().toStdString(),
+                         ui->textEditDepthTopicName->toPlainText().toStdString(), ui->checkBoxDepthTopicPublish->isChecked(),
+                         ui->textEditVideoTopicName->toPlainText().toStdString(), ui->checkBoxVideoTopicPublish->isChecked()))
         {
             //if we fail, it should be because the addresses for ROS master and/or ROS local are incorrect
             showError("Could not connect to ROS master.");
@@ -157,10 +191,10 @@ void mainWindow::on_pushButtonPublish_clicked()
         {
             //set publishing flag to true and update buttons
             isPublishing = true;
-            ui->pushButtonPublish->setText("Stop Publishing");
-            ui->pushButtonPreview->setText("Camera Test "
-                                           "(Disabled while publishing)");
-            ui->pushButtonPreview->setEnabled(false);
+            ui->pushButtonSend->setText("STOP");
+            ui->pushButtonTest->setText("TEST"
+                                        "(DISABLED))");
+            ui->pushButtonTest->setEnabled(false);
         }
     }
     else
@@ -170,15 +204,80 @@ void mainWindow::on_pushButtonPublish_clicked()
         {
             //set publishing flag to false and update button
             isPublishing = false;
-            ui->pushButtonPublish->setText("Publish");
-            ui->pushButtonPreview->setText("Camera Test");
-            ui->pushButtonPreview->setEnabled(true);
+            ui->pushButtonSend->setText("SEND");
+            ui->pushButtonTest->setText("TEST");
+            ui->pushButtonTest->setEnabled(true);
         }
         else
         {
             //show error
             showError("Could not stop publisher.");
         }
+    }
+}
+
+//private slot: on_pushButtonConfig_clicked
+//on first click
+// hides main ui elements
+// makes config elements visible
+// turns config button into done button
+//on second click
+// reverts to pre first click state
+void mainWindow::on_pushButtonConfig_clicked()
+{
+    if(isConfig == false)
+    {
+        ui->labelRosMasterIP->setVisible(true);
+        ui->textEditRosMasterIP->setVisible(true);
+
+        ui->labelRosLocalIP->setVisible(true);
+        ui->textEditRosLocalIP->setVisible(true);
+
+        ui->labelDepthTopicName->setVisible(true);
+        ui->textEditDepthTopicName->setVisible(true);
+
+        ui->labelDepthTopicPublish->setVisible(true);
+        ui->checkBoxDepthTopicPublish->setVisible(true);
+
+        ui->labelVideoTopicName->setVisible(true);
+        ui->textEditVideoTopicName->setVisible(true);
+
+        ui->labelVideoTopicPublish->setVisible(true);
+        ui->checkBoxVideoTopicPublish->setVisible(true);
+
+        ui->pushButtonTest->setVisible(false);
+        ui->pushButtonSend->setVisible(false);
+        ui->pushButtonView->setVisible(false);
+        ui->pushButtonConfig->setText("DONE");
+
+        isConfig = true;
+    }
+    else if(isConfig == true)
+    {
+        ui->labelRosMasterIP->setVisible(false);
+        ui->textEditRosMasterIP->setVisible(false);
+
+        ui->labelRosLocalIP->setVisible(false);
+        ui->textEditRosLocalIP->setVisible(false);
+
+        ui->labelDepthTopicName->setVisible(false);
+        ui->textEditDepthTopicName->setVisible(false);
+
+        ui->labelDepthTopicPublish->setVisible(false);
+        ui->checkBoxDepthTopicPublish->setVisible(false);
+
+        ui->labelVideoTopicName->setVisible(false);
+        ui->textEditVideoTopicName->setVisible(false);
+
+        ui->labelVideoTopicPublish->setVisible(false);
+        ui->checkBoxVideoTopicPublish->setVisible(false);
+
+        ui->pushButtonTest->setVisible(true);
+        ui->pushButtonSend->setVisible(true);
+        ui->pushButtonView->setVisible(true);
+        ui->pushButtonConfig->setText("CONFIG");
+
+        isConfig = false;
     }
 }
 

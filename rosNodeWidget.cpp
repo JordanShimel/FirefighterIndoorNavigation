@@ -28,7 +28,9 @@ rosNodeWidget::~rosNodeWidget()
 //creates ROS node if one doesn't already exist
 //set up topics to publish via that node
 //creates thread to actually publish messages
-bool rosNodeWidget::init(const std::string &rosMasterAddress, const std::string &rosLocalAddress)
+bool rosNodeWidget::init(const std::string &rosMasterAddress, const std::string &rosLocalAddress,
+                         const std::string &depthTopicName, const bool &depthTopicPublish,
+                         const std::string &videoTopicName, const bool &videoTopicPublish)
 {
     //create a map with the master and local addresses to pass to the ROS init function
     std::map<std::string, std::string> rosAddresses;
@@ -58,12 +60,15 @@ bool rosNodeWidget::init(const std::string &rosMasterAddress, const std::string 
         //acceleration publisher
         //depth publisher
         image_transport::ImageTransport imageTransportDepth(remoteUnitNodeHandle);
-        publisherDepth = imageTransportDepth.advertise("rscDepth", 1);
+        publisherDepth = imageTransportDepth.advertise(depthTopicName, 1);
+        publishDepth = depthTopicPublish;
         //gyroscope publisher
 
         //video publisher
         image_transport::ImageTransport imageTransportVideo(remoteUnitNodeHandle);
-        publisherVideo = imageTransportVideo.advertise("rscVideo", 1);
+        publisherVideo = imageTransportVideo.advertise(videoTopicName, 1);
+        publishVideo = videoTopicPublish;
+
         //starts Qt thread to run the publisher
         //does thread stuff and has thread call run()
         start();
@@ -137,21 +142,26 @@ void rosNodeWidget::run()
             if(rscPipe.poll_for_frames(&rscFrameSet))
             {
                 //TODO: move into publish function
-                //depth data publisher
-                rscPublishDepthFrame = rscFrameSet.get_depth_frame().apply_filter(rscColorizer);
-                width = rscPublishDepthFrame.as<rs2::video_frame>().get_width();
-                height = rscPublishDepthFrame.as<rs2::video_frame>().get_height();
-                cv::Mat imageDepth(cv::Size(width, height), CV_8UC3, (void*)rscPublishDepthFrame.get_data(), cv::Mat:: AUTO_STEP);
-                messageDepth = cv_bridge::CvImage(std_msgs::Header(), "rgb8", imageDepth).toImageMsg();
-                publisherDepth.publish(messageDepth);
-
-                //video data publisher
-                rscPublishVideoFrame = rscFrameSet.get_color_frame();
-                width = rscPublishVideoFrame.as<rs2::video_frame>().get_width();
-                height = rscPublishVideoFrame.as<rs2::video_frame>().get_height();
-                cv::Mat imageVideo(cv::Size(width, height), CV_8UC3, (void*)rscPublishVideoFrame.get_data(), cv::Mat:: AUTO_STEP);
-                messageVideo = cv_bridge::CvImage(std_msgs::Header(), "rgb8", imageVideo).toImageMsg();
-                publisherVideo.publish(messageVideo);
+                if(publishDepth == true)
+                {
+                    //depth data publisher
+                    rscPublishDepthFrame = rscFrameSet.get_depth_frame().apply_filter(rscColorizer);
+                    width = rscPublishDepthFrame.as<rs2::video_frame>().get_width();
+                    height = rscPublishDepthFrame.as<rs2::video_frame>().get_height();
+                    cv::Mat imageDepth(cv::Size(width, height), CV_8UC3, (void*)rscPublishDepthFrame.get_data(), cv::Mat:: AUTO_STEP);
+                    messageDepth = cv_bridge::CvImage(std_msgs::Header(), "rgb8", imageDepth).toImageMsg();
+                    publisherDepth.publish(messageDepth);
+                }
+                if(publishVideo == true)
+                {
+                    //video data publisher
+                    rscPublishVideoFrame = rscFrameSet.get_color_frame();
+                    width = rscPublishVideoFrame.as<rs2::video_frame>().get_width();
+                    height = rscPublishVideoFrame.as<rs2::video_frame>().get_height();
+                    cv::Mat imageVideo(cv::Size(width, height), CV_8UC3, (void*)rscPublishVideoFrame.get_data(), cv::Mat:: AUTO_STEP);
+                    messageVideo = cv_bridge::CvImage(std_msgs::Header(), "rgb8", imageVideo).toImageMsg();
+                    publisherVideo.publish(messageVideo);
+                }
             }
 
             ros::spinOnce();
