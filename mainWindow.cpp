@@ -136,6 +136,7 @@ void mainWindow::on_pushButtonPreview_clicked()
         showError("Unknown number of RealSense devices detected.");
         return;
     }
+
 }
 
 //private slot: on_pushButtonConnect_clicked

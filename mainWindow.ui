@@ -6,12 +6,16 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>630</width>
-    <height>450</height>
+    <width>612</width>
+    <height>438</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>FireFighterRemoteUnit</string>
+  </property>
+  <property name="styleSheet">
+   <string notr="true">background-color: rgb(235, 242, 250)
+</string>
   </property>
   <widget class="QWidget" name="centralwidget">
    <widget class="QPushButton" name="pushButtonPreview">
@@ -19,51 +23,99 @@
      <rect>
       <x>10</x>
       <y>10</y>
-      <width>300</width>
-      <height>200</height>
+      <width>291</width>
+      <height>181</height>
      </rect>
     </property>
+    <property name="font">
+     <font>
+      <pointsize>36</pointsize>
+      <weight>75</weight>
+      <bold>true</bold>
+     </font>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">background-color: rgb(50, 199, 86);
+color:rgb(235, 242, 250);
+border-radius: 10px;</string>
+    </property>
     <property name="text">
-     <string>Preview</string>
+     <string>PREVIEW</string>
     </property>
    </widget>
    <widget class="QPushButton" name="pushButtonPublish">
     <property name="geometry">
      <rect>
-      <x>320</x>
+      <x>310</x>
       <y>10</y>
-      <width>300</width>
-      <height>200</height>
+      <width>291</width>
+      <height>181</height>
      </rect>
     </property>
+    <property name="font">
+     <font>
+      <pointsize>36</pointsize>
+      <weight>75</weight>
+      <bold>true</bold>
+     </font>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">background-color: rgb(50, 199, 86);
+color:rgb(235, 242, 250);
+border-radius: 10px;</string>
+    </property>
     <property name="text">
-     <string>Publish</string>
+     <string>SEND</string>
     </property>
    </widget>
    <widget class="QPushButton" name="pushButtonView">
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>220</y>
-      <width>300</width>
-      <height>200</height>
+      <y>200</y>
+      <width>291</width>
+      <height>181</height>
      </rect>
     </property>
+    <property name="font">
+     <font>
+      <pointsize>36</pointsize>
+      <weight>75</weight>
+      <bold>true</bold>
+     </font>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">background-color: rgb(50, 199, 86);
+color:rgb(235, 242, 250);
+border-radius: 10px;</string>
+    </property>
     <property name="text">
-     <string>View</string>
+     <string>VIEW</string>
     </property>
    </widget>
    <widget class="QPushButton" name="pushButtonConfig">
     <property name="geometry">
      <rect>
-      <x>320</x>
-      <y>220</y>
-      <width>300</width>
-      <height>200</height>
+      <x>310</x>
+      <y>200</y>
+      <width>291</width>
+      <height>181</height>
      </rect>
     </property>
+    <property name="font">
+     <font>
+      <pointsize>36</pointsize>
+      <weight>75</weight>
+      <bold>true</bold>
+     </font>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">background-color: rgb(50, 199, 86);
+color:rgb(235, 242, 250);
+border-radius: 10px;</string>
+    </property>
     <property name="text">
-     <string>Config</string>
+     <string>CONFIG</string>
     </property>
    </widget>
   </widget>
@@ -73,8 +125,8 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>630</width>
-     <height>22</height>
+     <width>612</width>
+     <height>25</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu">
