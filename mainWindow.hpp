@@ -19,6 +19,9 @@
 //basic Qt includes
 #include <QMainWindow>
 
+//Qt webengine
+#include <QtWebEngineWidgets/QWebEngineView>
+
 namespace Ui
 {
     class mainWindow;

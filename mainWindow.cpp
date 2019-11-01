@@ -12,6 +12,17 @@ mainWindow::mainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::mainWi
     //initialize UI
     ui->setupUi(this);
 
+    QWebEngineView* viewDepthData;
+    viewDepthData = new QWebEngineView(this);
+    viewDepthData->load(QUrl("http://localhost:8080/stream_viewer?topic=/rscDepth"));
+    viewDepthData->setZoomFactor(0.68);
+    viewDepthData->page()->setBackgroundColor((Qt::transparent));
+    viewDepthData->show();
+    ui->tabCamera1VideoStream->addWidget(viewDepthData);
+
+    QPixmap pix("/home/jordan/Projects/firefighterbaseunit/PC.jpg");
+    ui->labelpc->setPixmap(pix);
+
     //connection to allow application to close rather than hang if ROS has to shutdown unexpectedly
     QObject::connect(&rosNode, SIGNAL(rosShutdown()), this, SLOT(close()));
 
@@ -36,6 +47,4 @@ mainWindow::~mainWindow()
 void mainWindow::updateDepth()
 {
     QPixmap buffer = QPixmap::fromImage(rosNode.getDepth());
-    ui->tabCamera1labelDepthImage->setPixmap(buffer);
-
 }
