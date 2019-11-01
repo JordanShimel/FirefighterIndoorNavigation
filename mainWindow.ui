@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>931</width>
-    <height>532</height>
+    <width>965</width>
+    <height>614</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -19,35 +19,53 @@
      <rect>
       <x>10</x>
       <y>10</y>
-      <width>911</width>
-      <height>461</height>
+      <width>1031</width>
+      <height>521</height>
      </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">background-color: rgb(235, 242, 250);
+border-radius: 10px;</string>
     </property>
     <property name="currentIndex">
      <number>0</number>
     </property>
     <widget class="QWidget" name="tabCamera1">
+     <property name="styleSheet">
+      <string notr="true"/>
+     </property>
      <attribute name="title">
       <string>Camera 1</string>
      </attribute>
-     <widget class="QOpenGLWidget" name="tabCamera1openGLWidgetPointcloud">
+     <widget class="QWidget" name="verticalLayoutWidget">
       <property name="geometry">
        <rect>
-        <x>460</x>
-        <y>10</y>
-        <width>441</width>
-        <height>341</height>
+        <x>9</x>
+        <y>9</y>
+        <width>461</width>
+        <height>381</height>
        </rect>
       </property>
+      <layout class="QVBoxLayout" name="tabCamera1VideoStream"/>
      </widget>
      <widget class="QLabel" name="tabCamera1labelCameraInfo">
       <property name="geometry">
        <rect>
         <x>10</x>
-        <y>360</y>
+        <y>400</y>
         <width>441</width>
         <height>61</height>
        </rect>
+      </property>
+      <property name="font">
+       <font>
+        <pointsize>12</pointsize>
+       </font>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">background-color: rgb(50, 199, 86);
+color: rgb(235, 242, 250);
+border-radius: 10px;</string>
       </property>
       <property name="frameShape">
        <enum>QFrame::Box</enum>
@@ -65,11 +83,21 @@
      <widget class="QLabel" name="tabCamera1labelPointCloudInfo">
       <property name="geometry">
        <rect>
-        <x>460</x>
-        <y>360</y>
-        <width>441</width>
+        <x>470</x>
+        <y>400</y>
+        <width>461</width>
         <height>61</height>
        </rect>
+      </property>
+      <property name="font">
+       <font>
+        <pointsize>12</pointsize>
+       </font>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">background-color: rgb(50, 199, 86);
+color: rgb(235, 242, 250);
+border-radius: 10px;</string>
       </property>
       <property name="frameShape">
        <enum>QFrame::Box</enum>
@@ -84,16 +112,18 @@
        <set>Qt::AlignCenter</set>
       </property>
      </widget>
-     <widget class="QWidget" name="verticalLayoutWidget">
+     <widget class="QLabel" name="labelpc">
       <property name="geometry">
        <rect>
-        <x>9</x>
-        <y>9</y>
-        <width>441</width>
-        <height>341</height>
+        <x>480</x>
+        <y>50</y>
+        <width>451</width>
+        <height>331</height>
        </rect>
       </property>
-      <layout class="QVBoxLayout" name="tabCamera1VideoStream"/>
+      <property name="text">
+       <string>TextLabel</string>
+      </property>
      </widget>
     </widget>
     <widget class="QWidget" name="tabCamera2">
@@ -217,7 +247,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>931</width>
+     <width>965</width>
      <height>22</height>
     </rect>
    </property>

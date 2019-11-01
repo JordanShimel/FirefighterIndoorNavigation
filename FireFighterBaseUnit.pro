@@ -28,6 +28,7 @@ FORMS += \
 
 #list of model files
 DISTFILES += \
+        PC.jpg \
         firefighterbaseunit.qmodel
 
 #ROS libraries
