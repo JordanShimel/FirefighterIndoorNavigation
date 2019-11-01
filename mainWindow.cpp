@@ -12,6 +12,13 @@ mainWindow::mainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::mainWi
     //initialize UI
     ui->setupUi(this);
 
+    QWebEngineView* _view;
+    _view = new QWebEngineView(this);
+    _view->load(QUrl("http://localhost:8080/stream_viewer?topic=/rscVideo"));
+    _view->setZoomFactor(0.5);
+    _view->show();
+    ui->tabCamera1VideoStream->addWidget(_view);
+
     //connection to allow application to close rather than hang if ROS has to shutdown unexpectedly
     QObject::connect(&rosNode, SIGNAL(rosShutdown()), this, SLOT(close()));
 
@@ -36,6 +43,4 @@ mainWindow::~mainWindow()
 void mainWindow::updateDepth()
 {
     QPixmap buffer = QPixmap::fromImage(rosNode.getDepth());
-    ui->tabCamera1labelDepthImage->setPixmap(buffer);
-
 }

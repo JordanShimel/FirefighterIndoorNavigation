@@ -1,5 +1,5 @@
 #indicates main Qt libraries to include
-QT += core gui widgets
+QT += core gui widgets webenginewidgets
 
 #indicates Qt warnings for deprecated functions should be shown
 DEFINES += QT_DEPRECATED_WARNINGS
