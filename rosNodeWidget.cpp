@@ -29,8 +29,7 @@ rosNodeWidget::~rosNodeWidget()
 //set up topics to publish via that node
 //creates thread to actually publish messages
 bool rosNodeWidget::init(const std::string &rosMasterAddress, const std::string &rosLocalAddress,
-                         const std::string &depthTopicName, const bool &depthTopicPublish,
-                         const std::string &videoTopicName, const bool &videoTopicPublish)
+                         const std::string &depthTopicName, const std::string &colorTopicName)
 {
     //create a map with the master and local addresses to pass to the ROS init function
     std::map<std::string, std::string> rosAddresses;
@@ -57,17 +56,17 @@ bool rosNodeWidget::init(const std::string &rosMasterAddress, const std::string 
         ros::NodeHandle remoteUnitNodeHandle;
 
         //assign publishers to this node
-        //acceleration publisher
+        //accelerometer publisher
+
+        //color publisher
+        image_transport::ImageTransport imageTransportColor(remoteUnitNodeHandle);
+        publisherColor = imageTransportColor.advertise(colorTopicName, 1);
+
         //depth publisher
         image_transport::ImageTransport imageTransportDepth(remoteUnitNodeHandle);
         publisherDepth = imageTransportDepth.advertise(depthTopicName, 1);
-        publishDepth = depthTopicPublish;
-        //gyroscope publisher
 
-        //video publisher
-        image_transport::ImageTransport imageTransportVideo(remoteUnitNodeHandle);
-        publisherVideo = imageTransportVideo.advertise(videoTopicName, 1);
-        publishVideo = videoTopicPublish;
+        //gyroscope publisher
 
         //starts Qt thread to run the publisher
         //does thread stuff and has thread call run()
@@ -109,7 +108,11 @@ void rosNodeWidget::run()
         const char* rscSerial = rscDevice.get_info(RS2_CAMERA_INFO_SERIAL_NUMBER);
         rs2::pipeline rscPipe(rscContext);
         rs2::config rscConfig;
-        rscConfig.enable_device(rscSerial);
+        rscConfig.enable_stream(RS2_STREAM_ACCEL);
+        rscConfig.enable_stream(RS2_STREAM_COLOR, 640, 480, RS2_FORMAT_ANY, 30);
+        rscConfig.enable_stream(RS2_STREAM_DEPTH, 640, 480, RS2_FORMAT_ANY, 30);
+        rscConfig.enable_stream(RS2_STREAM_GYRO);
+        //rscConfig.enable_device(rscSerial);
         rscPipe.start(rscConfig);
         rs2::colorizer rscColorizer;
         std::map<int, rs2::frame> rscPublishFrames;
@@ -122,18 +125,23 @@ void rosNodeWidget::run()
 
         //create message variables
         //accelerometer message
+        rs2::frame rscTempAccelFrame;
+        std_msgs::String messageAccel;
 
         //depth message
         rs2::frame rscPublishDepthFrame;
         sensor_msgs::ImagePtr messageDepth;
-        //gyroscope message
 
-        //video message
-        rs2::frame rscPublishVideoFrame;
-        sensor_msgs::ImagePtr messageVideo;
+        //gyroscope message
+        rs2::frame rscTempGyroFrame;
+        std_msgs::String messageGyro;
+
+        //color message
+        rs2::frame rscPublishColorFrame;
+        sensor_msgs::ImagePtr messageColor;
 
         //rosLoopRate is how many times the while loop will attempt to run per second
-        ros::Rate rosLoopRate(10);
+        ros::Rate rosLoopRate(1);
         while(ros::ok())
         {
             std::vector<rs2::frame> rscNewFrames;
@@ -141,27 +149,35 @@ void rosNodeWidget::run()
 
             if(rscPipe.poll_for_frames(&rscFrameSet))
             {
-                //TODO: move into publish function
-                if(publishDepth == true)
-                {
-                    //depth data publisher
-                    rscPublishDepthFrame = rscFrameSet.get_depth_frame().apply_filter(rscColorizer);
-                    width = rscPublishDepthFrame.as<rs2::video_frame>().get_width();
-                    height = rscPublishDepthFrame.as<rs2::video_frame>().get_height();
-                    cv::Mat imageDepth(cv::Size(width, height), CV_8UC3, (void*)rscPublishDepthFrame.get_data(), cv::Mat:: AUTO_STEP);
-                    messageDepth = cv_bridge::CvImage(std_msgs::Header(), "rgb8", imageDepth).toImageMsg();
-                    publisherDepth.publish(messageDepth);
-                }
-                if(publishVideo == true)
-                {
-                    //video data publisher
-                    rscPublishVideoFrame = rscFrameSet.get_color_frame();
-                    width = rscPublishVideoFrame.as<rs2::video_frame>().get_width();
-                    height = rscPublishVideoFrame.as<rs2::video_frame>().get_height();
-                    cv::Mat imageVideo(cv::Size(width, height), CV_8UC3, (void*)rscPublishVideoFrame.get_data(), cv::Mat:: AUTO_STEP);
-                    messageVideo = cv_bridge::CvImage(std_msgs::Header(), "rgb8", imageVideo).toImageMsg();
-                    publisherVideo.publish(messageVideo);
-                }
+                //accelerometer data publisher
+                rscTempAccelFrame = rscFrameSet.first(RS2_STREAM_ACCEL);
+                rs2::motion_frame rscPublishAccelFrame = rscTempAccelFrame.as<rs2::motion_frame>();
+                std::cout << "Accel X: " << rscPublishAccelFrame.get_motion_data().x << std::endl;
+                std::cout << "Accel Y: " << rscPublishAccelFrame.get_motion_data().y << std::endl;
+                std::cout << "Accel Z: " << rscPublishAccelFrame.get_motion_data().z << std::endl;
+
+                //color data publisher
+                rscPublishColorFrame = rscFrameSet.first(RS2_STREAM_COLOR);
+                width = rscPublishColorFrame.as<rs2::video_frame>().get_width();
+                height = rscPublishColorFrame.as<rs2::video_frame>().get_height();
+                cv::Mat imageColor(cv::Size(width, height), CV_8UC3, (void*)rscPublishColorFrame.get_data(), cv::Mat:: AUTO_STEP);
+                messageColor = cv_bridge::CvImage(std_msgs::Header(), "rgb8", imageColor).toImageMsg();
+                publisherColor.publish(messageColor);
+
+                //depth data publisher
+                rscPublishDepthFrame = rscFrameSet.first(RS2_STREAM_DEPTH).apply_filter(rscColorizer);
+                width = rscPublishDepthFrame.as<rs2::video_frame>().get_width();
+                height = rscPublishDepthFrame.as<rs2::video_frame>().get_height();
+                cv::Mat imageDepth(cv::Size(width, height), CV_8UC3, (void*)rscPublishDepthFrame.get_data(), cv::Mat:: AUTO_STEP);
+                messageDepth = cv_bridge::CvImage(std_msgs::Header(), "rgb8", imageDepth).toImageMsg();
+                publisherDepth.publish(messageDepth);
+
+                //gyroscope data publisher
+                rscTempGyroFrame = rscFrameSet.first(RS2_STREAM_GYRO);
+                rs2::motion_frame rscPublishGyroFrame = rscTempGyroFrame.as<rs2::motion_frame>();
+                std::cout << "Gyro X: " << rscPublishGyroFrame.get_motion_data().x << std::endl;
+                std::cout << "Gyro Y: " << rscPublishGyroFrame.get_motion_data().y << std::endl;
+                std::cout << "Gyro Z: " << rscPublishGyroFrame.get_motion_data().z << std::endl << std::endl;
             }
 
             ros::spinOnce();

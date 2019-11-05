@@ -50,8 +50,7 @@ class rosNodeWidget : public QThread
         //init creates a ROS node if one doesn't already exist
         //it then initiates the main publishing loop in run
         bool init(const std::string &rosMasterAddress, const std::string &rosLocalAddress,
-                  const std::string &depthTopicName, const bool &depthTopicPublish,
-                  const std::string &videoTopicName, const bool &videoTopicPublish);
+                  const std::string &depthTopicName, const std::string &colorTopicName);
         //run is called by init and handles the main publishing loop
         void run();
         //stop terminates the QThread publishing ROS messages
@@ -63,18 +62,14 @@ class rosNodeWidget : public QThread
 
 
     private:
-        //ROS publisher for acceleration data
+        //ROS publisher for accelerometer data
         ros::Publisher publisherAccel;
+        //ROS image publisher for color data
+        image_transport::Publisher publisherColor;
         //ROS image publisher for depth data
         image_transport::Publisher publisherDepth;
         //ROS publisher for gyroscope data
         ros::Publisher publisherGyro;
-        //ROS image publisher for video data
-        image_transport::Publisher publisherVideo;
-        //flag to publish depth
-        bool publishDepth = false;
-        //flag to publish video
-        bool publishVideo = false;
 
         //publish is called by run and takes care of publishing a single set of messages
         void publish(const std::map<int, rs2::frame> rscFrames);
