@@ -29,6 +29,9 @@
 //allows the creation of simple message boxes
 #include <QMessageBox>
 
+//allows using Qt's setting system
+#include <QSettings>
+
 namespace Ui
 {
     class mainWindow;
@@ -56,7 +59,7 @@ class mainWindow : public QMainWindow
         //on_pushButtonConfig_clicked makes the config fields visible and hides the main ui elements
         void on_pushButtonConfig_clicked();
 
-private:
+    private:
         //ui is used to access all the GUI Qt elements
         Ui::mainWindow *ui;
         //rosNode is used to assign a persistent ROS node to this window
@@ -68,6 +71,12 @@ private:
 
         //showError displays an error window
         void showError(QString errorMessage);
+        //initUI sets the initial state of UI elements
+        void initUI();
+        //loadSettings reads settings from the config file
+        void loadSettings();
+        //saveSettings writes settings to the config file
+        void saveSettings();
 };
 
 #endif

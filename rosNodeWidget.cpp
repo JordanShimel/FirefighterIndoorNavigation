@@ -29,7 +29,9 @@ rosNodeWidget::~rosNodeWidget()
 //set up topics to publish via that node
 //creates thread to actually publish messages
 bool rosNodeWidget::init(const std::string &rosMasterAddress, const std::string &rosLocalAddress,
-                         const std::string &depthTopicName, const std::string &colorTopicName)
+                         const std::string &accelTopicName, const std::string &colorTopicName,
+                         const std::string &depthTopicName, const std::string &gyroTopicName,
+                         const float &publishRate)
 {
     //create a map with the master and local addresses to pass to the ROS init function
     std::map<std::string, std::string> rosAddresses;
@@ -57,6 +59,7 @@ bool rosNodeWidget::init(const std::string &rosMasterAddress, const std::string 
 
         //assign publishers to this node
         //accelerometer publisher
+        publisherAccel = remoteUnitNodeHandle.advertise<std_msgs::String>(accelTopicName, 1);
 
         //color publisher
         image_transport::ImageTransport imageTransportColor(remoteUnitNodeHandle);
@@ -67,6 +70,10 @@ bool rosNodeWidget::init(const std::string &rosMasterAddress, const std::string 
         publisherDepth = imageTransportDepth.advertise(depthTopicName, 1);
 
         //gyroscope publisher
+        publisherGyro = remoteUnitNodeHandle.advertise<std_msgs::String>(gyroTopicName, 1);
+
+        //set publish rate value
+        publisherRate = publishRate;
 
         //starts Qt thread to run the publisher
         //does thread stuff and has thread call run()
@@ -105,14 +112,12 @@ void rosNodeWidget::run()
     else if(rscDeviceCount == 1)
     {
         rs2::device rscDevice = rscDevices[0];
-        const char* rscSerial = rscDevice.get_info(RS2_CAMERA_INFO_SERIAL_NUMBER);
         rs2::pipeline rscPipe(rscContext);
         rs2::config rscConfig;
         rscConfig.enable_stream(RS2_STREAM_ACCEL);
         rscConfig.enable_stream(RS2_STREAM_COLOR, 640, 480, RS2_FORMAT_ANY, 30);
         rscConfig.enable_stream(RS2_STREAM_DEPTH, 640, 480, RS2_FORMAT_ANY, 30);
         rscConfig.enable_stream(RS2_STREAM_GYRO);
-        //rscConfig.enable_device(rscSerial);
         rscPipe.start(rscConfig);
         rs2::colorizer rscColorizer;
         std::map<int, rs2::frame> rscPublishFrames;
@@ -128,6 +133,10 @@ void rosNodeWidget::run()
         rs2::frame rscTempAccelFrame;
         std_msgs::String messageAccel;
 
+        //color message
+        rs2::frame rscPublishColorFrame;
+        sensor_msgs::ImagePtr messageColor;
+
         //depth message
         rs2::frame rscPublishDepthFrame;
         sensor_msgs::ImagePtr messageDepth;
@@ -136,12 +145,9 @@ void rosNodeWidget::run()
         rs2::frame rscTempGyroFrame;
         std_msgs::String messageGyro;
 
-        //color message
-        rs2::frame rscPublishColorFrame;
-        sensor_msgs::ImagePtr messageColor;
-
         //rosLoopRate is how many times the while loop will attempt to run per second
-        ros::Rate rosLoopRate(1);
+        ros::Rate rosLoopRate(publisherRate);
+
         while(ros::ok())
         {
             std::vector<rs2::frame> rscNewFrames;
@@ -152,9 +158,10 @@ void rosNodeWidget::run()
                 //accelerometer data publisher
                 rscTempAccelFrame = rscFrameSet.first(RS2_STREAM_ACCEL);
                 rs2::motion_frame rscPublishAccelFrame = rscTempAccelFrame.as<rs2::motion_frame>();
-                std::cout << "Accel X: " << rscPublishAccelFrame.get_motion_data().x << std::endl;
-                std::cout << "Accel Y: " << rscPublishAccelFrame.get_motion_data().y << std::endl;
-                std::cout << "Accel Z: " << rscPublishAccelFrame.get_motion_data().z << std::endl;
+                std::stringstream stringStreamAccelMessage;
+                stringStreamAccelMessage << "Accel X: " << rscPublishAccelFrame.get_motion_data().x << ", Accel Y: " << rscPublishAccelFrame.get_motion_data().y << ", Accel Z" << rscPublishAccelFrame.get_motion_data().z << std::endl;
+                messageAccel.data = stringStreamAccelMessage.str();
+                publisherAccel.publish(messageAccel);
 
                 //color data publisher
                 rscPublishColorFrame = rscFrameSet.first(RS2_STREAM_COLOR);
@@ -175,9 +182,10 @@ void rosNodeWidget::run()
                 //gyroscope data publisher
                 rscTempGyroFrame = rscFrameSet.first(RS2_STREAM_GYRO);
                 rs2::motion_frame rscPublishGyroFrame = rscTempGyroFrame.as<rs2::motion_frame>();
-                std::cout << "Gyro X: " << rscPublishGyroFrame.get_motion_data().x << std::endl;
-                std::cout << "Gyro Y: " << rscPublishGyroFrame.get_motion_data().y << std::endl;
-                std::cout << "Gyro Z: " << rscPublishGyroFrame.get_motion_data().z << std::endl << std::endl;
+                std::stringstream stringStreamGyroMessage;
+                stringStreamGyroMessage << "Gyro X: " << rscPublishGyroFrame.get_motion_data().x << ", Gyro Y: " << rscPublishGyroFrame.get_motion_data().y << ", Gyro Z" << rscPublishGyroFrame.get_motion_data().z << std::endl;
+                messageGyro.data = stringStreamGyroMessage.str();
+                publisherGyro.publish(messageGyro);
             }
 
             ros::spinOnce();
@@ -210,13 +218,6 @@ bool rosNodeWidget::stop()
 {
     terminate();
     return true;
-}
-
-//private: publish
-//TODO: move frame publishing logic here
-void rosNodeWidget::publish(const std::map<int, rs2::frame> rscFrames)
-{
-
 }
 
 //private: showError
