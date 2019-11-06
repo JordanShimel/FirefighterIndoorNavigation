@@ -176,7 +176,8 @@ void rosNodeWidget::run()
                 rscPublishDepthFrame = rscFrameSet.first(RS2_STREAM_DEPTH);
                 width = rscPublishDepthFrame.as<rs2::video_frame>().get_width();
                 height = rscPublishDepthFrame.as<rs2::video_frame>().get_height();
-                cv::Mat imageDepth(cv::Size(width, height), CV_8UC1, (void*)rscPublishDepthFrame.get_data(), cv::Mat:: AUTO_STEP);
+                cv::Mat imageDepth(cv::Size(width, height), CV_16U, (void*)rscPublishDepthFrame.get_data(), cv::Mat:: AUTO_STEP);
+                imageDepth.convertTo(imageDepth, CV_8UC1, 255.0/1000);
                 messageDepth = cv_bridge::CvImage(std_msgs::Header(), "mono8", imageDepth).toImageMsg();
                 publisherDepth.publish(messageDepth);
 
