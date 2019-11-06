@@ -115,11 +115,12 @@ void rosNodeWidget::run()
         rs2::pipeline rscPipe(rscContext);
         rs2::config rscConfig;
         rscConfig.enable_stream(RS2_STREAM_ACCEL);
-        rscConfig.enable_stream(RS2_STREAM_COLOR, 640, 480, RS2_FORMAT_ANY, 30);
-        rscConfig.enable_stream(RS2_STREAM_DEPTH, 640, 480, RS2_FORMAT_ANY, 30);
+        rscConfig.enable_stream(RS2_STREAM_COLOR);
+        rscConfig.enable_stream(RS2_STREAM_DEPTH);
         rscConfig.enable_stream(RS2_STREAM_GYRO);
         rscPipe.start(rscConfig);
         rs2::colorizer rscColorizer;
+        rs2::decimation_filter rscDecimator;
         std::map<int, rs2::frame> rscPublishFrames;
 
         //create variables used to build messages
@@ -172,11 +173,11 @@ void rosNodeWidget::run()
                 publisherColor.publish(messageColor);
 
                 //depth data publisher
-                rscPublishDepthFrame = rscFrameSet.first(RS2_STREAM_DEPTH).apply_filter(rscColorizer);
+                rscPublishDepthFrame = rscFrameSet.first(RS2_STREAM_DEPTH);
                 width = rscPublishDepthFrame.as<rs2::video_frame>().get_width();
                 height = rscPublishDepthFrame.as<rs2::video_frame>().get_height();
-                cv::Mat imageDepth(cv::Size(width, height), CV_8UC3, (void*)rscPublishDepthFrame.get_data(), cv::Mat:: AUTO_STEP);
-                messageDepth = cv_bridge::CvImage(std_msgs::Header(), "rgb8", imageDepth).toImageMsg();
+                cv::Mat imageDepth(cv::Size(width, height), CV_8UC1, (void*)rscPublishDepthFrame.get_data(), cv::Mat:: AUTO_STEP);
+                messageDepth = cv_bridge::CvImage(std_msgs::Header(), "mono8", imageDepth).toImageMsg();
                 publisherDepth.publish(messageDepth);
 
                 //gyroscope data publisher
