@@ -46,3 +46,24 @@ LIBS += -L/opt/ros/kinetic/lib/x86_64-linux-gnu/ -lopencv_core3 -lopencv_imgcode
 INCLUDEPATH += /usr/local/include/opencv4/
 DEPENDPATH += /usr/local/include/
 LIBS += -L/usr/local/lib -lopencv_core
+
+unix:!macx: LIBS += -L$$PWD/../../ORB_SLAM2/lib/ -lORB_SLAM2
+
+INCLUDEPATH += $$PWD/../../ORB_SLAM2/include
+DEPENDPATH += $$PWD/../../ORB_SLAM2/include
+INCLUDEPATH += $$PWD/../../ORB_SLAM2/
+DEPENDPATH += $$PWD/../../ORB_SLAM2/
+INCLUDEPATH += /opt/ros/kinetic/include/opencv-3.3.1-dev/
+DEPENDPATH += /opt/ros/kinetic/include/opencv-3.3.1-dev/
+
+unix:!macx: LIBS += -L$$PWD/../../Pangolin/build/src/ -lpangolin
+
+INCLUDEPATH += $$PWD/../../Pangolin/build/src/
+DEPENDPATH += $$PWD/../../Pangolin/build/src/
+INCLUDEPATH += /home/jordan/Pangolin/include/
+DEPENDPATH += /home/jordan/Pangolin/include/
+INCLUDEPATH += /home/jordan/Pangolin/build/src/include/
+DEPENDPATH += /home/jordan/Pangolin/build/src/include/
+INCLUDEPATH += /home/jordan/eigen-eigen-323c052e1731/
+DEPENDPATH += /home/jordan/eigen-eigen-323c052e1731/
+LIBS += -L/usr/lib/x86_64-linux-gnu/ -lrealsense2 -lglfw -lGL -lGLU -lGLEW
