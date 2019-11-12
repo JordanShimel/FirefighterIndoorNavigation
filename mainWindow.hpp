@@ -40,9 +40,6 @@ class mainWindow : public QMainWindow
 
     private slots:
         void updatePointCloud();
-        //updateDepth fires on receipt of a signal for rosNodeWidget, prompting depth data update
-        void updateDepth();
-
 
     private:
         //ui is used to access all the GUI Qt elements

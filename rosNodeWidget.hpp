@@ -4,6 +4,9 @@
 #ifndef ROSNODEWIDGET_HPP
 #define ROSNODEWIDGET_HPP
 
+//pointcloud widget file
+#include "pointcloudWidget.hpp"
+
 //default ROS header
 #include <ros/ros.h>
 
@@ -12,6 +15,7 @@
 
 //ROS standard messages are used to subscribe to text based message data
 #include <std_msgs/String.h>
+#include <sensor_msgs/Imu.h>
 
 //cv_bridge is used to convert data between OpenCV format and ROS image message format
 #include <cv_bridge/cv_bridge.h>
@@ -22,6 +26,7 @@
 //allows the creation of simple message boxes
 #include <QMessageBox>
 
+#include "../../ORB_SLAM2/include/System.h"
 //rosNodeWidget class, manages ROS node and subscribing
 class rosNodeWidget : public QThread
 {
@@ -40,42 +45,30 @@ class rosNodeWidget : public QThread
         void run();
         //stop terminates the QThread subscribing to ROS messages
         bool stop();
-        //getAccel will return acceleration data
-        void getAccel();
-        //getDepth returns depth data as a QImage
-        QImage getDepth();
-        //getGyro will return gyroscope data
-        void getGyro();
 
     Q_SIGNALS:
         //rosShutdown is used to signal an unexpected stopping of the ROS node to the main application
         void rosShutdown();
-        //receivedAccel is used to signal the receipt of a frame of acceleration data to the main application
-        void receivedAccel();
-        //receivedDepth is used to signal the receipt of a frame of depth data to the main application
-        void receivedDepth();
-        //receivedGyro is used to signal the receipt of a frame of gyroscope data to the main application
-        void receivedGyro();
 
     private:
-        //ROS subsciber for acceleration data
-        ros::Subscriber subscriberAccel;
         //ROS image subsciber for depth data
         image_transport::Subscriber subscriberDepth;
-        //ROS subsciber for gyroscope data
-        ros::Subscriber subscriberGyro;
+        //ROS color subscriber for color data
+        image_transport::Subscriber subscriberColor;
+        //ROS IMU subscriber for IMU data
+        ros::Subscriber subscriberIMU;
 
-        //holder for acceleration data
-        //holder for depth data
-        QImage qimageDepth;
-        //holder for gyroscope data
+        sensor_msgs::ImageConstPtr depthMessageContainer;
+        sensor_msgs::ImageConstPtr colorMessageContainer;
+        sensor_msgs::Imu imuMessageContainer;
 
-        //callback for acceleration messages
-        void callbackAccel(const std_msgs::String::ConstPtr &accelMessage);
+        pointcloudWidget pcw;
         //callback for depth messages
         void callbackDepth(const sensor_msgs::ImageConstPtr &depthMessage);
-        //callback for gyroscope messages
-        void callbackGyro(const std_msgs::String::ConstPtr &gyroMessage);
+        //callback for color messages
+        void callbackColor(const sensor_msgs::ImageConstPtr &colorMessage);
+        //callback for IMU messages
+        void callbackIMU(const sensor_msgs::Imu &imuMessage);
 };
 
 #endif

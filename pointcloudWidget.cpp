@@ -7,9 +7,9 @@
 
 #include "pointcloudWidget.hpp"
 
+
 pointcloudWidget::pointcloudWidget()
 {
-
 }
 
 pointcloudWidget::~pointcloudWidget()
@@ -17,27 +17,36 @@ pointcloudWidget::~pointcloudWidget()
 
 }
 
-void pointcloudWidget::buildPointcloud()
+void pointcloudWidget::setSLAM(ORB_SLAM2::System* pSLAM)
 {
-
+    mpSLAM = pSLAM;
 }
 
-void pointcloudWidget::displayPointcloud()
+
+void pointcloudWidget::grabRGBD(const sensor_msgs::ImageConstPtr &msgColor, const sensor_msgs::ImageConstPtr &msgDepth)
 {
+    // Copy the ros image message to cv::Mat.
+        cv_bridge::CvImageConstPtr cv_ptrRGB;
+        try
+        {
+            cv_ptrRGB = cv_bridge::toCvShare(msgColor);
+        }
+        catch (cv_bridge::Exception& e)
+        {
+            ROS_ERROR("cv_bridge exception: %s", e.what());
+            return;
+        }
 
-}
+        cv_bridge::CvImageConstPtr cv_ptrD;
+        try
+        {
+            cv_ptrD = cv_bridge::toCvShare(msgDepth);
+        }
+        catch (cv_bridge::Exception& e)
+        {
+            ROS_ERROR("cv_bridge exception: %s", e.what());
+            return;
+        }
 
-void pointcloudWidget::startManipulatingPointcloud()
-{
-
-}
-
-void pointcloudWidget::stopManipulatingPointcloud()
-{
-
-}
-
-void pointcloudWidget::capturePointcloud()
-{
-
+        mpSLAM->TrackRGBD(cv_ptrRGB->image,cv_ptrD->image,cv_ptrRGB->header.stamp.toSec());
 }
