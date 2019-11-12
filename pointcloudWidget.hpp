@@ -8,6 +8,8 @@
 #ifndef POINTCLOUDWIDGET_HPP
 #define POINTCLOUDWIDGET_HPP
 
+#include "../../ORB_SLAM2/include/System.h"
+
 //pointcloudWidget class, manages pointcloud functionality
 //TODO: current functions are a guess at functionality required, update as needed
 class pointcloudWidget

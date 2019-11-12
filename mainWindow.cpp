@@ -44,6 +44,11 @@ mainWindow::~mainWindow()
     delete ui;
 }
 
+void mainWindow::updatePointCloud()
+{
+
+}
+
 void mainWindow::updateDepth()
 {
     QPixmap buffer = QPixmap::fromImage(rosNode.getDepth());
