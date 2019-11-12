@@ -72,6 +72,8 @@ bool rosNodeWidget::init(const std::string &rosMasterAddress, const std::string 
         //gyroscope publisher
         publisherGyro = remoteUnitNodeHandle.advertise<std_msgs::String>(gyroTopicName, 1);
 
+        //imu publisher
+        publisherImu = remoteUnitNodeHandle.advertise<sensor_msgs::Imu>("rscImu", 1);
         //set publish rate value
         publisherRate = publishRate;
 
@@ -146,6 +148,9 @@ void rosNodeWidget::run()
         rs2::frame rscTempGyroFrame;
         std_msgs::String messageGyro;
 
+        //imu message
+        sensor_msgs::Imu messageImu;
+
         //rosLoopRate is how many times the while loop will attempt to run per second
         ros::Rate rosLoopRate(publisherRate);
 
@@ -158,11 +163,11 @@ void rosNodeWidget::run()
             {
                 //accelerometer data publisher
                 rscTempAccelFrame = rscFrameSet.first(RS2_STREAM_ACCEL);
-                rs2::motion_frame rscPublishAccelFrame = rscTempAccelFrame.as<rs2::motion_frame>();
+                /*rs2::motion_frame rscPublishAccelFrame = rscTempAccelFrame.as<rs2::motion_frame>();
                 std::stringstream stringStreamAccelMessage;
                 stringStreamAccelMessage << "Accel X: " << rscPublishAccelFrame.get_motion_data().x << ", Accel Y: " << rscPublishAccelFrame.get_motion_data().y << ", Accel Z" << rscPublishAccelFrame.get_motion_data().z << std::endl;
                 messageAccel.data = stringStreamAccelMessage.str();
-                publisherAccel.publish(messageAccel);
+                publisherAccel.publish(messageAccel);*/
 
                 //color data publisher
                 rscPublishColorFrame = rscFrameSet.first(RS2_STREAM_COLOR);
@@ -183,11 +188,20 @@ void rosNodeWidget::run()
 
                 //gyroscope data publisher
                 rscTempGyroFrame = rscFrameSet.first(RS2_STREAM_GYRO);
-                rs2::motion_frame rscPublishGyroFrame = rscTempGyroFrame.as<rs2::motion_frame>();
+                /*rs2::motion_frame rscPublishGyroFrame = rscTempGyroFrame.as<rs2::motion_frame>();
                 std::stringstream stringStreamGyroMessage;
                 stringStreamGyroMessage << "Gyro X: " << rscPublishGyroFrame.get_motion_data().x << ", Gyro Y: " << rscPublishGyroFrame.get_motion_data().y << ", Gyro Z" << rscPublishGyroFrame.get_motion_data().z << std::endl;
                 messageGyro.data = stringStreamGyroMessage.str();
-                publisherGyro.publish(messageGyro);
+                publisherGyro.publish(messageGyro);*/
+
+                //imu data publisher
+                messageImu.angular_velocity.x = rscTempGyroFrame.as<rs2::motion_frame>().get_motion_data().x;
+                messageImu.angular_velocity.y = rscTempGyroFrame.as<rs2::motion_frame>().get_motion_data().y;
+                messageImu.angular_velocity.z = rscTempGyroFrame.as<rs2::motion_frame>().get_motion_data().z;
+                messageImu.linear_acceleration.x = rscTempGyroFrame.as<rs2::motion_frame>().get_motion_data().x;
+                messageImu.linear_acceleration.y = rscTempGyroFrame.as<rs2::motion_frame>().get_motion_data().y;
+                messageImu.linear_acceleration.z = rscTempGyroFrame.as<rs2::motion_frame>().get_motion_data().z;
+                publisherImu.publish(messageImu);
             }
 
             ros::spinOnce();
