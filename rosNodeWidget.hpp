@@ -15,6 +15,9 @@
 //ROS string handler
 #include <std_msgs/String.h>
 
+//ROS IMU message handler
+#include <sensor_msgs/Imu.h>
+
 //OpenCV is used to convert data from Realsense format to OpenCV format
 #include <opencv2/core.hpp>
 
@@ -72,6 +75,7 @@ class rosNodeWidget : public QThread
         image_transport::Publisher publisherDepth;        
         //ROS publisher for gyroscope data
         ros::Publisher publisherGyro;
+        ros::Publisher publisherImu;
         //ROS rate setting, determines how many times per second the application will attempt to publish
         //TODO: rename this
         float publisherRate;
