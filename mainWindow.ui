@@ -112,18 +112,16 @@ border-radius: 10px;</string>
        <set>Qt::AlignCenter</set>
       </property>
      </widget>
-     <widget class="QLabel" name="labelpc">
+     <widget class="QWidget" name="verticalLayoutWidget_2">
       <property name="geometry">
        <rect>
         <x>480</x>
-        <y>50</y>
-        <width>451</width>
-        <height>331</height>
+        <y>10</y>
+        <width>461</width>
+        <height>381</height>
        </rect>
       </property>
-      <property name="text">
-       <string>TextLabel</string>
-      </property>
+      <layout class="QVBoxLayout" name="tabCamera1PC"/>
      </widget>
     </widget>
     <widget class="QWidget" name="tabCamera2">
