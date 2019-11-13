@@ -39,16 +39,21 @@ class mainWindow : public QMainWindow
         ~mainWindow();
 
     private slots:
-        //TODO:updateAccel
+        void updatePointCloud();
         //updateDepth fires on receipt of a signal for rosNodeWidget, prompting depth data update
         void updateDepth();
-        //TODO:updateGyro
+
 
     private:
         //ui is used to access all the GUI Qt elements
         Ui::mainWindow *ui;
+
+
         //rosNode is used to assign a persistent ROS node to this window
         rosNodeWidget rosNode;
+        void initVidView();
+        void initRosNodes();
+        void initPCView();
 };
 
 #endif
