@@ -53,9 +53,8 @@ class rosNodeWidget : public QThread
         //init creates a ROS node if one doesn't already exist
         //it then initiates the main publishing loop in run
         bool init(const std::string &rosMasterAddress, const std::string &rosLocalAddress,
-                  const std::string &accelTopicName, const std::string &colorTopicName,
-                  const std::string &depthTopicName, const std::string &gyroTopicName,
-                  const float &publishRate);
+                  const std::string &colorTopicName, const std::string &depthTopicName,
+                  const std::string &imuTopicName, const float &publishRate);
         //run is called by init and handles the main publishing loop
         void run();
         //stop terminates the QThread publishing ROS messages
@@ -67,18 +66,14 @@ class rosNodeWidget : public QThread
 
 
     private:
-        //ROS publisher for accelerometer data
-        ros::Publisher publisherAccel;
         //ROS image publisher for color data
         image_transport::Publisher publisherColor;
         //ROS image publisher for depth data
         image_transport::Publisher publisherDepth;        
-        //ROS publisher for gyroscope data
-        ros::Publisher publisherGyro;
+        //ROS publisher for IMU data
         ros::Publisher publisherImu;
         //ROS rate setting, determines how many times per second the application will attempt to publish
-        //TODO: rename this
-        float publisherRate;
+        float publishingRate;
 
         //showError displays an error window
         void showError(QString errorMessage);

@@ -29,9 +29,8 @@ rosNodeWidget::~rosNodeWidget()
 //set up topics to publish via that node
 //creates thread to actually publish messages
 bool rosNodeWidget::init(const std::string &rosMasterAddress, const std::string &rosLocalAddress,
-                         const std::string &accelTopicName, const std::string &colorTopicName,
-                         const std::string &depthTopicName, const std::string &gyroTopicName,
-                         const float &publishRate)
+                         const std::string &colorTopicName, const std::string &depthTopicName,
+                         const std::string &imuTopicName, const float &publishRate)
 {
     //create a map with the master and local addresses to pass to the ROS init function
     std::map<std::string, std::string> rosAddresses;
@@ -58,8 +57,6 @@ bool rosNodeWidget::init(const std::string &rosMasterAddress, const std::string 
         ros::NodeHandle remoteUnitNodeHandle;
 
         //assign publishers to this node
-        //accelerometer publisher
-        publisherAccel = remoteUnitNodeHandle.advertise<std_msgs::String>(accelTopicName, 1);
 
         //color publisher
         image_transport::ImageTransport imageTransportColor(remoteUnitNodeHandle);
@@ -69,13 +66,11 @@ bool rosNodeWidget::init(const std::string &rosMasterAddress, const std::string 
         image_transport::ImageTransport imageTransportDepth(remoteUnitNodeHandle);
         publisherDepth = imageTransportDepth.advertise(depthTopicName, 1);
 
-        //gyroscope publisher
-        publisherGyro = remoteUnitNodeHandle.advertise<std_msgs::String>(gyroTopicName, 1);
-
         //imu publisher
-        publisherImu = remoteUnitNodeHandle.advertise<sensor_msgs::Imu>("rscImu", 1);
+        publisherImu = remoteUnitNodeHandle.advertise<sensor_msgs::Imu>(imuTopicName, 1);
+
         //set publish rate value
-        publisherRate = publishRate;
+        publishingRate = publishRate;
 
         //starts Qt thread to run the publisher
         //does thread stuff and has thread call run()
@@ -121,9 +116,6 @@ void rosNodeWidget::run()
         rscConfig.enable_stream(RS2_STREAM_DEPTH);
         rscConfig.enable_stream(RS2_STREAM_GYRO);
         rscPipe.start(rscConfig);
-        rs2::colorizer rscColorizer;
-        rs2::decimation_filter rscDecimator;
-        std::map<int, rs2::frame> rscPublishFrames;
 
         //create variables used to build messages
         //height of camera output
@@ -132,10 +124,6 @@ void rosNodeWidget::run()
         int width = 0;
 
         //create message variables
-        //accelerometer message
-        rs2::frame rscTempAccelFrame;
-        std_msgs::String messageAccel;
-
         //color message
         rs2::frame rscPublishColorFrame;
         sensor_msgs::ImagePtr messageColor;
@@ -144,15 +132,13 @@ void rosNodeWidget::run()
         rs2::frame rscPublishDepthFrame;
         sensor_msgs::ImagePtr messageDepth;
 
-        //gyroscope message
-        rs2::frame rscTempGyroFrame;
-        std_msgs::String messageGyro;
-
         //imu message
+        rs2::frame rscTempAccelFrame;
+        rs2::frame rscTempGyroFrame;
         sensor_msgs::Imu messageImu;
 
         //rosLoopRate is how many times the while loop will attempt to run per second
-        ros::Rate rosLoopRate(publisherRate);
+        ros::Rate rosLoopRate(publishingRate);
 
         while(ros::ok())
         {
@@ -161,14 +147,6 @@ void rosNodeWidget::run()
 
             if(rscPipe.poll_for_frames(&rscFrameSet))
             {
-                //accelerometer data publisher
-                rscTempAccelFrame = rscFrameSet.first(RS2_STREAM_ACCEL);
-                /*rs2::motion_frame rscPublishAccelFrame = rscTempAccelFrame.as<rs2::motion_frame>();
-                std::stringstream stringStreamAccelMessage;
-                stringStreamAccelMessage << "Accel X: " << rscPublishAccelFrame.get_motion_data().x << ", Accel Y: " << rscPublishAccelFrame.get_motion_data().y << ", Accel Z" << rscPublishAccelFrame.get_motion_data().z << std::endl;
-                messageAccel.data = stringStreamAccelMessage.str();
-                publisherAccel.publish(messageAccel);*/
-
                 //color data publisher
                 rscPublishColorFrame = rscFrameSet.first(RS2_STREAM_COLOR);
                 width = rscPublishColorFrame.as<rs2::video_frame>().get_width();
@@ -182,19 +160,14 @@ void rosNodeWidget::run()
                 width = rscPublishDepthFrame.as<rs2::video_frame>().get_width();
                 height = rscPublishDepthFrame.as<rs2::video_frame>().get_height();
                 cv::Mat imageDepth(cv::Size(width, height), CV_16U, (void*)rscPublishDepthFrame.get_data(), cv::Mat:: AUTO_STEP);
+                //TODO:Investigate the 255/1000 conversion ratio here, may be squashing range too much? - Jordan
                 imageDepth.convertTo(imageDepth, CV_8UC1, 255.0/1000);
                 messageDepth = cv_bridge::CvImage(std_msgs::Header(), "mono8", imageDepth).toImageMsg();
                 publisherDepth.publish(messageDepth);
 
-                //gyroscope data publisher
-                rscTempGyroFrame = rscFrameSet.first(RS2_STREAM_GYRO);
-                /*rs2::motion_frame rscPublishGyroFrame = rscTempGyroFrame.as<rs2::motion_frame>();
-                std::stringstream stringStreamGyroMessage;
-                stringStreamGyroMessage << "Gyro X: " << rscPublishGyroFrame.get_motion_data().x << ", Gyro Y: " << rscPublishGyroFrame.get_motion_data().y << ", Gyro Z" << rscPublishGyroFrame.get_motion_data().z << std::endl;
-                messageGyro.data = stringStreamGyroMessage.str();
-                publisherGyro.publish(messageGyro);*/
-
                 //imu data publisher
+                rscTempAccelFrame = rscFrameSet.first(RS2_STREAM_ACCEL);
+                rscTempGyroFrame = rscFrameSet.first(RS2_STREAM_GYRO);
                 messageImu.angular_velocity.x = rscTempGyroFrame.as<rs2::motion_frame>().get_motion_data().x;
                 messageImu.angular_velocity.y = rscTempGyroFrame.as<rs2::motion_frame>().get_motion_data().y;
                 messageImu.angular_velocity.z = rscTempGyroFrame.as<rs2::motion_frame>().get_motion_data().z;

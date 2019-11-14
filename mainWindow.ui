@@ -123,7 +123,7 @@ border-radius: 10px;</string>
      <rect>
       <x>310</x>
       <y>10</y>
-      <width>211</width>
+      <width>281</width>
       <height>31</height>
      </rect>
     </property>
@@ -138,9 +138,9 @@ p, li { white-space: pre-wrap; }
    <widget class="QLabel" name="labelRosMasterIP">
     <property name="geometry">
      <rect>
-      <x>180</x>
+      <x>20</x>
       <y>10</y>
-      <width>121</width>
+      <width>281</width>
       <height>31</height>
      </rect>
     </property>
@@ -157,9 +157,9 @@ p, li { white-space: pre-wrap; }
    <widget class="QLabel" name="labelRosLocalIP">
     <property name="geometry">
      <rect>
-      <x>180</x>
+      <x>20</x>
       <y>40</y>
-      <width>121</width>
+      <width>281</width>
       <height>31</height>
      </rect>
     </property>
@@ -178,7 +178,7 @@ p, li { white-space: pre-wrap; }
      <rect>
       <x>310</x>
       <y>40</y>
-      <width>211</width>
+      <width>281</width>
       <height>31</height>
      </rect>
     </property>
@@ -193,9 +193,9 @@ p, li { white-space: pre-wrap; }
    <widget class="QLabel" name="labelDepthTopicName">
     <property name="geometry">
      <rect>
-      <x>180</x>
-      <y>130</y>
-      <width>121</width>
+      <x>20</x>
+      <y>100</y>
+      <width>281</width>
       <height>31</height>
      </rect>
     </property>
@@ -213,8 +213,8 @@ p, li { white-space: pre-wrap; }
     <property name="geometry">
      <rect>
       <x>310</x>
-      <y>130</y>
-      <width>211</width>
+      <y>100</y>
+      <width>281</width>
       <height>31</height>
      </rect>
     </property>
@@ -229,9 +229,9 @@ p, li { white-space: pre-wrap; }
    <widget class="QLabel" name="labelColorTopicName">
     <property name="geometry">
      <rect>
-      <x>180</x>
-      <y>100</y>
-      <width>121</width>
+      <x>20</x>
+      <y>70</y>
+      <width>281</width>
       <height>31</height>
      </rect>
     </property>
@@ -249,80 +249,8 @@ p, li { white-space: pre-wrap; }
     <property name="geometry">
      <rect>
       <x>310</x>
-      <y>100</y>
-      <width>211</width>
-      <height>31</height>
-     </rect>
-    </property>
-    <property name="html">
-     <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Ubuntu'; font-size:11pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-family:'Ubuntu';&quot;&gt;&lt;br /&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-    </property>
-   </widget>
-   <widget class="QLabel" name="labelAccelTopicName">
-    <property name="geometry">
-     <rect>
-      <x>180</x>
       <y>70</y>
-      <width>121</width>
-      <height>31</height>
-     </rect>
-    </property>
-    <property name="frameShape">
-     <enum>QFrame::Box</enum>
-    </property>
-    <property name="text">
-     <string>ACCEL TOPIC</string>
-    </property>
-    <property name="alignment">
-     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-    </property>
-   </widget>
-   <widget class="QTextEdit" name="textEditAccelTopicName">
-    <property name="geometry">
-     <rect>
-      <x>310</x>
-      <y>70</y>
-      <width>211</width>
-      <height>31</height>
-     </rect>
-    </property>
-    <property name="html">
-     <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Ubuntu'; font-size:11pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-family:'Ubuntu';&quot;&gt;&lt;br /&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-    </property>
-   </widget>
-   <widget class="QLabel" name="labelGyroTopicName">
-    <property name="geometry">
-     <rect>
-      <x>180</x>
-      <y>160</y>
-      <width>121</width>
-      <height>31</height>
-     </rect>
-    </property>
-    <property name="frameShape">
-     <enum>QFrame::Box</enum>
-    </property>
-    <property name="text">
-     <string>GYRO TOPIC</string>
-    </property>
-    <property name="alignment">
-     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-    </property>
-   </widget>
-   <widget class="QTextEdit" name="textEditGyroTopicName">
-    <property name="geometry">
-     <rect>
-      <x>310</x>
-      <y>160</y>
-      <width>211</width>
+      <width>281</width>
       <height>31</height>
      </rect>
     </property>
@@ -337,9 +265,9 @@ p, li { white-space: pre-wrap; }
    <widget class="QLabel" name="labelPublishRate">
     <property name="geometry">
      <rect>
-      <x>180</x>
-      <y>190</y>
-      <width>121</width>
+      <x>20</x>
+      <y>160</y>
+      <width>281</width>
       <height>31</height>
      </rect>
     </property>
@@ -357,8 +285,44 @@ p, li { white-space: pre-wrap; }
     <property name="geometry">
      <rect>
       <x>310</x>
-      <y>190</y>
-      <width>211</width>
+      <y>160</y>
+      <width>281</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="html">
+     <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Ubuntu'; font-size:11pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-family:'Ubuntu';&quot;&gt;&lt;br /&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="labelImuTopicName">
+    <property name="geometry">
+     <rect>
+      <x>20</x>
+      <y>130</y>
+      <width>281</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="frameShape">
+     <enum>QFrame::Box</enum>
+    </property>
+    <property name="text">
+     <string>IMU TOPIC:</string>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+    </property>
+   </widget>
+   <widget class="QTextEdit" name="textEditImuTopicName">
+    <property name="geometry">
+     <rect>
+      <x>310</x>
+      <y>130</y>
+      <width>281</width>
       <height>31</height>
      </rect>
     </property>

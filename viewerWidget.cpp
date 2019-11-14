@@ -8,7 +8,7 @@
 //creates empty GLFW window
 viewerWidget::viewerWidget()
 {
-    //TODO?: change from hard coded height and width
+    //TODO?: change from hard coded height and width - Jordan
     windowHeight = 1280;
     windowWidth = 720;
     //frame handles are used by the show frame functions
