@@ -12,40 +12,75 @@ mainWindow::mainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::mainWi
     //initialize UI
     ui->setupUi(this);
 
+    //set initial visibility
+    initUI();
+
     initVidView();
 
     initPCView();
 
-    rosNode.init("http://localhost:11311/", "localhost");
+    //TODO:pass settings here
+    rosNode.init(ui->textEditRosMasterIP->toPlainText().toStdString(), ui->textEditRosLocalIP->toPlainText().toStdString(),
+                 ui->textEditColorTopicName->toPlainText().toStdString(), ui->textEditDepthTopicName->toPlainText().toStdString(),
+                 ui->textEditImuTopicName->toPlainText().toStdString(), ui->textEditRefreshRate->toPlainText().toFloat());
 }
 
 //public: destructor
 //deletes ui and closes application
 mainWindow::~mainWindow()
 {
+    saveSettings();
     delete ui;
+}
+
+void mainWindow::onPushButtonSaveConfig_clicked()
+{
+    //TODO: Make this restart thing with new config values, rather than just save them - Jordan
+    saveSettings();
+}
+
+void mainWindow::initUI()
+{
+    ui->labelRosMasterIP->setVisible(false);
+    ui->textEditRosMasterIP->setVisible(false);
+
+    ui->labelRosLocalIP->setVisible(false);
+    ui->textEditRosLocalIP->setVisible(false);
+
+    ui->labelColorTopicName->setVisible(false);
+    ui->textEditColorTopicName->setVisible(false);
+
+    ui->labelDepthTopicName->setVisible(false);
+    ui->textEditDepthTopicName->setVisible(false);
+
+    ui->labelImuTopicName->setVisible(false);
+    ui->textEditImuTopicName->setVisible(false);
+
+    ui->labelRefreshRate->setVisible(false);
+    ui->textEditRefreshRate->setVisible(false);
 }
 
 void mainWindow::initVidView()
 {
-    QWebEngineView* viewDepthData;
-    viewDepthData = new QWebEngineView(this);
-    viewDepthData->load(QUrl("http://localhost:8080/stream_viewer?topic=/rscColor"));
-    viewDepthData->setZoomFactor(0.68);
-    viewDepthData->page()->setBackgroundColor((Qt::transparent));
-    viewDepthData->show();
-    ui->tabCamera1VideoStream->addWidget(viewDepthData);
+    QWebEngineView* viewColorData;
+    viewColorData = new QWebEngineView(this);
+    //TODO:pass color topic name
+    viewColorData->load(QUrl("http://localhost:8080/stream_viewer?topic=/rscColor"));
+    viewColorData->setZoomFactor(0.68);
+    viewColorData->page()->setBackgroundColor((Qt::transparent));
+    viewColorData->show();
+    ui->boxLayoutVideoStream->addWidget(viewColorData);
 }
 
 void mainWindow::initPCView()
 {
     // create widget
-    QOpenGLWidget* viewPC;
-    viewPC = new QOpenGLWidget(this);
+    QOpenGLWidget* viewPointcloud;
+    viewPointcloud = new QOpenGLWidget(this);
     // create variable for context
     QOpenGLContext* openGLContext;
     // get context from widget
-    openGLContext = viewPC->context();
+    openGLContext = viewPointcloud->context();
 
     // put widget in UI
 
@@ -53,7 +88,7 @@ void mainWindow::initPCView()
     // glGetString: return a string describing the current GL connection
     const GLubyte* glGetString(GLenum name);
 
-    ui->tabCamera1PC->addWidget(viewPC);
+    ui->boxLayoutPointcloud->addWidget(viewPointcloud);
 
     //void glBind*(GLenum target​, GLuint object​); saving this for reference
 }
@@ -61,7 +96,7 @@ void mainWindow::initPCView()
 //private: loadSettings
 void mainWindow::loadSettings()
 {
-    /*QSettings fileSettings("./config.ini", QSettings::NativeFormat);
+    QSettings fileSettings("./config.ini", QSettings::NativeFormat);
 
     //ros master IP
     if(fileSettings.value("ROS_MASTER_IP", "").toString().toStdString() == "")
@@ -81,15 +116,6 @@ void mainWindow::loadSettings()
     {
         ui->textEditRosLocalIP->setText(fileSettings.value("ROS_LOCAL_IP", "").toString());
     }
-    //accel topic
-    if(fileSettings.value("ACCEL_TOPIC_NAME", "").toString().toStdString() == "")
-    {
-        ui->textEditAccelTopicName->setText("rscAccel");
-    }
-    else
-    {
-        ui->textEditAccelTopicName->setText(fileSettings.value("ACCEL_TOPIC_NAME", "").toString());
-    }
     //color topic
     if(fileSettings.value("COLOR_TOPIC_NAME", "").toString().toStdString() == "")
     {
@@ -108,35 +134,34 @@ void mainWindow::loadSettings()
     {
         ui->textEditDepthTopicName->setText(fileSettings.value("DEPTH_TOPIC_NAME", "").toString());
     }
-    //gyro topic
-    if(fileSettings.value("GYRO_TOPIC_NAME", "").toString().toStdString() == "")
+    //imu topic
+    if(fileSettings.value("IMU_TOPIC_NAME", "").toString().toStdString() == "")
     {
-        ui->textEditGyroTopicName->setText("rscGyro");
+        ui->textEditImuTopicName->setText("rscImu");
     }
     else
     {
-        ui->textEditGyroTopicName->setText(fileSettings.value("GYRO_TOPIC_NAME", "").toString());
+        ui->textEditImuTopicName->setText(fileSettings.value("IMU_TOPIC_NAME", "").toString());
     }
-    //publish rate
-    if(fileSettings.value("PUBLISH_RATE", "").toString().toStdString() == "")
+    //refresh rate
+    if(fileSettings.value("REFRESH_RATE", "").toString().toStdString() == "")
     {
-        ui->textEditPublishRate->setText("10");
+        ui->textEditRefreshRate->setText("10");
     }
     else
     {
-        ui->textEditPublishRate->setText(fileSettings.value("PUBLISH_RATE", "").toString());
-    }*/
+        ui->textEditRefreshRate->setText(fileSettings.value("REFRESH_RATE", "").toString());
+    }
 }
 
 //private: saveSetings
 void mainWindow::saveSettings()
 {
-    /*QSettings fileSettings("./config.ini", QSettings::NativeFormat);
+    QSettings fileSettings("./config.ini", QSettings::NativeFormat);
     fileSettings.setValue("ROS_MASTER_IP", ui->textEditRosMasterIP->toPlainText());
     fileSettings.setValue("ROS_LOCAL_IP", ui->textEditRosLocalIP->toPlainText());
-    fileSettings.setValue("ACCEL_TOPIC_NAME", ui->textEditAccelTopicName->toPlainText());
     fileSettings.setValue("COLOR_TOPIC_NAME", ui->textEditColorTopicName->toPlainText());
     fileSettings.setValue("DEPTH_TOPIC_NAME", ui->textEditDepthTopicName->toPlainText());
-    fileSettings.setValue("GYRO_TOPIC_NAME", ui->textEditGyroTopicName->toPlainText());
-    fileSettings.setValue("PUBLISH_RATE", ui->textEditPublishRate->toPlainText());*/
+    fileSettings.setValue("IMU_TOPIC_NAME", ui->textEditImuTopicName->toPlainText());
+    fileSettings.setValue("REFRESH_RATE", ui->textEditRefreshRate->toPlainText());
 }

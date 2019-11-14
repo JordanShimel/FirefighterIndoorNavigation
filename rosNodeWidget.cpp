@@ -28,7 +28,9 @@ rosNodeWidget::~rosNodeWidget()
 //creates ROS node if one doesn't already exist
 //set up topics to subscribe via that node
 //creates thread to actually subscribe to messages
-bool rosNodeWidget::init(const std::string &rosMasterAddress, const std::string &rosLocalAddress)
+bool rosNodeWidget::init(const std::string &rosMasterAddress, const std::string &rosLocalAddress,
+          const std::string &colorTopicName, const std::string &depthTopicName,
+          const std::string &imuTopicName, const float &refreshRate)
 {
     //create a map with the master and local addresses to pass to the ROS init function
     std::map<std::string, std::string> rosAddresses;
@@ -46,6 +48,12 @@ bool rosNodeWidget::init(const std::string &rosMasterAddress, const std::string 
     }
     else
     {
+        //set internal values to parameters to enable run loop to read them
+        mColorTopicName = colorTopicName;
+        mDepthTopicName = depthTopicName;
+        mImuTopicName = imuTopicName;
+        mRefreshRate = refreshRate;
+
         //starts Qt thread to run the subscriber
         //does thread stuff and has thread call run()
         start();
@@ -69,26 +77,24 @@ void rosNodeWidget::run()
 
     //assign subscribers to this node
     //depth subscriber
-    image_transport::ImageTransport imageTransportDepth(nodeHandleBaseUnit);
-    subscriberDepth = imageTransportDepth.subscribe("rscDepth", 1, &rosNodeWidget::callbackDepth, this);
+    //image_transport::ImageTransport imageTransportDepth(nodeHandleBaseUnit);
+    //subscriberDepth = imageTransportDepth.subscribe("rscDepth", 1, &rosNodeWidget::callbackDepth, this);
 
     //Color subscriber
-    image_transport::ImageTransport imageTransportColor(nodeHandleBaseUnit);
-    subscriberColor = imageTransportColor.subscribe("rscColor", 1, &rosNodeWidget::callbackColor, this);
+    //image_transport::ImageTransport imageTransportColor(nodeHandleBaseUnit);
+    //subscriberColor = imageTransportColor.subscribe("rscColor", 1, &rosNodeWidget::callbackColor, this);
 
     //IMU subscriber
-    subscriberIMU = nodeHandleBaseUnit.subscribe("rscImu", 1, &rosNodeWidget::callbackIMU, this);
+    //subscriberIMU = nodeHandleBaseUnit.subscribe("rscImu", 1, &rosNodeWidget::callbackIMU, this);
 
     //code for ORB_SLAM stuff
-    ORB_SLAM2::System SLAM( "./ORBvoc.txt",
-                            "./camera.yaml",
-                            ORB_SLAM2::System::RGBD,true);
+    ORB_SLAM2::System SLAM("./ORBvoc.txt", "./camera.yaml", ORB_SLAM2::System::RGBD, true);
     pointcloudWidget pcw(&SLAM);
     message_filters::Subscriber<sensor_msgs::Image> rgb_sub(nodeHandleBaseUnit, "rscColor", 1);
     message_filters::Subscriber<sensor_msgs::Image> depth_sub(nodeHandleBaseUnit, "rscDepth", 1);
     typedef message_filters::sync_policies::ApproximateTime<sensor_msgs::Image, sensor_msgs::Image> sync_pol;
-    message_filters::Synchronizer<sync_pol> sync(sync_pol(10), rgb_sub,depth_sub);
-    sync.registerCallback(boost::bind(&pointcloudWidget::grabRGBD,&pcw,_1,_2));
+    message_filters::Synchronizer<sync_pol> sync(sync_pol(10), rgb_sub, depth_sub);
+    sync.registerCallback(boost::bind(&pointcloudWidget::grabRGBD, &pcw, _1, _2));
 
     //rosLoopRate is how many times the while loop will attempt to run per second
     ros::Rate rosLoopRate(10);

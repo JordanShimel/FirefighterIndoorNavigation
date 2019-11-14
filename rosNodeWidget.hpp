@@ -40,7 +40,9 @@ class rosNodeWidget : public QThread
         virtual ~rosNodeWidget();
         //init creates a ROS node if one doesn't already exist
         //it then initiates the main subscribing loop in run
-        bool init(const std::string &rosMasterAddress, const std::string &rosLocalAddress);
+        bool init(const std::string &rosMasterAddress, const std::string &rosLocalAddress,
+                  const std::string &colorTopicName, const std::string &depthTopicName,
+                  const std::string &imuTopicName, const float &refreshRate);
         //run is called by init and handles the main subscribing loop
         void run();
         //stop terminates the QThread subscribing to ROS messages
@@ -62,13 +64,17 @@ class rosNodeWidget : public QThread
         sensor_msgs::ImageConstPtr colorMessageContainer;
         sensor_msgs::Imu imuMessageContainer;
 
-        //pointcloudWidget pcw;
         //callback for depth messages
         void callbackDepth(const sensor_msgs::ImageConstPtr &depthMessage);
         //callback for color messages
         void callbackColor(const sensor_msgs::ImageConstPtr &colorMessage);
         //callback for IMU messages
         void callbackIMU(const sensor_msgs::Imu &imuMessage);
+
+        std::string mColorTopicName;
+        std::string mDepthTopicName;
+        std::string mImuTopicName;
+        float mRefreshRate;
 };
 
 #endif
