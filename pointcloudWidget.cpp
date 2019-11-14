@@ -8,20 +8,15 @@
 #include "pointcloudWidget.hpp"
 
 
-pointcloudWidget::pointcloudWidget()
+pointcloudWidget::pointcloudWidget(ORB_SLAM2::System* pSLAM)
 {
+    mpSLAM = pSLAM;
 }
 
 pointcloudWidget::~pointcloudWidget()
 {
 
 }
-
-void pointcloudWidget::setSLAM(ORB_SLAM2::System* pSLAM)
-{
-    mpSLAM = pSLAM;
-}
-
 
 void pointcloudWidget::grabRGBD(const sensor_msgs::ImageConstPtr &msgColor, const sensor_msgs::ImageConstPtr &msgDepth)
 {

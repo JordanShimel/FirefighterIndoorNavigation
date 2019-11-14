@@ -20,20 +20,18 @@
 #include <message_filters/sync_policies/approximate_time.h>
 
 #include <opencv2/core/core.hpp>
-#include "../../ORB_SLAM2/include/System.h"
+#include "ORB_SLAM2/include/System.h"
 
 //pointcloudWidget class, manages pointcloud functionality
-//TODO: current functions are a guess at functionality required, update as needed
 class pointcloudWidget
 {
     public:
         //constructor
-        pointcloudWidget();
+        pointcloudWidget(ORB_SLAM2::System* pSLAM);
         //destructor
         ~pointcloudWidget();
 
-        void setSLAM(ORB_SLAM2::System* pSLAM);
-        //build a pointcloud from ROS bag
+        //build a pointcloud from ROS image stream
         void grabRGBD(const sensor_msgs::ImageConstPtr& msgColor,const sensor_msgs::ImageConstPtr& msgDepth);
 
         ORB_SLAM2::System* mpSLAM;

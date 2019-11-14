@@ -62,7 +62,7 @@ class rosNodeWidget : public QThread
         sensor_msgs::ImageConstPtr colorMessageContainer;
         sensor_msgs::Imu imuMessageContainer;
 
-        pointcloudWidget pcw;
+        //pointcloudWidget pcw;
         //callback for depth messages
         void callbackDepth(const sensor_msgs::ImageConstPtr &depthMessage);
         //callback for color messages

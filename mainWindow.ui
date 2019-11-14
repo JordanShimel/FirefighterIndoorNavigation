@@ -28,7 +28,7 @@
 border-radius: 10px;</string>
     </property>
     <property name="currentIndex">
-     <number>0</number>
+     <number>2</number>
     </property>
     <widget class="QWidget" name="tabCamera1">
      <property name="styleSheet">

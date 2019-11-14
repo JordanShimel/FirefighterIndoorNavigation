@@ -29,31 +29,26 @@ namespace Ui
 
 class mainWindow : public QMainWindow
 {
-    //mainWindow uses the Qt event system, and thus requires the Q_OBJECT macro so the precompiler can link things properly
-    Q_OBJECT
-
     public:
         //constructor creates UI and initializes UI element values
         explicit mainWindow(QWidget *parent = nullptr);
         //destructor closes UI window and terminates application
         ~mainWindow();
 
-    private slots:
-        void updatePointCloud();
-        //updateDepth fires on receipt of a signal for rosNodeWidget, prompting depth data update
-        void updateDepth();
-
-
     private:
         //ui is used to access all the GUI Qt elements
         Ui::mainWindow *ui;
 
-
         //rosNode is used to assign a persistent ROS node to this window
         rosNodeWidget rosNode;
+
         void initVidView();
-        void initRosNodes();
         void initPCView();
+
+        //loadSettings reads settings from the config file
+        void loadSettings();
+        //saveSettings writes settings to the config file
+        void saveSettings();
 };
 
 #endif
