@@ -80,8 +80,8 @@ void rosNodeWidget::run()
     subscriberIMU = nodeHandleBaseUnit.subscribe("rscImu", 1, &rosNodeWidget::callbackIMU, this);
 
     //code for ORB_SLAM stuff
-    ORB_SLAM2::System SLAM( "/home/jordan/TEST/ORBvoc.txt",
-                            "/home/jordan/TEST/camera.yaml",
+    ORB_SLAM2::System SLAM( "./ORBvoc.txt",
+                            "./camera.yaml",
                             ORB_SLAM2::System::RGBD,true);
     pointcloudWidget pcw(&SLAM);
     message_filters::Subscriber<sensor_msgs::Image> rgb_sub(nodeHandleBaseUnit, "rscColor", 1);
