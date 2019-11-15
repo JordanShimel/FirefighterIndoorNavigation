@@ -1,30 +1,33 @@
 //pointcloudWidget code file
 //pointcloudWidget handles pointcloud functions, including:
-//  creating pointcloud from bag
+//  creating pointcloud from ROS image messages
 //  displaying pointcloud in ui
 //  allowing manipulation of pointcloud view
-//  creating static images of pointcloud to be returned to remote unit(s)
 
 #include "pointcloudWidget.hpp"
 
-
+//public: constructor
+//sets internal data to passed data
 pointcloudWidget::pointcloudWidget(ORB_SLAM2::System* pSLAM)
 {
-    mpSLAM = pSLAM;
+    mSLAM = pSLAM;
 }
 
+//public: destructor
+//destroys class instance
 pointcloudWidget::~pointcloudWidget()
 {
-
 }
 
-void pointcloudWidget::grabRGBD(const sensor_msgs::ImageConstPtr &msgColor, const sensor_msgs::ImageConstPtr &msgDepth)
+//public: processFrames
+//turns a pair of synchronized color and depth messages into a pair of cv images and passes them to ORB_SLAM2
+void pointcloudWidget::processFrames(const sensor_msgs::ImageConstPtr &colorMessage, const sensor_msgs::ImageConstPtr &depthMessage)
 {
-    // Copy the ros image message to cv::Mat.
-        cv_bridge::CvImageConstPtr cv_ptrRGB;
+        //turn the ros color message into a cv image
+        cv_bridge::CvImageConstPtr cvColor;
         try
         {
-            cv_ptrRGB = cv_bridge::toCvShare(msgColor);
+            cvColor = cv_bridge::toCvShare(colorMessage);
         }
         catch (cv_bridge::Exception& e)
         {
@@ -32,10 +35,11 @@ void pointcloudWidget::grabRGBD(const sensor_msgs::ImageConstPtr &msgColor, cons
             return;
         }
 
-        cv_bridge::CvImageConstPtr cv_ptrD;
+        //turn the ros depth message into a cv image
+        cv_bridge::CvImageConstPtr cvDepth;
         try
         {
-            cv_ptrD = cv_bridge::toCvShare(msgDepth);
+            cvDepth = cv_bridge::toCvShare(depthMessage);
         }
         catch (cv_bridge::Exception& e)
         {
@@ -43,5 +47,6 @@ void pointcloudWidget::grabRGBD(const sensor_msgs::ImageConstPtr &msgColor, cons
             return;
         }
 
-        mpSLAM->TrackRGBD(cv_ptrRGB->image,cv_ptrD->image,cv_ptrRGB->header.stamp.toSec());
+        //pass the images and timestamp to ORB_SLAM for 'MaGiC pOiNtClOuD tHiNgS'
+        mSLAM->TrackRGBD(cvColor->image, cvDepth->image, cvColor->header.stamp.toSec());
 }

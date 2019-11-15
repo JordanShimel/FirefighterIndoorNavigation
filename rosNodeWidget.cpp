@@ -48,7 +48,7 @@ bool rosNodeWidget::init(const std::string &rosMasterAddress, const std::string 
     }
     else
     {
-        //set internal values to parameters to enable run loop to read them
+        //set member variables from parameters so run can access them without need to have them passed
         mColorTopicName = colorTopicName;
         mDepthTopicName = depthTopicName;
         mImuTopicName = imuTopicName;
@@ -75,26 +75,19 @@ void rosNodeWidget::run()
     //create a handle to our node
     ros::NodeHandle nodeHandleBaseUnit;
 
-    //assign subscribers to this node
-    //depth subscriber
-    //image_transport::ImageTransport imageTransportDepth(nodeHandleBaseUnit);
-    //subscriberDepth = imageTransportDepth.subscribe("rscDepth", 1, &rosNodeWidget::callbackDepth, this);
-
-    //Color subscriber
-    //image_transport::ImageTransport imageTransportColor(nodeHandleBaseUnit);
-    //subscriberColor = imageTransportColor.subscribe("rscColor", 1, &rosNodeWidget::callbackColor, this);
-
-    //IMU subscriber
-    //subscriberIMU = nodeHandleBaseUnit.subscribe("rscImu", 1, &rosNodeWidget::callbackIMU, this);
-
     //code for ORB_SLAM stuff
-    ORB_SLAM2::System SLAM("./ORBvoc.txt", "./camera.yaml", ORB_SLAM2::System::RGBD, true);
-    pointcloudWidget pcw(&SLAM);
-    message_filters::Subscriber<sensor_msgs::Image> rgb_sub(nodeHandleBaseUnit, "rscColor", 1);
-    message_filters::Subscriber<sensor_msgs::Image> depth_sub(nodeHandleBaseUnit, "rscDepth", 1);
+    //create a new SLAM system, passing the prebuilt vocab and camera settings, set as type RGBD and use the built in renderer
+    ORB_SLAM2::System rscSLAM("./ORBvoc.txt", "./camera.yaml", ORB_SLAM2::System::RGBD, true);
+    //create a pointcloudWidget with our SLAM system
+    pointcloudWidget rscPointcloud(&rscSLAM);
+    //add the message filter subscribers for the incoming color and depth messages
+    message_filters::Subscriber<sensor_msgs::Image> colorSubscriber(nodeHandleBaseUnit, mColorTopicName, 1);
+    message_filters::Subscriber<sensor_msgs::Image> depthSubscriber(nodeHandleBaseUnit, mDepthTopicName, 1);
+    //set up the system to synchronize the color and depth frames
     typedef message_filters::sync_policies::ApproximateTime<sensor_msgs::Image, sensor_msgs::Image> sync_pol;
-    message_filters::Synchronizer<sync_pol> sync(sync_pol(10), rgb_sub, depth_sub);
-    sync.registerCallback(boost::bind(&pointcloudWidget::grabRGBD, &pcw, _1, _2));
+    message_filters::Synchronizer<sync_pol> sync(sync_pol(10), colorSubscriber, depthSubscriber);
+    //finally, call the pointcloudWidget's grabRGBD function with the RGBD data
+    sync.registerCallback(boost::bind(&pointcloudWidget::processFrames, &rscPointcloud, _1, _2));
 
     //rosLoopRate is how many times the while loop will attempt to run per second
     ros::Rate rosLoopRate(10);
@@ -102,7 +95,7 @@ void rosNodeWidget::run()
     //as long as ROS hasn't been shutdown
     while(ros::ok())
     {
-        //check all subscribers
+        //check each subscribers once
         ros::spinOnce();
 
         //sleep until time to rerun(specified by rosLoopRate)
@@ -119,19 +112,4 @@ bool rosNodeWidget::stop()
 {
     terminate();
     return true;
-}
-
-void rosNodeWidget::callbackDepth(const sensor_msgs::ImageConstPtr &depthMessage)
-{
-    depthMessageContainer = depthMessage;
-}
-
-void rosNodeWidget::callbackColor(const sensor_msgs::ImageConstPtr &colorMessage)
-{
-    colorMessageContainer = colorMessage;
-}
-
-void rosNodeWidget::callbackIMU(const sensor_msgs::Imu &imuMessage)
-{
-    imuMessageContainer = imuMessage;
 }

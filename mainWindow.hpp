@@ -4,35 +4,34 @@
 #ifndef MAINWINDOW_HPP
 #define MAINWINDOW_HPP
 
-//pointcloudWidget provides pointcloud functionality
+//providess pointcloud functionality
 #include <pointcloudWidget.hpp>
 
-//rosNodeWidget provides ROS functionality
+//handles ROS node connection and subscribing to data
 #include <rosNodeWidget.hpp>
-
-//videoWidget provides video functionality
-#include <videoWidget.hpp>
 
 //the auto-generated ui_mainwindow contains declarations for all the Qt elements built in the designer
 #include "ui_mainWindow.h"
 
-//basic Qt includes
+//QMainWindow has the basic Qt includes for a gui application
 #include <QMainWindow>
 
-//Qt webengine
+//QMainWindow isused to display video feed in main window
 #include <QtWebEngineWidgets/QWebEngineView>
 
-//Qt openGL widgets
+//QOpenGLWidget is used to show point cloud in main window
 #include <QOpenGLWidget>
 
-//allows using Qt's setting system
+//QSettings is used to handle saving and loading settings
 #include <QSettings>
 
+//namespace required for access to ui elements
 namespace Ui
 {
     class mainWindow;
 }
 
+//mainWindow class, manages main GUI
 class mainWindow : public QMainWindow
 {
     //mainWindow uses the Qt event system, and thus requires the Q_OBJECT macro so the precompiler can link things properly
@@ -41,23 +40,25 @@ class mainWindow : public QMainWindow
     public:
         //constructor creates UI and initializes UI element values
         explicit mainWindow(QWidget *parent = nullptr);
-        //destructor closes UI window and terminates application
+        //destructor saves settings, closes UI window, and terminates application
         ~mainWindow();
 
     private slots:
-        void onPushButtonSaveConfig_clicked();
+        //on_pushButtonSaveConfigClicked saves the settings to disk
+        //TODO:eventually this should be changed to also reinitialize things with the changed settings
+        //until then it's kind of pointless - Jordan
+        void on_PushButtonSaveConfig_clicked();
 
     private:
         //ui is used to access all the GUI Qt elements
         Ui::mainWindow *ui;
-
         //rosNode is used to assign a persistent ROS node to this window
         rosNodeWidget rosNode;
 
-        void initUI();
-        void initVidView();
-        void initPCView();
-
+        //initColorView binds a QtWebEngineWidget to the main window to handle color stream output
+        void initColorView();
+        //initPointcloudView binds a QOpenGLWidget to the main window to handle pointcloud output
+        void initPointcloudView();
         //loadSettings reads settings from the config file
         void loadSettings();
         //saveSettings writes settings to the config file

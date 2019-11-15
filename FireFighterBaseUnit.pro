@@ -12,15 +12,13 @@ SOURCES += \
         main.cpp \
         mainWindow.cpp \
         pointcloudWidget.cpp \
-        rosNodeWidget.cpp \
-        videoWidget.cpp
+        rosNodeWidget.cpp
 
 #list of header files
 HEADERS += \
         mainWindow.hpp \
         pointcloudWidget.hpp \
-        rosNodeWidget.hpp \
-        videoWidget.hpp
+        rosNodeWidget.hpp
 
 #list of form files
 FORMS += \
@@ -28,10 +26,18 @@ FORMS += \
 
 #list of model files
 DISTFILES += \
-        PC.jpg \
         firefighterbaseunit.qmodel
 
+#These commands cause qmake to copy the camera settings and vocabulary files to the build directory
+copyCameraSettings.commands = $(COPY_DIR) $$PWD/camera.yaml $$OUT_PWD
+copyVocabulary.commands = $(COPY_DIR) $$PWD/ORBvoc.txt $$OUT_PWD
+first.depends = $(first) copyCameraSettings copyVocabulary
+export(first.depends)
+export(copyCameraSettings.commands)
+QMAKE_EXTRA_TARGETS += first copyCameraSettings copyVocabulary
+
 #Custom library path, the place you installed Eigen, ORB_SLAM2, and Pangolin
+#Set this to yours to make qmake function
 USER_LIBRARY_PATH = /home/jordan/Libraries
 
 #Extra includes
