@@ -5,6 +5,7 @@
 
 //public: constructor
 //creates ui instance
+//initializes ui elements
 //connects Qt Signals used by the application
 mainWindow::mainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::mainWindow)
 {
@@ -21,7 +22,7 @@ mainWindow::mainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::mainWi
 }
 
 //public: destructor
-//deletes ui and closes application
+//saves settings, deletes ui, and closes application
 mainWindow::~mainWindow()
 {
     saveSettings();
@@ -268,6 +269,7 @@ void mainWindow::showError(QString errorMessage)
 }
 
 //private: initUI
+//sets initial visibility for some ui elements
 void mainWindow::initUI()
 {
     ui->labelRosMasterIP->setVisible(false);
@@ -290,8 +292,10 @@ void mainWindow::initUI()
 }
 
 //private: loadSettings
+//read and load saved settings
 void mainWindow::loadSettings()
 {
+    //settings file
     QSettings fileSettings("./config.ini", QSettings::NativeFormat);
 
     //ros master IP
@@ -351,12 +355,15 @@ void mainWindow::loadSettings()
 }
 
 //private: saveSetings
+//save settings to disk
 void mainWindow::saveSettings()
 {
+    //settings file
     QSettings fileSettings("./config.ini", QSettings::NativeFormat);
+
     fileSettings.setValue("ROS_MASTER_IP", ui->textEditRosMasterIP->toPlainText());
     fileSettings.setValue("ROS_LOCAL_IP", ui->textEditRosLocalIP->toPlainText());
-   fileSettings.setValue("COLOR_TOPIC_NAME", ui->textEditColorTopicName->toPlainText());
+    fileSettings.setValue("COLOR_TOPIC_NAME", ui->textEditColorTopicName->toPlainText());
     fileSettings.setValue("DEPTH_TOPIC_NAME", ui->textEditDepthTopicName->toPlainText());
     fileSettings.setValue("IMU_TOPIC_NAME", ui->textEditImuTopicName->toPlainText());
     fileSettings.setValue("PUBLISH_RATE", ui->textEditPublishRate->toPlainText());

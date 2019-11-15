@@ -48,29 +48,11 @@ bool rosNodeWidget::init(const std::string &rosMasterAddress, const std::string 
     }
     else
     {
-        //if our addresses are functional, start the node
-        //we need to start it explicitly so that it doesn't stop until we want it to
-        //otherwise it would close if the node handles all closed
-        ros::start();
-
-        //create a handle to our node
-        ros::NodeHandle remoteUnitNodeHandle;
-
-        //assign publishers to this node
-
-        //color publisher
-        image_transport::ImageTransport imageTransportColor(remoteUnitNodeHandle);
-        publisherColor = imageTransportColor.advertise(colorTopicName, 1);
-
-        //depth publisher
-        image_transport::ImageTransport imageTransportDepth(remoteUnitNodeHandle);
-        publisherDepth = imageTransportDepth.advertise(depthTopicName, 1);
-
-        //imu publisher
-        publisherImu = remoteUnitNodeHandle.advertise<sensor_msgs::Imu>(imuTopicName, 1);
-
-        //set publish rate value
-        publishingRate = publishRate;
+        //set member variables from parameters so run can access them without need to have them passed
+        mColorTopicName = colorTopicName;
+        mDepthTopicName = depthTopicName;
+        mImuTopicName = imuTopicName;
+        mPublishRate = publishRate;
 
         //starts Qt thread to run the publisher
         //does thread stuff and has thread call run()
@@ -85,6 +67,24 @@ bool rosNodeWidget::init(const std::string &rosMasterAddress, const std::string 
 //handles main publishing loop
 void rosNodeWidget::run()
 {
+    //start the node
+    //we need to start it explicitly so that it doesn't stop until we want it to
+    //otherwise it would close if the node handles all closed
+    ros::start();
+
+    //create a handle to our node
+    ros::NodeHandle remoteUnitNodeHandle;
+
+    //assign publishers to this node
+    //color publisher
+    image_transport::ImageTransport imageTransportColor(remoteUnitNodeHandle);
+    mPublisherColor = imageTransportColor.advertise(mColorTopicName, 1);
+    //depth publisher
+    image_transport::ImageTransport imageTransportDepth(remoteUnitNodeHandle);
+    mPublisherDepth = imageTransportDepth.advertise(mDepthTopicName, 1);
+    //imu publisher
+    mPublisherImu = remoteUnitNodeHandle.advertise<sensor_msgs::Imu>(mImuTopicName, 1);
+
     //initialize camera
     //logic here is similiar to logic in mainWindow on_pushButtonPreview_Clicked
     //see comments there for more detail
@@ -102,7 +102,6 @@ void rosNodeWidget::run()
     size_t rscDeviceCount = rscDevices.size();
     if(rscDeviceCount == 0)
     {
-        //display error and return
         showError("No RealSense device detected.");
         return;
     }
@@ -127,19 +126,18 @@ void rosNodeWidget::run()
         //color message
         rs2::frame rscPublishColorFrame;
         sensor_msgs::ImagePtr messageColor;
-
         //depth message
         rs2::frame rscPublishDepthFrame;
         sensor_msgs::ImagePtr messageDepth;
-
         //imu message
         rs2::frame rscTempAccelFrame;
         rs2::frame rscTempGyroFrame;
         sensor_msgs::Imu messageImu;
 
         //rosLoopRate is how many times the while loop will attempt to run per second
-        ros::Rate rosLoopRate(publishingRate);
+        ros::Rate rosLoopRate(mPublishRate);
 
+        //as long as ROS hasn't been shutdown
         while(ros::ok())
         {
             std::vector<rs2::frame> rscNewFrames;
@@ -147,13 +145,14 @@ void rosNodeWidget::run()
 
             if(rscPipe.poll_for_frames(&rscFrameSet))
             {
+                //TODO:add better comments for these parts - Jordan
                 //color data publisher
                 rscPublishColorFrame = rscFrameSet.first(RS2_STREAM_COLOR);
                 width = rscPublishColorFrame.as<rs2::video_frame>().get_width();
                 height = rscPublishColorFrame.as<rs2::video_frame>().get_height();
                 cv::Mat imageColor(cv::Size(width, height), CV_8UC3, (void*)rscPublishColorFrame.get_data(), cv::Mat:: AUTO_STEP);
                 messageColor = cv_bridge::CvImage(std_msgs::Header(), "rgb8", imageColor).toImageMsg();
-                publisherColor.publish(messageColor);
+                mPublisherColor.publish(messageColor);
 
                 //depth data publisher
                 rscPublishDepthFrame = rscFrameSet.first(RS2_STREAM_DEPTH);
@@ -163,7 +162,7 @@ void rosNodeWidget::run()
                 //TODO:Investigate the 255/1000 conversion ratio here, may be squashing range too much? - Jordan
                 imageDepth.convertTo(imageDepth, CV_8UC1, 255.0/1000);
                 messageDepth = cv_bridge::CvImage(std_msgs::Header(), "mono8", imageDepth).toImageMsg();
-                publisherDepth.publish(messageDepth);
+                mPublisherDepth.publish(messageDepth);
 
                 //imu data publisher
                 rscTempAccelFrame = rscFrameSet.first(RS2_STREAM_ACCEL);
@@ -174,28 +173,27 @@ void rosNodeWidget::run()
                 messageImu.linear_acceleration.x = rscTempGyroFrame.as<rs2::motion_frame>().get_motion_data().x;
                 messageImu.linear_acceleration.y = rscTempGyroFrame.as<rs2::motion_frame>().get_motion_data().y;
                 messageImu.linear_acceleration.z = rscTempGyroFrame.as<rs2::motion_frame>().get_motion_data().z;
-                publisherImu.publish(messageImu);
+                mPublisherImu.publish(messageImu);
             }
 
+            //run each publisher once
             ros::spinOnce();
 
+            //sleep until time to rerun(specified by rosLoopRate)
             rosLoopRate.sleep();
         }
 
-        //stop RS2 pipeline
         rscPipe.stop();
 
         Q_EMIT rosShutdown();
     }
     else if(rscDeviceCount > 1)
     {
-        //display error and return
         showError("More than 1 RealSense device detected.");
         return;
     }
     else
     {
-        //display error and return
         showError("Unknown number of RealSense devices detected.");
         return;
     }
