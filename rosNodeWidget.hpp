@@ -1,20 +1,23 @@
 //rosNodeWidget header file
-//rosNodeWidget handles creating a ROS node and subscribing to and publishing data on it
+//rosNodeWidget handles creating a ROS node and subscribing to data on it
 
 #ifndef ROSNODEWIDGET_HPP
 #define ROSNODEWIDGET_HPP
 
-//pointcloud widget file
+//pointcloud widget is used to handled received camera data
 #include "pointcloudWidget.hpp"
 
 //default ROS header
 #include <ros/ros.h>
 
 //ROS image transport header is used to subscribe to image message data
+//TODO:maybe unneeded now? - Jordan
 #include <image_transport/image_transport.h>
 
 //ROS standard messages are used to subscribe to text based message data
 #include <std_msgs/String.h>
+
+//ROS built in IMU message handler
 #include <sensor_msgs/Imu.h>
 
 //cv_bridge is used to convert data between OpenCV format and ROS image message format
@@ -23,10 +26,9 @@
 //QThread allows the publishing to be done on its own thread
 #include <QThread>
 
-//allows the creation of simple message boxes
-#include <QMessageBox>
+//ORB_SLAM2 is used to create and render pointcloud
+#include "ORB_SLAM2/include/System.h"
 
-#include "../../ORB_SLAM2/include/System.h"
 //rosNodeWidget class, manages ROS node and subscribing
 class rosNodeWidget : public QThread
 {
@@ -34,13 +36,14 @@ class rosNodeWidget : public QThread
     Q_OBJECT
 
     public:
-    //constructor simply creates class object, no special logic
+        //constructor simply creates class object, no special logic
         rosNodeWidget();
         //destructor shuts down ROS node and then destroys class instance
         virtual ~rosNodeWidget();
-        //init creates a ROS node if one doesn't already exist
-        //it then initiates the main subscribing loop in run
-        bool init(const std::string &rosMasterAddress, const std::string &rosLocalAddress);
+        //init creates a ROS node if one doesn't already exist and then initiates the main subscribing loop in run
+        bool init(const std::string &rosMasterAddress, const std::string &rosLocalAddress,
+                  const std::string &colorTopicName, const std::string &depthTopicName,
+                  const std::string &imuTopicName, const float &refreshRate);
         //run is called by init and handles the main subscribing loop
         void run();
         //stop terminates the QThread subscribing to ROS messages
@@ -51,24 +54,17 @@ class rosNodeWidget : public QThread
         void rosShutdown();
 
     private:
-        //ROS image subsciber for depth data
-        image_transport::Subscriber subscriberDepth;
-        //ROS color subscriber for color data
-        image_transport::Subscriber subscriberColor;
+        //ROS image subsciber for color data
+        std::string mColorTopicName;
+        sensor_msgs::ImageConstPtr mSubscriberColor;
+        //ROS color subscriber for depth data
+        std::string mDepthTopicName;
+        sensor_msgs::ImageConstPtr mSubscriberDepth;
         //ROS IMU subscriber for IMU data
-        ros::Subscriber subscriberIMU;
-
-        sensor_msgs::ImageConstPtr depthMessageContainer;
-        sensor_msgs::ImageConstPtr colorMessageContainer;
-        sensor_msgs::Imu imuMessageContainer;
-
-        pointcloudWidget pcw;
-        //callback for depth messages
-        void callbackDepth(const sensor_msgs::ImageConstPtr &depthMessage);
-        //callback for color messages
-        void callbackColor(const sensor_msgs::ImageConstPtr &colorMessage);
-        //callback for IMU messages
-        void callbackIMU(const sensor_msgs::Imu &imuMessage);
+        std::string mImuTopicName;
+        sensor_msgs::Imu mSubscriberImu;
+        //ROS rate setting, determines how many times per second the application will attempt to fetch subscribed messages
+        float mRefreshRate;
 };
 
 #endif

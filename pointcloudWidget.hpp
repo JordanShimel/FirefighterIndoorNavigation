@@ -1,42 +1,43 @@
 //pointcloudWidget header file
 //pointcloudWidget handles pointcloud functions, including:
-//  creating pointcloud from bag
+//  creating pointcloud from ROS image messages
 //  displaying pointcloud in ui
 //  allowing manipulation of pointcloud view
-//  creating static images of pointcloud to be returned to remote unit(s)
 
 #ifndef POINTCLOUDWIDGET_HPP
 #define POINTCLOUDWIDGET_HPP
 
-#include<iostream>
-#include<algorithm>
-#include<fstream>
-#include<chrono>
-
+//default ROS header
 #include <ros/ros.h>
+
+//cv_bridge is used to convert data between OpenCV format and ROS image message format
 #include <cv_bridge/cv_bridge.h>
+
+//message filters are used to synchronize the image messages
 #include <message_filters/subscriber.h>
 #include <message_filters/time_synchronizer.h>
 #include <message_filters/sync_policies/approximate_time.h>
 
+//default OpenCV header
 #include <opencv2/core/core.hpp>
-#include "../../ORB_SLAM2/include/System.h"
+
+//ORB_SLAM2 is used to create and render pointcloud
+#include "ORB_SLAM2/include/System.h"
 
 //pointcloudWidget class, manages pointcloud functionality
-//TODO: current functions are a guess at functionality required, update as needed
 class pointcloudWidget
 {
     public:
-        //constructor
-        pointcloudWidget();
-        //destructor
+        //constructor sets internal SLAM system to passed SLAM system
+        pointcloudWidget(ORB_SLAM2::System* pSLAM);
+        //destructor destroys pointcloudWidget object
         ~pointcloudWidget();
 
-        void setSLAM(ORB_SLAM2::System* pSLAM);
-        //build a pointcloud from ROS bag
-        void grabRGBD(const sensor_msgs::ImageConstPtr& msgColor,const sensor_msgs::ImageConstPtr& msgDepth);
+        //processFrames builds a pointcloud from ROS image stream
+        void processFrames(const sensor_msgs::ImageConstPtr& msgColor,const sensor_msgs::ImageConstPtr& msgDepth);
 
-        ORB_SLAM2::System* mpSLAM;
+        //SLAM system for our pointcloud
+        ORB_SLAM2::System* mSLAM;
 };
 
 #endif
