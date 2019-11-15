@@ -3,9 +3,9 @@
 
 #include "mainWindow.hpp"
 
-#include <iostream>//DEBUG:TODO:REMOVE
 //public: constructor
 //creates ui instance
+//initializes ui elements
 //connects Qt Signals used by the application
 mainWindow::mainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::mainWindow)
 {
@@ -22,7 +22,7 @@ mainWindow::mainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::mainWi
 }
 
 //public: destructor
-//deletes ui and closes application
+//saves settings, deletes ui, and closes application
 mainWindow::~mainWindow()
 {
     saveSettings();
@@ -65,7 +65,7 @@ void mainWindow::on_pushButtonTest_clicked()
     else if(rscDeviceCount == 1)
     {
         //disable preview button
-        //TODO: find out why this doesn't work(thread?)
+        //TODO: find out why this doesn't work(thread?) - Jordan
         ui->pushButtonTest->setEnabled(false);
 
         //create interface for first(only) device
@@ -78,7 +78,6 @@ void mainWindow::on_pushButtonTest_clicked()
         rs2::pipeline rscPipe(rscContext);
 
         //create RS2 config
-        //TODO: Determine optimum config settings
         rs2::config rscConfig;
 
         //enable the device(via serial number)
@@ -156,9 +155,8 @@ void mainWindow::on_pushButtonSend_clicked()
     {
         //attempt to start rosNodeWidget with inputted values
         if(!rosNode.init(ui->textEditRosMasterIP->toPlainText().toStdString(), ui->textEditRosLocalIP->toPlainText().toStdString(),
-                         ui->textEditAccelTopicName->toPlainText().toStdString(), ui->textEditColorTopicName->toPlainText().toStdString(),
-                         ui->textEditDepthTopicName->toPlainText().toStdString(), ui->textEditGyroTopicName->toPlainText().toStdString(),
-                         ui->textEditPublishRate->toPlainText().toFloat()))
+                         ui->textEditColorTopicName->toPlainText().toStdString(), ui->textEditDepthTopicName->toPlainText().toStdString(),
+                         ui->textEditImuTopicName->toPlainText().toStdString(), ui->textEditPublishRate->toPlainText().toFloat()))
         {
             //if we fail, it should be because the addresses for ROS master and/or ROS local are incorrect
             showError("Could not connect to ROS master.");
@@ -209,17 +207,14 @@ void mainWindow::on_pushButtonConfig_clicked()
         ui->labelRosLocalIP->setVisible(true);
         ui->textEditRosLocalIP->setVisible(true);
 
-        ui->labelAccelTopicName->setVisible(true);
-        ui->textEditAccelTopicName->setVisible(true);
-
         ui->labelColorTopicName->setVisible(true);
         ui->textEditColorTopicName->setVisible(true);
 
         ui->labelDepthTopicName->setVisible(true);
         ui->textEditDepthTopicName->setVisible(true);
 
-        ui->labelGyroTopicName->setVisible(true);
-        ui->textEditGyroTopicName->setVisible(true);
+        ui->labelImuTopicName->setVisible(true);
+        ui->textEditImuTopicName->setVisible(true);
 
         ui->labelPublishRate->setVisible(true);
         ui->textEditPublishRate->setVisible(true);
@@ -239,17 +234,14 @@ void mainWindow::on_pushButtonConfig_clicked()
         ui->labelRosLocalIP->setVisible(false);
         ui->textEditRosLocalIP->setVisible(false);
 
-        ui->labelAccelTopicName->setVisible(false);
-        ui->textEditAccelTopicName->setVisible(false);
-
         ui->labelColorTopicName->setVisible(false);
         ui->textEditColorTopicName->setVisible(false);
 
         ui->labelDepthTopicName->setVisible(false);
         ui->textEditDepthTopicName->setVisible(false);
 
-        ui->labelGyroTopicName->setVisible(false);
-        ui->textEditGyroTopicName->setVisible(false);
+        ui->labelImuTopicName->setVisible(false);
+        ui->textEditImuTopicName->setVisible(false);
 
         ui->labelPublishRate->setVisible(false);
         ui->textEditPublishRate->setVisible(false);
@@ -277,6 +269,7 @@ void mainWindow::showError(QString errorMessage)
 }
 
 //private: initUI
+//sets initial visibility for some ui elements
 void mainWindow::initUI()
 {
     ui->labelRosMasterIP->setVisible(false);
@@ -285,25 +278,24 @@ void mainWindow::initUI()
     ui->labelRosLocalIP->setVisible(false);
     ui->textEditRosLocalIP->setVisible(false);
 
-    ui->labelAccelTopicName->setVisible(false);
-    ui->textEditAccelTopicName->setVisible(false);
-
     ui->labelColorTopicName->setVisible(false);
     ui->textEditColorTopicName->setVisible(false);
 
     ui->labelDepthTopicName->setVisible(false);
     ui->textEditDepthTopicName->setVisible(false);
 
-    ui->labelGyroTopicName->setVisible(false);
-    ui->textEditGyroTopicName->setVisible(false);
+    ui->labelImuTopicName->setVisible(false);
+    ui->textEditImuTopicName->setVisible(false);
 
     ui->labelPublishRate->setVisible(false);
     ui->textEditPublishRate->setVisible(false);
 }
 
 //private: loadSettings
+//read and load saved settings
 void mainWindow::loadSettings()
 {
+    //settings file
     QSettings fileSettings("./config.ini", QSettings::NativeFormat);
 
     //ros master IP
@@ -324,15 +316,6 @@ void mainWindow::loadSettings()
     {
         ui->textEditRosLocalIP->setText(fileSettings.value("ROS_LOCAL_IP", "").toString());
     }
-    //accel topic
-    if(fileSettings.value("ACCEL_TOPIC_NAME", "").toString().toStdString() == "")
-    {
-        ui->textEditAccelTopicName->setText("rscAccel");
-    }
-    else
-    {
-        ui->textEditAccelTopicName->setText(fileSettings.value("ACCEL_TOPIC_NAME", "").toString());
-    }
     //color topic
     if(fileSettings.value("COLOR_TOPIC_NAME", "").toString().toStdString() == "")
     {
@@ -351,19 +334,19 @@ void mainWindow::loadSettings()
     {
         ui->textEditDepthTopicName->setText(fileSettings.value("DEPTH_TOPIC_NAME", "").toString());
     }
-    //gyro topic
-    if(fileSettings.value("GYRO_TOPIC_NAME", "").toString().toStdString() == "")
+    //imu topic
+    if(fileSettings.value("IMU_TOPIC_NAME", "").toString().toStdString() == "")
     {
-        ui->textEditGyroTopicName->setText("rscGyro");
+        ui->textEditImuTopicName->setText("rscImu");
     }
     else
     {
-        ui->textEditGyroTopicName->setText(fileSettings.value("GYRO_TOPIC_NAME", "").toString());
+        ui->textEditImuTopicName->setText(fileSettings.value("IMU_TOPIC_NAME", "").toString());
     }
     //publish rate
     if(fileSettings.value("PUBLISH_RATE", "").toString().toStdString() == "")
     {
-        ui->textEditPublishRate->setText("10");
+        ui->textEditPublishRate->setText("30");
     }
     else
     {
@@ -372,14 +355,16 @@ void mainWindow::loadSettings()
 }
 
 //private: saveSetings
+//save settings to disk
 void mainWindow::saveSettings()
 {
+    //settings file
     QSettings fileSettings("./config.ini", QSettings::NativeFormat);
+
     fileSettings.setValue("ROS_MASTER_IP", ui->textEditRosMasterIP->toPlainText());
     fileSettings.setValue("ROS_LOCAL_IP", ui->textEditRosLocalIP->toPlainText());
-    fileSettings.setValue("ACCEL_TOPIC_NAME", ui->textEditAccelTopicName->toPlainText());
     fileSettings.setValue("COLOR_TOPIC_NAME", ui->textEditColorTopicName->toPlainText());
     fileSettings.setValue("DEPTH_TOPIC_NAME", ui->textEditDepthTopicName->toPlainText());
-    fileSettings.setValue("GYRO_TOPIC_NAME", ui->textEditGyroTopicName->toPlainText());
+    fileSettings.setValue("IMU_TOPIC_NAME", ui->textEditImuTopicName->toPlainText());
     fileSettings.setValue("PUBLISH_RATE", ui->textEditPublishRate->toPlainText());
 }

@@ -13,25 +13,25 @@
 //odd linker errors can result otherwise
 #include <librealsense2/rs.hpp>
 
-//rosNodeWidget handles ROS node connection
-//and publishing of data
+//handles ROS node connection and publishing of data
 #include "rosNodeWidget.hpp"
 
-//viewerWidget class handles the preview window
+//handles the preview window
 #include "viewerWidget.hpp"
 
 //the auto-generated ui_mainwindow contains declarations for all the Qt elements built in the designer
 #include "ui_mainWindow.h"
 
-//basic Qt includes
+//QMainWindow has the basic Qt includes for a gui application
 #include <QMainWindow>
 
-//allows the creation of simple message boxes
+//QSettings is used to display message boxes for certain errors
 #include <QMessageBox>
 
-//allows using Qt's setting system
+//QSettings is used to handle saving and loading settings
 #include <QSettings>
 
+//namespace required for access to ui elements
 namespace Ui
 {
     class mainWindow;
@@ -46,7 +46,7 @@ class mainWindow : public QMainWindow
     public:
         //constructor creates UI and initializes UI element values
         mainWindow(QWidget *parent = nullptr);
-        //destructor closes UI window and terminates application
+        //destructor saves settings, closes UI window, and terminates application
         ~mainWindow();
 
     private slots:

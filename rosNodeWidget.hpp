@@ -12,31 +12,22 @@
 //default ROS header
 #include <ros/ros.h>
 
-//ROS string handler
-#include <std_msgs/String.h>
-
 //ROS IMU message handler
 #include <sensor_msgs/Imu.h>
 
 //OpenCV is used to convert data from Realsense format to OpenCV format
 #include <opencv2/core.hpp>
 
-//cv_bridge is used to convert data between OpenCV format and ROS image message format
+//cv_bridge is used to convert data from OpenCV format to ROS image message format
 #include <cv_bridge/cv_bridge.h>
 
-//ROS image transport header is used to publish image message data
+//ROS image transport system is used to publish image message data
 #include <image_transport/image_transport.h>
-
-//standard string library
-#include <string>
 
 //QThread allows the publishing to be done on its own thread
 #include <QThread>
 
-//QStringListModel is used to create a model that links the logging pane in the mainWindow class to this class
-#include <QStringListModel>
-
-//allows the creation of simple message boxes
+//QMessageBox allows the creation of simple message boxes
 #include <QMessageBox>
 
 //rosNodeWidget class, manages ROS node and publishing
@@ -50,12 +41,10 @@ class rosNodeWidget : public QThread
         rosNodeWidget();
         //destructor shuts down ROS node and then destroys class instance
         virtual ~rosNodeWidget();
-        //init creates a ROS node if one doesn't already exist
-        //it then initiates the main publishing loop in run
+        //init creates a ROS node if one doesn't already exist and then initiates the main publishing loop in run
         bool init(const std::string &rosMasterAddress, const std::string &rosLocalAddress,
-                  const std::string &accelTopicName, const std::string &colorTopicName,
-                  const std::string &depthTopicName, const std::string &gyroTopicName,
-                  const float &publishRate);
+                  const std::string &colorTopicName, const std::string &depthTopicName,
+                  const std::string &imuTopicName, const float &publishRate);
         //run is called by init and handles the main publishing loop
         void run();
         //stop terminates the QThread publishing ROS messages
@@ -65,20 +54,18 @@ class rosNodeWidget : public QThread
         //rosShutdown is used to signal an unexpected stopping of the ROS node to the main application
         void rosShutdown();
 
-
     private:
-        //ROS publisher for accelerometer data
-        ros::Publisher publisherAccel;
         //ROS image publisher for color data
-        image_transport::Publisher publisherColor;
+        std::string mColorTopicName;
+        image_transport::Publisher mPublisherColor;
         //ROS image publisher for depth data
-        image_transport::Publisher publisherDepth;        
-        //ROS publisher for gyroscope data
-        ros::Publisher publisherGyro;
-        ros::Publisher publisherImu;
+        std::string mDepthTopicName;
+        image_transport::Publisher mPublisherDepth;
+        //ROS publisher for IMU data
+        std::string mImuTopicName;
+        ros::Publisher mPublisherImu;
         //ROS rate setting, determines how many times per second the application will attempt to publish
-        //TODO: rename this
-        float publisherRate;
+        float mPublishRate;
 
         //showError displays an error window
         void showError(QString errorMessage);
