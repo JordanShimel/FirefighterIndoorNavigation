@@ -150,7 +150,7 @@ void rosNodeWidget::run()
                 rscPublishColorFrame = rscFrameSet.first(RS2_STREAM_COLOR);
                 width = rscPublishColorFrame.as<rs2::video_frame>().get_width();
                 height = rscPublishColorFrame.as<rs2::video_frame>().get_height();
-                cv::Mat imageColor(cv::Size(width, height), CV_8UC3, (void*)rscPublishColorFrame.get_data(), cv::Mat:: AUTO_STEP);
+                cv::Mat imageColor(cv::Size(width, height), CV_8UC3, (void*)rscPublishColorFrame.get_data(), cv::Mat::AUTO_STEP);
                 messageColor = cv_bridge::CvImage(std_msgs::Header(), "rgb8", imageColor).toImageMsg();
                 mPublisherColor.publish(messageColor);
 
@@ -158,10 +158,9 @@ void rosNodeWidget::run()
                 rscPublishDepthFrame = rscFrameSet.first(RS2_STREAM_DEPTH);
                 width = rscPublishDepthFrame.as<rs2::video_frame>().get_width();
                 height = rscPublishDepthFrame.as<rs2::video_frame>().get_height();
-                cv::Mat imageDepth(cv::Size(width, height), CV_16U, (void*)rscPublishDepthFrame.get_data(), cv::Mat:: AUTO_STEP);
-                //TODO:Investigate the 255/1000 conversion ratio here, may be squashing range too much? - Jordan
-                imageDepth.convertTo(imageDepth, CV_8UC1, 255.0/1000);
-                messageDepth = cv_bridge::CvImage(std_msgs::Header(), "mono8", imageDepth).toImageMsg();
+                cv::Mat imageDepth(cv::Size(width, height), CV_16UC1, (void*)rscPublishDepthFrame.get_data(), cv::Mat::AUTO_STEP);
+                //imageDepth.convertTo(imageDepth, CV_8UC1, 255.0/1000);
+                messageDepth = cv_bridge::CvImage(std_msgs::Header(), "mono16", imageDepth).toImageMsg();
                 mPublisherDepth.publish(messageDepth);
 
                 //imu data publisher
