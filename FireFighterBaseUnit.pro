@@ -82,7 +82,7 @@ DEPENDPATH += $${USER_LIBRARY_PATH}/Pangolin/build/src/include/
 LIBS += -L$${USER_LIBRARY_PATH}/Pangolin/build/src/ -lpangolin
 
 #GLEW libraries
-LIBS += -L/usr/lib/x86_64-linux-gnu/ -lglfw -lGL -lGLU -lGLEW #-lrealsense2
+LIBS += -L/usr/lib/x86_64-linux-gnu/ -lglfw -lGL -lGLU -lGLEW
 
 #Boost libraries
 LIBS += -L/usr/lib/x86_64-linux-gnu/ -lboost_system

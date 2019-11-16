@@ -11,6 +11,9 @@ mainWindow::mainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::mainWi
     //initialize UI
     ui->setupUi(this);
 
+    //connection to allow application to close rather than hang if ROS has to shutdown unexpectedly
+    QObject::connect(&rosNode, SIGNAL(rosShutdown()), this, SLOT(close()));
+
     //load settings from file
     loadSettings();
 
