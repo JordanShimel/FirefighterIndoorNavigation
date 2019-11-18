@@ -2,7 +2,7 @@
 //rosNodeWidget handles creating a ROS node and publishing data on it
 
 #include "rosNodeWidget.hpp"
-
+#include <iostream>
 //public: constructor
 //simply creates a new class instance
 rosNodeWidget::rosNodeWidget()
@@ -111,10 +111,16 @@ void rosNodeWidget::run()
         rs2::pipeline rscPipe(rscContext);
         rs2::config rscConfig;
         rscConfig.enable_stream(RS2_STREAM_ACCEL);
-        rscConfig.enable_stream(RS2_STREAM_COLOR);
-        rscConfig.enable_stream(RS2_STREAM_DEPTH);
+        rscConfig.enable_stream(RS2_STREAM_COLOR, 0, 640, 480, RS2_FORMAT_BGR8, 30);
+        rscConfig.enable_stream(RS2_STREAM_DEPTH, 0, 640, 480, RS2_FORMAT_Z16, 30);
         rscConfig.enable_stream(RS2_STREAM_GYRO);
         rscPipe.start(rscConfig);
+
+        std::vector<rs2::sensor> rscSensors = rscDevice.query_sensors();
+        rs2::sensor rscDepthSensor = rscSensors[0];
+        rscDepthSensor.set_option(RS2_OPTION_ENABLE_AUTO_EXPOSURE, 1);
+
+        rs2::align align_to_color(RS2_STREAM_COLOR);
 
         //create variables used to build messages
         //height of camera output
@@ -134,6 +140,23 @@ void rosNodeWidget::run()
         rs2::frame rscTempGyroFrame;
         sensor_msgs::Imu messageImu;
 
+        rs2::decimation_filter rscDecimationFilter;
+        rscDecimationFilter.set_option(RS2_OPTION_FILTER_MAGNITUDE, 2.0);
+        rs2::threshold_filter rscThresholdFilter;
+        rscThresholdFilter.set_option(RS2_OPTION_MIN_DISTANCE, 0.1);
+        rscThresholdFilter.set_option(RS2_OPTION_MAX_DISTANCE, 16.0);
+        rs2::spatial_filter rscSpatialFilter;
+        rscSpatialFilter.set_option(RS2_OPTION_FILTER_MAGNITUDE, 2);
+        rscSpatialFilter.set_option(RS2_OPTION_FILTER_SMOOTH_ALPHA, 0.5);
+        rscSpatialFilter.set_option(RS2_OPTION_FILTER_SMOOTH_DELTA, 20.0);
+        //rscSpatialFilter.set_option(RS2_OPTION_HOLES_FILL, 0);
+        rs2::temporal_filter rscTemporalFilter;
+        rscTemporalFilter.set_option(RS2_OPTION_FILTER_SMOOTH_ALPHA, 0.4);
+        rscTemporalFilter.set_option(RS2_OPTION_FILTER_SMOOTH_DELTA, 20.0);
+        //rscTemporalFilter.set_option(RS2_OPTION_FILTER, 3);
+        rs2::disparity_transform rscDepthToDisparity(true);
+        rs2::disparity_transform rscDisparityToDepth(false);
+
         //rosLoopRate is how many times the while loop will attempt to run per second
         ros::Rate rosLoopRate(mPublishRate);
 
@@ -145,22 +168,32 @@ void rosNodeWidget::run()
 
             if(rscPipe.poll_for_frames(&rscFrameSet))
             {
+                rscFrameSet = align_to_color.process(rscFrameSet);
+
                 //TODO:add better comments for these parts - Jordan
                 //color data publisher
                 rscPublishColorFrame = rscFrameSet.first(RS2_STREAM_COLOR);
                 width = rscPublishColorFrame.as<rs2::video_frame>().get_width();
                 height = rscPublishColorFrame.as<rs2::video_frame>().get_height();
                 cv::Mat imageColor(cv::Size(width, height), CV_8UC3, (void*)rscPublishColorFrame.get_data(), cv::Mat::AUTO_STEP);
-                messageColor = cv_bridge::CvImage(std_msgs::Header(), "rgb8", imageColor).toImageMsg();
+                messageColor = cv_bridge::CvImage(std_msgs::Header(), "bgr8", imageColor).toImageMsg();
                 mPublisherColor.publish(messageColor);
 
                 //depth data publisher
                 rscPublishDepthFrame = rscFrameSet.first(RS2_STREAM_DEPTH);
+
+                //rscPublishDepthFrame = rscDecimationFilter.process(rscPublishDepthFrame);
+                rscPublishDepthFrame = rscThresholdFilter.process(rscPublishDepthFrame);
+                rscPublishDepthFrame = rscDepthToDisparity.process(rscPublishDepthFrame);
+                rscPublishDepthFrame = rscSpatialFilter.process(rscPublishDepthFrame);
+                rscPublishDepthFrame = rscTemporalFilter.process(rscPublishDepthFrame);
+                rscPublishDepthFrame = rscDisparityToDepth.process(rscPublishDepthFrame);
+
                 width = rscPublishDepthFrame.as<rs2::video_frame>().get_width();
                 height = rscPublishDepthFrame.as<rs2::video_frame>().get_height();
                 cv::Mat imageDepth(cv::Size(width, height), CV_16UC1, (void*)rscPublishDepthFrame.get_data(), cv::Mat::AUTO_STEP);
-                //imageDepth.convertTo(imageDepth, CV_16UC1, 255.0/1000);
-                messageDepth = cv_bridge::CvImage(std_msgs::Header(), "mono16", imageDepth).toImageMsg();
+                imageDepth.convertTo(imageDepth, CV_8UC1, 255.0/1000);
+                messageDepth = cv_bridge::CvImage(std_msgs::Header(), "mono8", imageDepth).toImageMsg();
                 mPublisherDepth.publish(messageDepth);
 
                 //imu data publisher
