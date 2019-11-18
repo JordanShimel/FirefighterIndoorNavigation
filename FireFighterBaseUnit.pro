@@ -38,11 +38,14 @@ QMAKE_EXTRA_TARGETS += first copyCameraSettings copyVocabulary
 
 #Custom library path, the place you installed Eigen, ORB_SLAM2, and Pangolin
 #Set this to yours to make qmake function
-USER_LIBRARY_PATH = /home/jordan/Libraries
+#USER_LIBRARY_PATH = /home/jordan/Libraries
+USER_LIBRARY_PATH = /home/jordan/Libraries-ORB_SLAM2_dense
 
 #Extra includes
 INCLUDEPATH += $${USER_LIBRARY_PATH}
 DEPENDPATH += $${USER_LIBRARY_PATH}
+INCLUDEPATH += /usr/local/include
+DEPENDPATH += /usr/local/include
 INCLUDEPATH += /usr/lib/x86_64-linux-gnu
 DEPENDPATH += /usr/lib/x86_64-linux-gnu
 
@@ -61,16 +64,15 @@ LIBS += -L/opt/ros/kinetic/lib/x86_64-linux-gnu/ -lopencv_core3 -lopencv_imgcode
 
 #OpenCV libraries
 INCLUDEPATH += /usr/local/include/opencv4/
-DEPENDPATH += /usr/local/include/
 LIBS += -L/usr/local/lib -lopencv_core
 
 #ORB_SLAM2 libraries
-INCLUDEPATH += $${USER_LIBRARY_PATH}/ORB_SLAM2/include/
-DEPENDPATH += $${USER_LIBRARY_PATH}/ORB_SLAM2/include/
-INCLUDEPATH += $${USER_LIBRARY_PATH}/ORB_SLAM2/
-DEPENDPATH += $${USER_LIBRARY_PATH}/ORB_SLAM2/
-LIBS += -L$${USER_LIBRARY_PATH}/ORB_SLAM2/lib/ -lORB_SLAM2
-LIBS += -L$${USER_LIBRARY_PATH}/ORB_SLAM2/Thirdparty/DBoW2/lib/ -lDBoW2
+INCLUDEPATH += $${USER_LIBRARY_PATH}/ORB_SLAM2_dense/include/
+DEPENDPATH += $${USER_LIBRARY_PATH}/ORB_SLAM2_dense/include/
+INCLUDEPATH += $${USER_LIBRARY_PATH}/ORB_SLAM2_dense/
+DEPENDPATH += $${USER_LIBRARY_PATH}/ORB_SLAM2_dense/
+LIBS += -L$${USER_LIBRARY_PATH}/ORB_SLAM2_dense/lib/ -lORB_SLAM2
+LIBS += -L$${USER_LIBRARY_PATH}/ORB_SLAM2_dense/Thirdparty/DBoW2/lib/ -lDBoW2
 
 #Pangolin libraries
 INCLUDEPATH += $${USER_LIBRARY_PATH}/Pangolin/build/src/
@@ -86,3 +88,8 @@ LIBS += -L/usr/lib/x86_64-linux-gnu/ -lglfw -lGL -lGLU -lGLEW
 
 #Boost libraries
 LIBS += -L/usr/lib/x86_64-linux-gnu/ -lboost_system
+
+#PCL libraries
+INCLUDEPATH += /usr/local/include/pcl-1.9
+DEPENDPATH += /usr/local/include/pcl-1.9
+LIBS += -L/usr/local/lib/ -lpcl_common
