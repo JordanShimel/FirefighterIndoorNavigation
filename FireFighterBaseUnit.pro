@@ -1,11 +1,13 @@
 #indicates main Qt libraries to include
+#note: webenginewidgets is not available by default on manual Qt installs
+#make sure to use a Qt version from the installer and select web engine optional components
 QT += core gui widgets webenginewidgets
 
 #indicates Qt warnings for deprecated functions should be shown
 DEFINES += QT_DEPRECATED_WARNINGS
 
-#C++11 is required for some of our features
-CONFIG += c++11
+#C++14 is required for some of our features(pcl)
+CONFIG += c++14
 
 #list of source files
 SOURCES += \
@@ -187,14 +189,16 @@ export(copyCameraSettings.commands)
 QMAKE_EXTRA_TARGETS += first copyCameraSettings copyVocabulary
 
 #Extra includes
-INCLUDEPATH += $$PWD/ORB_SLAM2_firefighter
-DEPENDPATH += $$PWD/ORB_SLAM2_firefighter
-INCLUDEPATH += $$PWD/ORB_SLAM2_firefighter/include
-DEPENDPATH += $$PWD/ORB_SLAM2_firefighter/include
 INCLUDEPATH += /usr/local/include
 DEPENDPATH += /usr/local/include
 INCLUDEPATH += /usr/lib/x86_64-linux-gnu
 DEPENDPATH += /usr/lib/x86_64-linux-gnu
+
+#Custom ORB_SLAM2
+INCLUDEPATH += $$PWD/ORB_SLAM2_firefighter
+DEPENDPATH += $$PWD/ORB_SLAM2_firefighter
+INCLUDEPATH += $$PWD/ORB_SLAM2_firefighter/include
+DEPENDPATH += $$PWD/ORB_SLAM2_firefighter/include
 
 #ROS libraries
 QMAKE_RPATHDIR += /opt/ros/kinetic/lib
@@ -210,16 +214,15 @@ DEPENDPATH += /opt/ros/kinetic/include/opencv-3.3.1-dev
 LIBS += -L/opt/ros/kinetic/lib/x86_64-linux-gnu/ -lopencv_core3 -lopencv_highgui3 -lopencv_imgcodecs3 -lopencv_imgproc3 -lopencv_features2d3 -lopencv_calib3d3
 
 #Pangolin libraries
-#Custom library path, the place you installed Pangolin
-USER_LIBRARY_PATH = /home/jordan/Libraries
-INCLUDEPATH += $${USER_LIBRARY_PATH}/Pangolin/include
-DEPENDPATH += $${USER_LIBRARY_PATH}/Pangolin/include
-INCLUDEPATH += $${USER_LIBRARY_PATH}/Pangolin/build/src/include
-DEPENDPATH += $${USER_LIBRARY_PATH}/Pangolin/build/src/include
-LIBS += -L$${USER_LIBRARY_PATH}/Pangolin/build/src/ -lpangolin
+PANGOLIN_PATH = /home/jordan/Libraries/Pangolin
+INCLUDEPATH += $${PANGOLIN_PATH}/include
+DEPENDPATH += $${PANGOLIN_PATH}/include
+INCLUDEPATH += $${PANGOLIN_PATH}/build/src/include
+DEPENDPATH += $${PANGOLIN_PATH}/build/src/include
+LIBS += -L$${PANGOLIN_PATH}/build/src/ -lpangolin
 
 #GLEW libraries
-LIBS += -L/usr/lib/x86_64-linux-gnu/ -lglfw -lGL -lGLU -lGLEW
+LIBS += -L/usr/lib/x86_64-linux-gnu/ -lGLEW
 
 #Boost libraries
 LIBS += -L/usr/lib/x86_64-linux-gnu/ -lboost_system
@@ -229,9 +232,9 @@ INCLUDEPATH += /usr/include/eigen3
 DEPENDPATH += /usr/include/eigen3
 
 #PCL libraries
-INCLUDEPATH += /usr/local/include/pcl-1.9
-DEPENDPATH += /usr/local/include/pcl-1.9
-LIBS += -L/usr/local/lib/ -lpcl_common -lpcl_visualization -lpcl_octree -lpcl_filters
+INCLUDEPATH += /usr/include/pcl-1.9
+DEPENDPATH += /usr/include/pcl-1.9
+LIBS += -L/usr/lib/ -lpcl_common -lpcl_visualization -lpcl_octree -lpcl_filters
 
 #VTK libraries
 INCLUDEPATH += /usr/include/vtk-6.2

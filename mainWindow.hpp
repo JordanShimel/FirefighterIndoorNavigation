@@ -55,10 +55,6 @@ class mainWindow : public QMainWindow
         //rosNode is used to assign a persistent ROS node to this window
         rosNodeWidget rosNode;
 
-        //initColorView binds a QtWebEngineWidget to the main window to handle color stream output
-        void initColorView();
-        //initPointcloudView binds a QOpenGLWidget to the main window to handle pointcloud output
-        void initPointcloudView();
         //loadSettings reads settings from the config file
         void loadSettings();
         //saveSettings writes settings to the config file
