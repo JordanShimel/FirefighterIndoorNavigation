@@ -15,7 +15,6 @@ SOURCES += \
         ORB_SLAM2_firefighter/Thirdparty/DBoW2/DBoW2/ScoringObject.cpp \
         ORB_SLAM2_firefighter/Thirdparty/DBoW2/DUtils/Random.cpp \
         ORB_SLAM2_firefighter/Thirdparty/DBoW2/DUtils/Timestamp.cpp \
-        ORB_SLAM2_firefighter/Thirdparty/DBoW2/tools/tools.cpp \
         ORB_SLAM2_firefighter/Thirdparty/g2o/g2o/core/batch_stats.cpp \
         ORB_SLAM2_firefighter/Thirdparty/g2o/g2o/core/cache.cpp \
         ORB_SLAM2_firefighter/Thirdparty/g2o/g2o/core/estimate_propagator.cpp \
@@ -39,7 +38,6 @@ SOURCES += \
         ORB_SLAM2_firefighter/Thirdparty/g2o/g2o/core/robust_kernel_factory.cpp \
         ORB_SLAM2_firefighter/Thirdparty/g2o/g2o/core/robust_kernel_impl.cpp \
         ORB_SLAM2_firefighter/Thirdparty/g2o/g2o/core/solver.cpp \
-        ORB_SLAM2_firefighter/Thirdparty/g2o/g2o/core/sparse_block_matrix_test.cpp \
         ORB_SLAM2_firefighter/Thirdparty/g2o/g2o/core/sparse_optimizer.cpp \
         ORB_SLAM2_firefighter/Thirdparty/g2o/g2o/stuff/os_specific.c \
         ORB_SLAM2_firefighter/Thirdparty/g2o/g2o/stuff/property.cpp \
@@ -63,11 +61,11 @@ SOURCES += \
         ORB_SLAM2_firefighter/src/ORBmatcher.cc \
         ORB_SLAM2_firefighter/src/Optimizer.cc \
         ORB_SLAM2_firefighter/src/PnPsolver.cc \
+        ORB_SLAM2_firefighter/src/pointcloudmapping.cc \
         ORB_SLAM2_firefighter/src/Sim3Solver.cc \
         ORB_SLAM2_firefighter/src/System.cc \
         ORB_SLAM2_firefighter/src/Tracking.cc \
         ORB_SLAM2_firefighter/src/Viewer.cc \
-        ORB_SLAM2_firefighter/src/pointcloudmapping.cc \
         main.cpp \
         mainWindow.cpp \
         pointcloudWidget.cpp \
@@ -162,11 +160,11 @@ HEADERS += \
         ORB_SLAM2_firefighter/include/ORBmatcher.h \
         ORB_SLAM2_firefighter/include/Optimizer.h \
         ORB_SLAM2_firefighter/include/PnPsolver.h \
+        ORB_SLAM2_firefighter/include/pointcloudmapping.h \
         ORB_SLAM2_firefighter/include/Sim3Solver.h \
         ORB_SLAM2_firefighter/include/System.h \
         ORB_SLAM2_firefighter/include/Tracking.h \
         ORB_SLAM2_firefighter/include/Viewer.h \
-        ORB_SLAM2_firefighter/include/pointcloudmapping.h \
         mainWindow.hpp \
         pointcloudWidget.hpp \
         rosNodeWidget.hpp
@@ -177,26 +175,22 @@ FORMS += \
 
 #list of model files
 DISTFILES += \
-        ORB_SLAM2_firefighter/Vocabulary/ORBvoc.txt \
         camera.yaml \
         firefighterbaseunit.qmodel
 
 #These commands cause qmake to copy the camera settings and vocabulary files to the build directory
 copyCameraSettings.commands = $(COPY_DIR) $$PWD/camera.yaml $$OUT_PWD
-copyVocabulary.commands = $(COPY_DIR) $$PWD/ORBvoc.txt $$OUT_PWD
+copyVocabulary.commands = $(COPY_DIR) $$PWD/ORB_SLAM2_firefighter/Vocabulary/ORBvoc.txt $$OUT_PWD
 first.depends = $(first) copyCameraSettings copyVocabulary
 export(first.depends)
 export(copyCameraSettings.commands)
 QMAKE_EXTRA_TARGETS += first copyCameraSettings copyVocabulary
 
-#Custom library path, the place you installed Eigen, ORB_SLAM2, and Pangolin
-#Set this to yours to make qmake function
-#USER_LIBRARY_PATH = /home/jordan/Libraries
-USER_LIBRARY_PATH = /home/jordan/Libraries-ORB_SLAM2_dense
-
 #Extra includes
-INCLUDEPATH += $${USER_LIBRARY_PATH}
-DEPENDPATH += $${USER_LIBRARY_PATH}
+INCLUDEPATH += $$PWD/ORB_SLAM2_firefighter
+DEPENDPATH += $$PWD/ORB_SLAM2_firefighter
+INCLUDEPATH += $$PWD/ORB_SLAM2_firefighter/include
+DEPENDPATH += $$PWD/ORB_SLAM2_firefighter/include
 INCLUDEPATH += /usr/local/include
 DEPENDPATH += /usr/local/include
 INCLUDEPATH += /usr/lib/x86_64-linux-gnu
@@ -206,34 +200,22 @@ DEPENDPATH += /usr/lib/x86_64-linux-gnu
 QMAKE_RPATHDIR += /opt/ros/kinetic/lib
 INCLUDEPATH += /opt/ros/kinetic/include
 DEPENDPATH += /opt/ros/kinetic/include
-LIBS += -L/opt/ros/kinetic/lib/ -lroscpp -lroscpp_serialization -lrosconsole -lrostime -lcv_bridge -limage_transport -lmessage_filters
+LIBS += -L/opt/ros/kinetic/lib/ -lroscpp -limage_transport -lrosconsole -lrostime -lcv_bridge -lroscpp_serialization -lmessage_filters
 
 #ROS OpenCV libraries
 INCLUDEPATH += /opt/ros/kinetic/lib/x86_64-linux-gnu
 DEPENDPATH += /opt/ros/kinetic/lib/x86_64-linux-gnu
-INCLUDEPATH += /opt/ros/kinetic/include/opencv-3.3.1-dev/
-DEPENDPATH += /opt/ros/kinetic/include/opencv-3.3.1-dev/
-LIBS += -L/opt/ros/kinetic/lib/x86_64-linux-gnu/ -lopencv_core3 -lopencv_imgcodecs3 -lopencv_imgproc3
-
-#OpenCV libraries
-INCLUDEPATH += /usr/local/include/opencv4/
-LIBS += -L/usr/local/lib -lopencv_core
-
-#ORB_SLAM2 libraries
-INCLUDEPATH += $${USER_LIBRARY_PATH}/ORB_SLAM2_dense/include/
-DEPENDPATH += $${USER_LIBRARY_PATH}/ORB_SLAM2_dense/include/
-INCLUDEPATH += $${USER_LIBRARY_PATH}/ORB_SLAM2_dense/
-DEPENDPATH += $${USER_LIBRARY_PATH}/ORB_SLAM2_dense/
-LIBS += -L$${USER_LIBRARY_PATH}/ORB_SLAM2_dense/lib/ -lORB_SLAM2
-LIBS += -L$${USER_LIBRARY_PATH}/ORB_SLAM2_dense/Thirdparty/DBoW2/lib/ -lDBoW2
+INCLUDEPATH += /opt/ros/kinetic/include/opencv-3.3.1-dev
+DEPENDPATH += /opt/ros/kinetic/include/opencv-3.3.1-dev
+LIBS += -L/opt/ros/kinetic/lib/x86_64-linux-gnu/ -lopencv_core3 -lopencv_highgui3 -lopencv_imgcodecs3 -lopencv_imgproc3 -lopencv_features2d3 -lopencv_calib3d3
 
 #Pangolin libraries
-INCLUDEPATH += $${USER_LIBRARY_PATH}/Pangolin/build/src/
-DEPENDPATH += $${USER_LIBRARY_PATH}/Pangolin/build/src/
-INCLUDEPATH += $${USER_LIBRARY_PATH}/Pangolin/include/
-DEPENDPATH += $${USER_LIBRARY_PATH}/Pangolin/include/
-INCLUDEPATH += $${USER_LIBRARY_PATH}/Pangolin/build/src/include/
-DEPENDPATH += $${USER_LIBRARY_PATH}/Pangolin/build/src/include/
+#Custom library path, the place you installed Pangolin
+USER_LIBRARY_PATH = /home/jordan/Libraries
+INCLUDEPATH += $${USER_LIBRARY_PATH}/Pangolin/include
+DEPENDPATH += $${USER_LIBRARY_PATH}/Pangolin/include
+INCLUDEPATH += $${USER_LIBRARY_PATH}/Pangolin/build/src/include
+DEPENDPATH += $${USER_LIBRARY_PATH}/Pangolin/build/src/include
 LIBS += -L$${USER_LIBRARY_PATH}/Pangolin/build/src/ -lpangolin
 
 #GLEW libraries
@@ -242,7 +224,15 @@ LIBS += -L/usr/lib/x86_64-linux-gnu/ -lglfw -lGL -lGLU -lGLEW
 #Boost libraries
 LIBS += -L/usr/lib/x86_64-linux-gnu/ -lboost_system
 
+#Eigen
+INCLUDEPATH += /usr/include/eigen3
+DEPENDPATH += /usr/include/eigen3
+
 #PCL libraries
 INCLUDEPATH += /usr/local/include/pcl-1.9
 DEPENDPATH += /usr/local/include/pcl-1.9
-LIBS += -L/usr/local/lib/ -lpcl_common
+LIBS += -L/usr/local/lib/ -lpcl_common -lpcl_visualization -lpcl_octree -lpcl_filters
+
+#VTK libraries
+INCLUDEPATH += /usr/include/vtk-6.2
+DEPENDPATH += /usr/include/vtk-6.2

@@ -27,7 +27,7 @@
 #include <QThread>
 
 //ORB_SLAM2 is used to create and render pointcloud
-#include "ORB_SLAM2_dense/include/System.h"
+#include "ORB_SLAM2_firefighter/include/System.h"
 
 //rosNodeWidget class, manages ROS node and subscribing
 class rosNodeWidget : public QThread
