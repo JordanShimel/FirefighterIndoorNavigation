@@ -22,7 +22,7 @@
 #include <opencv2/core/core.hpp>
 
 //ORB_SLAM2 is used to create and render pointcloud
-#include "ORB_SLAM2/include/System.h"
+#include "ORB_SLAM2_firefighter/include/System.h"
 
 //pointcloudWidget class, manages pointcloud functionality
 class pointcloudWidget
