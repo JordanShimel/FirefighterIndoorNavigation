@@ -1,11 +1,13 @@
 #indicates main Qt libraries to include
+#note: webenginewidgets is not available by default on manual Qt installs
+#make sure to use a Qt version from the installer and select web engine optional components
 QT += core gui widgets webenginewidgets
 
 #indicates Qt warnings for deprecated functions should be shown
 DEFINES += QT_DEPRECATED_WARNINGS
 
-#C++11 is required for some of our features
-CONFIG += c++11
+#C++14 is required for some of our features(pcl)
+CONFIG += c++14
 
 #list of source files
 SOURCES += \
@@ -24,70 +26,74 @@ HEADERS += \
 FORMS += \
         mainWindow.ui
 
-#list of model files
+#list of other files
 DISTFILES += \
+        $$PWD/ORB_SLAM2_firefighter/Vocabulary/ORBvoc.txt \
+        camera.yaml \
         firefighterbaseunit.qmodel
 
 #These commands cause qmake to copy the camera settings and vocabulary files to the build directory
 copyCameraSettings.commands = $(COPY_DIR) $$PWD/camera.yaml $$OUT_PWD
-copyVocabulary.commands = $(COPY_DIR) $$PWD/ORBvoc.txt $$OUT_PWD
+copyVocabulary.commands = $(COPY_DIR) $$PWD/ORB_SLAM2_firefighter/Vocabulary/ORBvoc.txt $$OUT_PWD
 first.depends = $(first) copyCameraSettings copyVocabulary
 export(first.depends)
 export(copyCameraSettings.commands)
 QMAKE_EXTRA_TARGETS += first copyCameraSettings copyVocabulary
 
-#Custom library path, the place you installed Eigen, ORB_SLAM2, and Pangolin
-#Set this to yours to make qmake function
-USER_LIBRARY_PATH = /home/nawar/Libraries
-
 #Extra includes
-INCLUDEPATH += $${USER_LIBRARY_PATH}
-DEPENDPATH += $${USER_LIBRARY_PATH}
+INCLUDEPATH += /usr/local/include
+DEPENDPATH += /usr/local/include
 INCLUDEPATH += /usr/lib/x86_64-linux-gnu
 DEPENDPATH += /usr/lib/x86_64-linux-gnu
+
+#Custom ORB_SLAM2
+INCLUDEPATH += $$PWD/ORB_SLAM2_firefighter/include
+DEPENDPATH += $$PWD/ORB_SLAM2_firefighter/include
+INCLUDEPATH += $$PWD/ORB_SLAM2_firefighter
+DEPENDPATH += $$PWD/ORB_SLAM2_firefighter
+LIBS += -L$$PWD//ORB_SLAM2_firefighter/lib -lORB_SLAM2
 
 #ROS libraries
 QMAKE_RPATHDIR += /opt/ros/kinetic/lib
 INCLUDEPATH += /opt/ros/kinetic/include
 DEPENDPATH += /opt/ros/kinetic/include
-LIBS += -L/opt/ros/kinetic/lib/ -lroscpp -lroscpp_serialization -lrosconsole -lrostime -lcv_bridge -limage_transport -lmessage_filters
+LIBS += -L/opt/ros/kinetic/lib/ -lroscpp -limage_transport -lrosconsole -lrostime -lcv_bridge -lroscpp_serialization -lmessage_filters
 
 #ROS OpenCV libraries
 INCLUDEPATH += /opt/ros/kinetic/lib/x86_64-linux-gnu
 DEPENDPATH += /opt/ros/kinetic/lib/x86_64-linux-gnu
-INCLUDEPATH += /opt/ros/kinetic/include/opencv-3.3.1-dev/
-DEPENDPATH += /opt/ros/kinetic/include/opencv-3.3.1-dev/
-LIBS += -L/opt/ros/kinetic/lib/x86_64-linux-gnu/ -lopencv_core3 -lopencv_imgcodecs3 -lopencv_imgproc3
-
-#OpenCV libraries
-INCLUDEPATH += /usr/local/include/opencv4/
-DEPENDPATH += /usr/local/include/
-LIBS += -L/usr/local/lib -lopencv_core
-
-#ORB_SLAM2 libraries
-INCLUDEPATH += $${USER_LIBRARY_PATH}/ORB_SLAM2/include/
-DEPENDPATH += $${USER_LIBRARY_PATH}/ORB_SLAM2/include/
-INCLUDEPATH += $${USER_LIBRARY_PATH}/ORB_SLAM2/
-DEPENDPATH += $${USER_LIBRARY_PATH}/ORB_SLAM2/
-LIBS += -L$${USER_LIBRARY_PATH}/ORB_SLAM2/lib/ -lORB_SLAM2
-LIBS += -L$${USER_LIBRARY_PATH}/ORB_SLAM2/Thirdparty/DBoW2/lib/ -lDBoW2
+INCLUDEPATH += /opt/ros/kinetic/include/opencv-3.3.1-dev
+DEPENDPATH += /opt/ros/kinetic/include/opencv-3.3.1-dev
+LIBS += -L/opt/ros/kinetic/lib/x86_64-linux-gnu/ -lopencv_core3 -lopencv_highgui3 -lopencv_imgcodecs3 -lopencv_imgproc3 -lopencv_features2d3 -lopencv_calib3d3
 
 #Pangolin libraries
-INCLUDEPATH += $${USER_LIBRARY_PATH}/Pangolin/build/src/
-DEPENDPATH += $${USER_LIBRARY_PATH}/Pangolin/build/src/
-INCLUDEPATH += $${USER_LIBRARY_PATH}/Pangolin/include/
-DEPENDPATH += $${USER_LIBRARY_PATH}/Pangolin/include/
-INCLUDEPATH += $${USER_LIBRARY_PATH}/Pangolin/build/src/include/
-DEPENDPATH += $${USER_LIBRARY_PATH}/Pangolin/build/src/include/
-LIBS += -L$${USER_LIBRARY_PATH}/Pangolin/build/src/ -lpangolin
+PANGOLIN_PATH = /home/jordan/Libraries/Pangolin
+INCLUDEPATH += $${PANGOLIN_PATH}/include
+DEPENDPATH += $${PANGOLIN_PATH}/include
+INCLUDEPATH += $${PANGOLIN_PATH}/build/src/include
+DEPENDPATH += $${PANGOLIN_PATH}/build/src/include
+LIBS += -L$${PANGOLIN_PATH}/build/src/ -lpangolin
 
 #GLEW libraries
-LIBS += -L/usr/lib/x86_64-linux-gnu/ -lglfw -lGL -lGLU -lGLEW #-lrealsense2
+LIBS += -L/usr/lib/x86_64-linux-gnu/ -lGLEW
 
 #Boost libraries
 LIBS += -L/usr/lib/x86_64-linux-gnu/ -lboost_system
 
-unix:!macx: LIBS += -L$$PWD/../../../../usr/lib/x86_64-linux-gnu/ -lxdo
+#LXDO libraries
+INCLUDEPATH += /usr/lib/x86_64-linux-gnu
+DEPENDPATH += /usr/lib/x86_64-linux-gnu
+LIBS += -L/usr/lib/x86_64-linux-gnu/ -lxdo
 
-INCLUDEPATH += $$PWD/../../../../usr/lib/x86_64-linux-gnu
-DEPENDPATH += $$PWD/../../../../usr/lib/x86_64-linux-gnu
+#Eigen
+INCLUDEPATH += /usr/include/eigen3
+DEPENDPATH += /usr/include/eigen3
+
+#PCL libraries
+INCLUDEPATH += /usr/local/include/pcl-1.9
+DEPENDPATH += /usr/local/include/pcl-1.9
+LIBS += -L/usr/local/lib/ -lpcl_common -lpcl_visualization -lpcl_octree -lpcl_filters
+
+#VTK libraries
+INCLUDEPATH += /usr/include/vtk-6.2
+DEPENDPATH += /usr/include/vtk-6.2

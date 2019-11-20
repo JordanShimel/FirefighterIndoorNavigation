@@ -90,7 +90,7 @@ void rosNodeWidget::run()
     sync.registerCallback(boost::bind(&pointcloudWidget::processFrames, &rscPointcloud, _1, _2));
 
     //rosLoopRate is how many times the while loop will attempt to run per second
-    ros::Rate rosLoopRate(10);
+    ros::Rate rosLoopRate(mRefreshRate);
 
     //as long as ROS hasn't been shutdown
     while(ros::ok())
