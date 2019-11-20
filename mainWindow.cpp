@@ -37,6 +37,7 @@ void mainWindow::on_PushButtonSaveConfig_clicked()
 {
     //TODO:make this restart thing with new config values, rather than just save them - Jordan
     saveSettings();
+    printf("TEST");
 }
 
 //private: loadSettings
