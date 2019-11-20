@@ -4,6 +4,8 @@
 #ifndef MAINWINDOW_HPP
 #define MAINWINDOW_HPP
 
+
+
 //providess pointcloud functionality
 #include <pointcloudWidget.hpp>
 
@@ -24,6 +26,18 @@
 
 //QSettings is used to handle saving and loading settings
 #include <QSettings>
+#include <xdo.h>
+#include <QWindow>
+#include <cstdio>
+#include <iostream>
+#include <memory>
+#include <stdexcept>
+#include <string>
+#include <array>
+#include <cstdlib>
+#include <iostream>
+
+using namespace std;
 
 //namespace required for access to ui elements
 namespace Ui
@@ -49,7 +63,19 @@ class mainWindow : public QMainWindow
         //until then it's kind of pointless - Jordan
         void on_PushButtonSaveConfig_clicked();
 
+        void importSlam();
     private:
+        int cmdCnt = 0;
+        //Map viewer function variables
+        string mvWinID = "";
+        string mvResult;
+        array<char, 128> mvBuffer;
+
+        //Current Frame function variables
+        string cfWinID = "";
+        string cfResult;
+        array<char, 128> cfBuffer;
+
         //ui is used to access all the GUI Qt elements
         Ui::mainWindow *ui;
         //rosNode is used to assign a persistent ROS node to this window

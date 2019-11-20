@@ -52,6 +52,8 @@ class rosNodeWidget : public QThread
     Q_SIGNALS:
         //rosShutdown is used to signal an unexpected stopping of the ROS node to the main application
         void rosShutdown();
+        void launchSlam();
+                /// create a qsignal here for the slamInit signal, use the signal for the win id
 
     private:
         //ROS image subsciber for color data

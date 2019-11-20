@@ -12,6 +12,7 @@ int main(int argc, char *argv[])
     //basic code to run a Qt based window
     QApplication application(argc, argv);
     mainWindow FireFighterBaseUnitWindow;
+    //FireFighterBaseUnitWindow.setWindowState(Qt::WindowMaximized);
     FireFighterBaseUnitWindow.show();
     return application.exec();
 }

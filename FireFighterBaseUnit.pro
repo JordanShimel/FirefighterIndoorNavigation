@@ -38,7 +38,7 @@ QMAKE_EXTRA_TARGETS += first copyCameraSettings copyVocabulary
 
 #Custom library path, the place you installed Eigen, ORB_SLAM2, and Pangolin
 #Set this to yours to make qmake function
-USER_LIBRARY_PATH = /home/jordan/Libraries
+USER_LIBRARY_PATH = /home/nawar/Libraries
 
 #Extra includes
 INCLUDEPATH += $${USER_LIBRARY_PATH}
@@ -86,3 +86,8 @@ LIBS += -L/usr/lib/x86_64-linux-gnu/ -lglfw -lGL -lGLU -lGLEW #-lrealsense2
 
 #Boost libraries
 LIBS += -L/usr/lib/x86_64-linux-gnu/ -lboost_system
+
+unix:!macx: LIBS += -L$$PWD/../../../../usr/lib/x86_64-linux-gnu/ -lxdo
+
+INCLUDEPATH += $$PWD/../../../../usr/lib/x86_64-linux-gnu
+DEPENDPATH += $$PWD/../../../../usr/lib/x86_64-linux-gnu

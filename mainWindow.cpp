@@ -2,6 +2,7 @@
 //mainWindow handles the GUI for the base unit application
 
 #include "mainWindow.hpp"
+#include <stdio.h>
 
 //public: constructor
 //creates ui instance
@@ -10,6 +11,13 @@ mainWindow::mainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::mainWi
 {
     //initialize UI
     ui->setupUi(this);
+
+    QObject::connect(&rosNode, SIGNAL(launchSlam()), this, SLOT(importSlam()));
+
+//    QObject::connect(&rosNode, SIGNAL(cfSlam()), this, SLOT(import_cfSlam()));
+
+    /// connect to the signal sent from run after spinonce so so can do something when it sees it (single with the win id), do this only
+    /// on the first time and ignore the rest, link to a function in mainwindow class to move map viewer and frame viewer into our app
 
     //load settings from file
     loadSettings();
@@ -44,25 +52,80 @@ void mainWindow::on_PushButtonSaveConfig_clicked()
     saveSettings();
 }
 
+void mainWindow::importSlam()
+{
+    //when cmdCnt is == to 1 that is when the slam applications will have  launched and can be imported
+    if (cmdCnt == 1) {
+
+// --------------------------- Grab POINT CLOUD application
+        // Get the output of the command that displays information on the running orb-slam2 pointcloud map application
+        std::shared_ptr<FILE> pipe(popen("xwininfo -name \"ORB-SLAM2: Map Viewer\"", "r"), pclose);
+
+        //move the output of the previous command into string mvResult
+        if (!pipe) throw std::runtime_error("popen() failed!");
+             while (!feof(pipe.get())) {
+                 if (fgets(mvBuffer.data(), 128, pipe.get()) != nullptr)
+                     mvResult += mvBuffer.data();
+            }
+
+        // parse the result for the programs window id, a 9 digit hexademical number
+        mvResult = mvResult.substr(22, 9);
+        system("wmctrl -r \"ORB-SLAM2: Map Viewer\" -e 0,0,0,640,546");  // FIXME: might be dead code
+
+        //convert the 9 digit hexadecimal number into an acceptable type for fromWindId();
+        unsigned long mvWinID = std::strtoul(mvResult.c_str(), 0, 16);
+
+        //import the map viewer application
+        QWindow *window = QWindow::fromWinId(mvWinID);
+        window->setFlags(Qt::FramelessWindowHint);
+
+        QWidget *widget = QWidget::createWindowContainer(window);
+        widget->setFixedHeight(546);
+     //   widget->setStyleSheet("border: 50px solid red");
+
+        ui->boxLayoutPointcloud->addWidget(widget);
+
+// --------------------------- Grab VIDEO STREAM application
+        std::shared_ptr<FILE> pipe2(popen("xwininfo -name \"ORB-SLAM2: Current Frame\"", "r"), pclose);
+
+        if (!pipe2) throw std::runtime_error("popen() failed!");
+             while (!feof(pipe2.get())) {
+                 if (fgets(cfBuffer.data(), 128, pipe2.get()) != nullptr)
+                     cfResult += cfBuffer.data();
+             }
+         cfResult = cfResult.substr(22, 9);
+         system("wmctrl -r \"ORB-SLAM2: Current Frame\" -e 0,0,0,640,480");   // FIXME: might be dead code
+         unsigned long cfwinID2 = std::strtoul(cfResult.c_str(), 0, 16);
+
+         QWindow *window2 = QWindow::fromWinId(cfwinID2);
+         window2->setFlags(Qt::FramelessWindowHint);
+
+         QWidget *widget2 = QWidget::createWindowContainer(window2);
+         ui->boxLayoutVideoStream->addWidget(widget2);
+    }
+    cmdCnt ++;
+}
+
+
 //private: initColorView
 //connects a QWebEngineWidget to the main ui to show color stream
 void mainWindow::initColorView()
 {
-    //create a webengineview
-    QWebEngineView* viewColorData = new QWebEngineView(this);
+//    //create a webengineview
+//    QWebEngineView* viewColorData = new QWebEngineView(this);
 
-    //point it to the stream viewer topic(handled externally by web_video_server)
-    viewColorData->load(QUrl("http://localhost:8080/stream_viewer?topic=/" + ui->textEditColorTopicName->toPlainText()));
+//    //point it to the stream viewer topic(handled externally by web_video_server)
+//    viewColorData->load(QUrl("http://localhost:8080/stream_viewer?topic=/" + ui->textEditColorTopicName->toPlainText()));
 
-    //configure settings to make it fit nicely in ui
-    viewColorData->setZoomFactor(0.68);
-    viewColorData->page()->setBackgroundColor((Qt::transparent));
+//    //configure settings to make it fit nicely in ui
+//    viewColorData->setZoomFactor(0.68);
+//    viewColorData->page()->setBackgroundColor((Qt::transparent));
 
-    //show the stream in widget
-    viewColorData->show();
+//    //show the stream in widget
+//    viewColorData->show();
 
     //add widget to main ui
-    ui->boxLayoutVideoStream->addWidget(viewColorData);
+
 }
 
 //private: initPointcloudView
