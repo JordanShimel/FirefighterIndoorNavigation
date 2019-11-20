@@ -9,15 +9,15 @@
 viewerWidget::viewerWidget()
 {
     //TODO?: change from hard coded height and width - Jordan
-    windowHeight = 1280;
-    windowWidth = 720;
+    windowWidth = 640;
+    windowHeight = 480;
     //frame handles are used by the show frame functions
     motionFrameHandle = 0;
     videoFrameHandle = 0;
 
     //Create a GLFW window and set it as the current context
     glfwInit();
-    previewWindow = glfwCreateWindow(1280, 960, "Camera Output Test", nullptr, nullptr);
+    previewWindow = glfwCreateWindow(windowWidth, windowHeight, "Camera Output Test", nullptr, nullptr);
     if(!previewWindow)
     {
         throw std::runtime_error("Could not open OpenGL window");
@@ -57,11 +57,12 @@ void viewerWidget::show(const std::map<int, rs2::frame> rscFrames)
     if(rscFrames.size())
     {
         //streamNum is used to do math to determine where each frame displays
+        // A is windowWidth, B is windowHeight
         //    streamNum    | frameLocationX | frameLocationY
         //  streamNum%4==0 |       0        |       0
-        //  streamNum%4==1 |      640       |       0
-        //  streamNum%4==2 |       0        |      480
-        //  streamNum%4==3 |      640       |      480
+        //  streamNum%4==1 |      A/2       |       0
+        //  streamNum%4==2 |       0        |      B/2
+        //  streamNum%4==3 |      A/2       |      B/2
         int streamNum = 0;
 
         //run through all the frames in the map
@@ -70,12 +71,12 @@ void viewerWidget::show(const std::map<int, rs2::frame> rscFrames)
             //if it's a video frame, render it using the showVideoFrame function
             if(auto rscVideoFrame = rscFrame.second.as<rs2::video_frame>())
             {
-                showVideoFrame(rscVideoFrame, 640*(streamNum%2), 480*(streamNum/2));
+                showVideoFrame(rscVideoFrame, (windowWidth/2)*(streamNum%2), (windowHeight/2)*(streamNum/2));
             }
             //if it's a motion frame, render it using the showMotionFrame function
             if(auto rscMotionFrame = rscFrame.second.as<rs2::motion_frame>())
             {
-                showMotionFrame(rscMotionFrame, 640*(streamNum%2), 480*(streamNum/2));
+                showMotionFrame(rscMotionFrame, (windowWidth/2)*(streamNum%2), (windowHeight/2)*(streamNum/2));
             }
 
             streamNum++;
@@ -119,10 +120,10 @@ void viewerWidget::showMotionFrame(const rs2::motion_frame &rscFrame, const int 
 
     //perform OpenGL matrix math
     //TODO: better comments here - Jordan
-    glViewport(xLoc, yLoc, 640, 480);
+    glViewport(xLoc, yLoc, (windowWidth/2), (windowHeight/2));
     glLoadIdentity();
     glMatrixMode(GL_PROJECTION);
-    glOrtho(0, 640, 480, 0, -1, +1);
+    glOrtho(0, (windowWidth/2), (windowHeight/2), 0, -1, +1);
     glPushMatrix();
     glLoadIdentity();
     glOrtho(-2.8, 2.8, -2.4, 2.4, -7, 7);
@@ -268,10 +269,10 @@ void viewerWidget::showVideoFrame(const rs2::video_frame &rscFrame, const int xL
     glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
     glBindTexture(GL_TEXTURE_2D, 0);
 
-    glViewport(xLoc, yLoc, 640, 480);
+    glViewport(xLoc, yLoc, (windowWidth/2), (windowHeight/2));
     glLoadIdentity();
     glMatrixMode(GL_PROJECTION);
-    glOrtho(0, 640, 480, 0, -1, +1);
+    glOrtho(0, (windowWidth/2), (windowHeight/2), 0, -1, +1);
 
     glBindTexture(GL_TEXTURE_2D, videoFrameHandle);
     glColor4f(1, 1, 1, 1);
@@ -279,9 +280,9 @@ void viewerWidget::showVideoFrame(const rs2::video_frame &rscFrame, const int xL
     glEnable(GL_TEXTURE_2D);
         glBegin(GL_QUADS);
             glTexCoord2f(0, 0); glVertex2f(0, 0);
-            glTexCoord2f(0, 1); glVertex2f(0, 480);
-            glTexCoord2f(1, 1); glVertex2f(640, 480);
-            glTexCoord2f(1, 0); glVertex2f(640, 0);
+            glTexCoord2f(0, 1); glVertex2f(0, (windowHeight/2));
+            glTexCoord2f(1, 1); glVertex2f((windowWidth/2), (windowHeight/2));
+            glTexCoord2f(1, 0); glVertex2f((windowWidth/2), 0);
         glEnd();
     glDisable(GL_TEXTURE_2D);
 
