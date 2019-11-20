@@ -22,7 +22,7 @@
      <rect>
       <x>190</x>
       <y>580</y>
-      <width>301</width>
+      <width>271</width>
       <height>31</height>
      </rect>
     </property>
@@ -80,22 +80,6 @@ p, li { white-space: pre-wrap; }
      </property>
     </layout>
    </widget>
-   <widget class="QPushButton" name="pushButtonSaveConfig">
-    <property name="geometry">
-     <rect>
-      <x>510</x>
-      <y>650</y>
-      <width>121</width>
-      <height>25</height>
-     </rect>
-    </property>
-    <property name="styleSheet">
-     <string notr="true">background-color: rgb(91, 194, 54)</string>
-    </property>
-    <property name="text">
-     <string>SAVE CONFIG</string>
-    </property>
-   </widget>
    <widget class="QLabel" name="labelRosLocalIP">
     <property name="geometry">
      <rect>
@@ -127,9 +111,9 @@ p, li { white-space: pre-wrap; }
    <widget class="QTextEdit" name="textEditDepthTopicName">
     <property name="geometry">
      <rect>
-      <x>800</x>
+      <x>820</x>
       <y>610</y>
-      <width>301</width>
+      <width>271</width>
       <height>31</height>
      </rect>
     </property>
@@ -149,7 +133,7 @@ p, li { white-space: pre-wrap; }
      <rect>
       <x>640</x>
       <y>610</y>
-      <width>161</width>
+      <width>181</width>
       <height>31</height>
      </rect>
     </property>
@@ -171,7 +155,7 @@ p, li { white-space: pre-wrap; }
      <rect>
       <x>640</x>
       <y>580</y>
-      <width>161</width>
+      <width>181</width>
       <height>31</height>
      </rect>
     </property>
@@ -191,9 +175,9 @@ p, li { white-space: pre-wrap; }
    <widget class="QTextEdit" name="textEditImuTopicName">
     <property name="geometry">
      <rect>
-      <x>800</x>
+      <x>820</x>
       <y>640</y>
-      <width>301</width>
+      <width>271</width>
       <height>31</height>
      </rect>
     </property>
@@ -211,9 +195,9 @@ p, li { white-space: pre-wrap; }
    <widget class="QTextEdit" name="textEditColorTopicName">
     <property name="geometry">
      <rect>
-      <x>800</x>
+      <x>820</x>
       <y>580</y>
-      <width>301</width>
+      <width>271</width>
       <height>31</height>
      </rect>
     </property>
@@ -233,7 +217,7 @@ p, li { white-space: pre-wrap; }
      <rect>
       <x>190</x>
       <y>640</y>
-      <width>301</width>
+      <width>271</width>
       <height>31</height>
      </rect>
     </property>
@@ -253,7 +237,7 @@ p, li { white-space: pre-wrap; }
      <rect>
       <x>190</x>
       <y>610</y>
-      <width>301</width>
+      <width>271</width>
       <height>31</height>
      </rect>
     </property>
@@ -273,7 +257,7 @@ p, li { white-space: pre-wrap; }
      <rect>
       <x>640</x>
       <y>640</y>
-      <width>161</width>
+      <width>181</width>
       <height>31</height>
      </rect>
     </property>
@@ -316,7 +300,7 @@ p, li { white-space: pre-wrap; }
     <property name="geometry">
      <rect>
       <x>640</x>
-      <y>10</y>
+      <y>20</y>
       <width>641</width>
       <height>551</height>
      </rect>

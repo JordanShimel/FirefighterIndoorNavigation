@@ -35,14 +35,6 @@ mainWindow::~mainWindow()
     delete ui;
 }
 
-//private slot: on_PushButtonSaveConfig_clicked
-//will eventually reinitialize pointcloud system with new values, currently placeholder
-void mainWindow::on_pushButtonSaveConfig_clicked()
-{
-    //TODO:make this restart thing with new config values, rather than just save them - Jordan
-    saveSettings();
-}
-
 void mainWindow::importSlam()
 {
     //when cmdCnt is == to 1 that is when the slam applications will have  launched and can be imported
@@ -71,8 +63,8 @@ void mainWindow::importSlam()
         window->setFlags(Qt::FramelessWindowHint);
 
         QWidget *widget = QWidget::createWindowContainer(window);
-        widget->setFixedHeight(546);
-     //   widget->setStyleSheet("border: 50px solid red");
+        widget->setFixedHeight(551);
+        //widget->setStyleSheet("QWidget{border: 50px solid red;}");
 
         ui->boxLayoutPointcloud->addWidget(widget);
 

@@ -60,11 +60,6 @@ class mainWindow : public QMainWindow
         ~mainWindow();
 
     private slots:
-        //on_pushButtonSaveConfigClicked saves the settings to disk
-        //TODO:eventually this should be changed to also reinitialize things with the changed settings
-        //until then it's kind of pointless - Jordan
-        void on_pushButtonSaveConfig_clicked();
-
         void importSlam();
 
 private:
