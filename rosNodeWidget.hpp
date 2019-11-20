@@ -30,6 +30,9 @@
 //QMessageBox allows the creation of simple message boxes
 #include <QMessageBox>
 
+//QSettings is used to handle saving and loading settings
+#include <QSettings>
+
 //rosNodeWidget class, manages ROS node and publishing
 class rosNodeWidget : public QThread
 {
@@ -42,13 +45,13 @@ class rosNodeWidget : public QThread
         //destructor shuts down ROS node and then destroys class instance
         virtual ~rosNodeWidget();
         //init creates a ROS node if one doesn't already exist and then initiates the main publishing loop in run
-        bool init(const std::string &rosMasterAddress, const std::string &rosLocalAddress,
-                  const std::string &colorTopicName, const std::string &depthTopicName,
-                  const std::string &imuTopicName, const float &publishRate);
+        bool init();
         //run is called by init and handles the main publishing loop
         void run();
         //stop terminates the QThread publishing ROS messages
         bool stop();
+        //loadSettings loads settings into internal variables
+        void loadSettings();
 
     Q_SIGNALS:
         //rosShutdown is used to signal an unexpected stopping of the ROS node to the main application
@@ -56,16 +59,27 @@ class rosNodeWidget : public QThread
 
     private:
         //ROS image publisher for color data
-        std::string mColorTopicName;
-        image_transport::Publisher mPublisherColor;
+        image_transport::Publisher publisherColor;
         //ROS image publisher for depth data
-        std::string mDepthTopicName;
-        image_transport::Publisher mPublisherDepth;
+        image_transport::Publisher publisherDepth;
         //ROS publisher for IMU data
-        std::string mImuTopicName;
-        ros::Publisher mPublisherImu;
-        //ROS rate setting, determines how many times per second the application will attempt to publish
-        float mPublishRate;
+        ros::Publisher publisherImu;
+
+        //internal values to hold settings
+        std::string settingRosMasterAddress;
+        std::string settingRosLocalAddress;
+        std::string settingColorTopicName;
+        std::string settingDepthTopicName;
+        std::string settingImuTopicName;
+        float settingPublishRate;
+        bool settingAutoExposure;
+        float settingThresholdMin;
+        float settingThresholdMax;
+        float settingSpatialMagnitude;
+        float settingSpatialAlpha;
+        float settingSpatialDelta;
+        float settingTemporalAlpha;
+        float settingTemporalDelta;
 
         //showError displays an error window
         void showError(QString errorMessage);

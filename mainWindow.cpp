@@ -15,11 +15,14 @@ mainWindow::mainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::mainWi
     //set initial visibility
     initUI();
 
-    //connection to allow application to close rather than hang if ROS has to shutdown unexpectedly
-    QObject::connect(&rosNode, SIGNAL(rosShutdown()), this, SLOT(close()));
-
     //load settings from file
     loadSettings();
+
+    //load settings in rosNode
+    rosNode.loadSettings();
+
+    //connection to allow application to close rather than hang if ROS has to shutdown unexpectedly
+    QObject::connect(&rosNode, SIGNAL(rosShutdown()), this, SLOT(close()));
 
 }
 
@@ -66,10 +69,6 @@ void mainWindow::on_pushButtonTest_clicked()
     }
     else if(rscDeviceCount == 1)
     {
-        //disable preview button
-        //TODO: find out why this doesn't work(thread?) - Jordan
-        ui->pushButtonTest->setEnabled(false);
-
         //create interface for first(only) device
         rs2::device rscDevice = rscDevices[0];
 
@@ -128,9 +127,6 @@ void mainWindow::on_pushButtonTest_clicked()
 
         //stop RS2 pipeline
         rscPipe.stop();
-
-        //reenable preview button
-        ui->pushButtonTest->setEnabled(true);
     }
     else if(rscDeviceCount > 1)
     {
@@ -144,7 +140,6 @@ void mainWindow::on_pushButtonTest_clicked()
         showError("Unknown number of RealSense devices detected.");
         return;
     }
-
 }
 
 //private slot: on_pushButtonConnect_clicked
@@ -156,9 +151,7 @@ void mainWindow::on_pushButtonSend_clicked()
     if(isPublishing == false)
     {
         //attempt to start rosNodeWidget with inputted values
-        if(!rosNode.init(ui->textEditRosMasterIP->toPlainText().toStdString(), ui->textEditRosLocalIP->toPlainText().toStdString(),
-                         ui->textEditColorTopicName->toPlainText().toStdString(), ui->textEditDepthTopicName->toPlainText().toStdString(),
-                         ui->textEditImuTopicName->toPlainText().toStdString(), ui->textEditPublishRate->toPlainText().toFloat()))
+        if(!rosNode.init())
         {
             //if we fail, it should be because the addresses for ROS master and/or ROS local are incorrect
             showError("Could not connect to ROS master.");
@@ -168,9 +161,8 @@ void mainWindow::on_pushButtonSend_clicked()
             //set publishing flag to true and update buttons
             isPublishing = true;
             ui->pushButtonSend->setText("STOP");
-            ui->pushButtonTest->setText("TEST"
-                                        "(DISABLED))");
-            ui->pushButtonTest->setEnabled(false);
+            ui->pushButtonConfig->setVisible(false);
+            ui->pushButtonTest->setVisible(false);
         }
     }
     else
@@ -181,8 +173,8 @@ void mainWindow::on_pushButtonSend_clicked()
             //set publishing flag to false and update button
             isPublishing = false;
             ui->pushButtonSend->setText("SEND");
-            ui->pushButtonTest->setText("TEST");
-            ui->pushButtonTest->setEnabled(true);
+            ui->pushButtonConfig->setVisible(true);
+            ui->pushButtonTest->setVisible(true);
         }
         else
         {
@@ -203,54 +195,100 @@ void mainWindow::on_pushButtonConfig_clicked()
 {
     if(isConfig == false)
     {
-        ui->labelRosMasterIP->setVisible(true);
-        ui->textEditRosMasterIP->setVisible(true);
+        ui->labelSettingRosMasterAddress->setVisible(true);
+        ui->textEditSettingRosMasterAddress->setVisible(true);
 
-        ui->labelRosLocalIP->setVisible(true);
-        ui->textEditRosLocalIP->setVisible(true);
+        ui->labelSettingRosLocalAddress->setVisible(true);
+        ui->textEditSettingRosLocalAddress->setVisible(true);
 
-        ui->labelColorTopicName->setVisible(true);
-        ui->textEditColorTopicName->setVisible(true);
+        ui->labelSettingColorTopicName->setVisible(true);
+        ui->textEditSettingColorTopicName->setVisible(true);
 
-        ui->labelDepthTopicName->setVisible(true);
-        ui->textEditDepthTopicName->setVisible(true);
+        ui->labelSettingDepthTopicName->setVisible(true);
+        ui->textEditSettingDepthTopicName->setVisible(true);
 
-        ui->labelImuTopicName->setVisible(true);
-        ui->textEditImuTopicName->setVisible(true);
+        ui->labelSettingImuTopicName->setVisible(true);
+        ui->textEditSettingImuTopicName->setVisible(true);
 
-        ui->labelPublishRate->setVisible(true);
-        ui->textEditPublishRate->setVisible(true);
+        ui->labelSettingPublishRate->setVisible(true);
+        ui->textEditSettingPublishRate->setVisible(true);
+
+        ui->labelSettingAutoExposure->setVisible(true);
+        ui->textEditSettingAutoExposure->setVisible(true);
+
+        ui->labelSettingThresholdMin->setVisible(true);
+        ui->textEditSettingThresholdMin->setVisible(true);
+
+        ui->labelSettingThresholdMax->setVisible(true);
+        ui->textEditSettingThresholdMax->setVisible(true);
+
+        ui->labelSettingSpatialMagnitude->setVisible(true);
+        ui->textEditSettingSpatialMagnitude->setVisible(true);
+
+        ui->labelSettingSpatialAlpha->setVisible(true);
+        ui->textEditSettingSpatialAlpha->setVisible(true);
+
+        ui->labelSettingSpatialDelta->setVisible(true);
+        ui->textEditSettingSpatialDelta->setVisible(true);
+
+        ui->labelSettingTemporalAlpha->setVisible(true);
+        ui->textEditSettingTemporalAlpha->setVisible(true);
+
+        ui->labelSettingTemporalDelta->setVisible(true);
+        ui->textEditSettingTemporalDelta->setVisible(true);
 
         ui->pushButtonTest->setVisible(false);
         ui->pushButtonSend->setVisible(false);
-        ui->pushButtonView->setVisible(false);
         ui->pushButtonConfig->setText("DONE");
 
         isConfig = true;
     }
     else if(isConfig == true)
     {
-        ui->labelRosMasterIP->setVisible(false);
-        ui->textEditRosMasterIP->setVisible(false);
+        ui->labelSettingRosMasterAddress->setVisible(false);
+        ui->textEditSettingRosMasterAddress->setVisible(false);
 
-        ui->labelRosLocalIP->setVisible(false);
-        ui->textEditRosLocalIP->setVisible(false);
+        ui->labelSettingRosLocalAddress->setVisible(false);
+        ui->textEditSettingRosLocalAddress->setVisible(false);
 
-        ui->labelColorTopicName->setVisible(false);
-        ui->textEditColorTopicName->setVisible(false);
+        ui->labelSettingColorTopicName->setVisible(false);
+        ui->textEditSettingColorTopicName->setVisible(false);
 
-        ui->labelDepthTopicName->setVisible(false);
-        ui->textEditDepthTopicName->setVisible(false);
+        ui->labelSettingDepthTopicName->setVisible(false);
+        ui->textEditSettingDepthTopicName->setVisible(false);
 
-        ui->labelImuTopicName->setVisible(false);
-        ui->textEditImuTopicName->setVisible(false);
+        ui->labelSettingImuTopicName->setVisible(false);
+        ui->textEditSettingImuTopicName->setVisible(false);
 
-        ui->labelPublishRate->setVisible(false);
-        ui->textEditPublishRate->setVisible(false);
+        ui->labelSettingPublishRate->setVisible(false);
+        ui->textEditSettingPublishRate->setVisible(false);
+
+        ui->labelSettingAutoExposure->setVisible(false);
+        ui->textEditSettingAutoExposure->setVisible(false);
+
+        ui->labelSettingThresholdMin->setVisible(false);
+        ui->textEditSettingThresholdMin->setVisible(false);
+
+        ui->labelSettingThresholdMax->setVisible(false);
+        ui->textEditSettingThresholdMax->setVisible(false);
+
+        ui->labelSettingSpatialMagnitude->setVisible(false);
+        ui->textEditSettingSpatialMagnitude->setVisible(false);
+
+        ui->labelSettingSpatialAlpha->setVisible(false);
+        ui->textEditSettingSpatialAlpha->setVisible(false);
+
+        ui->labelSettingSpatialDelta->setVisible(false);
+        ui->textEditSettingSpatialDelta->setVisible(false);
+
+        ui->labelSettingTemporalAlpha->setVisible(false);
+        ui->textEditSettingTemporalAlpha->setVisible(false);
+
+        ui->labelSettingTemporalDelta->setVisible(false);
+        ui->textEditSettingTemporalDelta->setVisible(false);
 
         ui->pushButtonTest->setVisible(true);
         ui->pushButtonSend->setVisible(true);
-        ui->pushButtonView->setVisible(true);
         ui->pushButtonConfig->setText("CONFIG");
 
         isConfig = false;
@@ -274,23 +312,47 @@ void mainWindow::showError(QString errorMessage)
 //sets initial visibility for some ui elements
 void mainWindow::initUI()
 {
-    ui->labelRosMasterIP->setVisible(false);
-    ui->textEditRosMasterIP->setVisible(false);
+    ui->labelSettingRosMasterAddress->setVisible(false);
+    ui->textEditSettingRosMasterAddress->setVisible(false);
 
-    ui->labelRosLocalIP->setVisible(false);
-    ui->textEditRosLocalIP->setVisible(false);
+    ui->labelSettingRosLocalAddress->setVisible(false);
+    ui->textEditSettingRosLocalAddress->setVisible(false);
 
-    ui->labelColorTopicName->setVisible(false);
-    ui->textEditColorTopicName->setVisible(false);
+    ui->labelSettingColorTopicName->setVisible(false);
+    ui->textEditSettingColorTopicName->setVisible(false);
 
-    ui->labelDepthTopicName->setVisible(false);
-    ui->textEditDepthTopicName->setVisible(false);
+    ui->labelSettingDepthTopicName->setVisible(false);
+    ui->textEditSettingDepthTopicName->setVisible(false);
 
-    ui->labelImuTopicName->setVisible(false);
-    ui->textEditImuTopicName->setVisible(false);
+    ui->labelSettingImuTopicName->setVisible(false);
+    ui->textEditSettingImuTopicName->setVisible(false);
 
-    ui->labelPublishRate->setVisible(false);
-    ui->textEditPublishRate->setVisible(false);
+    ui->labelSettingPublishRate->setVisible(false);
+    ui->textEditSettingPublishRate->setVisible(false);
+
+    ui->labelSettingAutoExposure->setVisible(false);
+    ui->textEditSettingAutoExposure->setVisible(false);
+
+    ui->labelSettingThresholdMin->setVisible(false);
+    ui->textEditSettingThresholdMin->setVisible(false);
+
+    ui->labelSettingThresholdMax->setVisible(false);
+    ui->textEditSettingThresholdMax->setVisible(false);
+
+    ui->labelSettingSpatialMagnitude->setVisible(false);
+    ui->textEditSettingSpatialMagnitude->setVisible(false);
+
+    ui->labelSettingSpatialAlpha->setVisible(false);
+    ui->textEditSettingSpatialAlpha->setVisible(false);
+
+    ui->labelSettingSpatialDelta->setVisible(false);
+    ui->textEditSettingSpatialDelta->setVisible(false);
+
+    ui->labelSettingTemporalAlpha->setVisible(false);
+    ui->textEditSettingTemporalAlpha->setVisible(false);
+
+    ui->labelSettingTemporalDelta->setVisible(false);
+    ui->textEditSettingTemporalDelta->setVisible(false);
 }
 
 //private: loadSettings
@@ -300,59 +362,131 @@ void mainWindow::loadSettings()
     //settings file
     QSettings fileSettings("./config.ini", QSettings::NativeFormat);
 
-    //ros master IP
-    if(fileSettings.value("ROS_MASTER_IP", "").toString().toStdString() == "")
+    //ros master address
+    if(fileSettings.value("ROS_MASTER_ADDRESS", "").toString().toStdString() == "")
     {
-        ui->textEditRosMasterIP->setText("localhost:11311");
+        ui->textEditSettingRosMasterAddress->setText("localhost:11311");
     }
     else
     {
-        ui->textEditRosMasterIP->setText(fileSettings.value("ROS_MASTER_IP", "").toString());
+        ui->textEditSettingRosMasterAddress->setText(fileSettings.value("ROS_MASTER_ADDRESS", "").toString());
     }
-    //ros local IP
-    if(fileSettings.value("ROS_LOCAL_IP", "").toString().toStdString() == "")
+    //ros local address
+    if(fileSettings.value("ROS_LOCAL_ADDRESS", "").toString().toStdString() == "")
     {
-        ui->textEditRosLocalIP->setText("localhost");
+        ui->textEditSettingRosLocalAddress->setText("localhost");
     }
     else
     {
-        ui->textEditRosLocalIP->setText(fileSettings.value("ROS_LOCAL_IP", "").toString());
+        ui->textEditSettingRosLocalAddress->setText(fileSettings.value("ROS_LOCAL_ADDRESS", "").toString());
     }
     //color topic
     if(fileSettings.value("COLOR_TOPIC_NAME", "").toString().toStdString() == "")
     {
-        ui->textEditColorTopicName->setText("rscColor");
+        ui->textEditSettingColorTopicName->setText("rscColor");
     }
     else
     {
-        ui->textEditColorTopicName->setText(fileSettings.value("COLOR_TOPIC_NAME", "").toString());
+        ui->textEditSettingColorTopicName->setText(fileSettings.value("COLOR_TOPIC_NAME", "").toString());
     }
     //depth topic
     if(fileSettings.value("DEPTH_TOPIC_NAME", "").toString().toStdString() == "")
     {
-        ui->textEditDepthTopicName->setText("rscDepth");
+        ui->textEditSettingDepthTopicName->setText("rscDepth");
     }
     else
     {
-        ui->textEditDepthTopicName->setText(fileSettings.value("DEPTH_TOPIC_NAME", "").toString());
+        ui->textEditSettingDepthTopicName->setText(fileSettings.value("DEPTH_TOPIC_NAME", "").toString());
     }
     //imu topic
     if(fileSettings.value("IMU_TOPIC_NAME", "").toString().toStdString() == "")
     {
-        ui->textEditImuTopicName->setText("rscImu");
+        ui->textEditSettingImuTopicName->setText("rscImu");
     }
     else
     {
-        ui->textEditImuTopicName->setText(fileSettings.value("IMU_TOPIC_NAME", "").toString());
+        ui->textEditSettingImuTopicName->setText(fileSettings.value("IMU_TOPIC_NAME", "").toString());
     }
     //publish rate
     if(fileSettings.value("PUBLISH_RATE", "").toString().toStdString() == "")
     {
-        ui->textEditPublishRate->setText("30");
+        ui->textEditSettingPublishRate->setText("30");
     }
     else
     {
-        ui->textEditPublishRate->setText(fileSettings.value("PUBLISH_RATE", "").toString());
+        ui->textEditSettingPublishRate->setText(fileSettings.value("PUBLISH_RATE", "").toString());
+    }
+    //auto exposure
+    if(fileSettings.value("AUTO_EXPOSURE", "").toString().toStdString() == "")
+    {
+        ui->textEditSettingAutoExposure->setText("1");
+    }
+    else
+    {
+        ui->textEditSettingAutoExposure->setText(fileSettings.value("AUTO_EXPOSURE", "").toString());
+    }
+    //threshold min
+    if(fileSettings.value("THRESHOLD_MIN", "").toString().toStdString() == "")
+    {
+        ui->textEditSettingThresholdMin->setText("0.1");
+    }
+    else
+    {
+        ui->textEditSettingThresholdMin->setText(fileSettings.value("THRESHOLD_MIN", "").toString());
+    }
+    //threshold max
+    if(fileSettings.value("THRESHOLD_MAX", "").toString().toStdString() == "")
+    {
+        ui->textEditSettingThresholdMax->setText("16");
+    }
+    else
+    {
+        ui->textEditSettingThresholdMax->setText(fileSettings.value("THRESHOLD_MAX", "").toString());
+    }
+    //spatial magnitude
+    if(fileSettings.value("SPATIAL_MAGNITUDE", "").toString().toStdString() == "")
+    {
+        ui->textEditSettingSpatialMagnitude->setText("2");
+    }
+    else
+    {
+        ui->textEditSettingSpatialMagnitude->setText(fileSettings.value("SPATIAL_MAGNITUDE", "").toString());
+    }
+    //spatial alpha
+    if(fileSettings.value("SPATIAL_ALPHA", "").toString().toStdString() == "")
+    {
+        ui->textEditSettingSpatialAlpha->setText("0.5");
+    }
+    else
+    {
+        ui->textEditSettingSpatialAlpha->setText(fileSettings.value("SPATIAL_ALPHA", "").toString());
+    }
+    //spatial delta
+    if(fileSettings.value("SPATIAL_DELTA", "").toString().toStdString() == "")
+    {
+        ui->textEditSettingSpatialDelta->setText("20.0");
+    }
+    else
+    {
+        ui->textEditSettingSpatialDelta->setText(fileSettings.value("SPATIAL_DELTA", "").toString());
+    }
+    //temporal alpha
+    if(fileSettings.value("TEMPORAL_ALPHA", "").toString().toStdString() == "")
+    {
+        ui->textEditSettingTemporalAlpha->setText("0.4");
+    }
+    else
+    {
+        ui->textEditSettingTemporalAlpha->setText(fileSettings.value("TEMPORAL_ALPHA", "").toString());
+    }
+    //temporal delta
+    if(fileSettings.value("TEMPORAL_DELTA", "").toString().toStdString() == "")
+    {
+        ui->textEditSettingTemporalDelta->setText("20.0");
+    }
+    else
+    {
+        ui->textEditSettingTemporalDelta->setText(fileSettings.value("TEMPORAL_DELTA", "").toString());
     }
 }
 
@@ -363,10 +497,18 @@ void mainWindow::saveSettings()
     //settings file
     QSettings fileSettings("./config.ini", QSettings::NativeFormat);
 
-    fileSettings.setValue("ROS_MASTER_IP", ui->textEditRosMasterIP->toPlainText());
-    fileSettings.setValue("ROS_LOCAL_IP", ui->textEditRosLocalIP->toPlainText());
-    fileSettings.setValue("COLOR_TOPIC_NAME", ui->textEditColorTopicName->toPlainText());
-    fileSettings.setValue("DEPTH_TOPIC_NAME", ui->textEditDepthTopicName->toPlainText());
-    fileSettings.setValue("IMU_TOPIC_NAME", ui->textEditImuTopicName->toPlainText());
-    fileSettings.setValue("PUBLISH_RATE", ui->textEditPublishRate->toPlainText());
+    fileSettings.setValue("ROS_MASTER_ADDRESS", ui->textEditSettingRosMasterAddress->toPlainText());
+    fileSettings.setValue("ROS_LOCAL_ADDRESS", ui->textEditSettingRosLocalAddress->toPlainText());
+    fileSettings.setValue("COLOR_TOPIC_NAME", ui->textEditSettingColorTopicName->toPlainText());
+    fileSettings.setValue("DEPTH_TOPIC_NAME", ui->textEditSettingDepthTopicName->toPlainText());
+    fileSettings.setValue("IMU_TOPIC_NAME", ui->textEditSettingImuTopicName->toPlainText());
+    fileSettings.setValue("PUBLISH_RATE", ui->textEditSettingPublishRate->toPlainText());
+    fileSettings.setValue("AUTO_EXPOSURE", ui->textEditSettingAutoExposure->toPlainText());
+    fileSettings.setValue("THRESHOLD_MIN", ui->textEditSettingThresholdMin->toPlainText());
+    fileSettings.setValue("THRESHOLD_MAX", ui->textEditSettingThresholdMax->toPlainText());
+    fileSettings.setValue("SPATIAL_MAGNITUDE", ui->textEditSettingSpatialMagnitude->toPlainText());
+    fileSettings.setValue("SPATIAL_ALPHA", ui->textEditSettingSpatialAlpha->toPlainText());
+    fileSettings.setValue("SPATIAL_DELTA", ui->textEditSettingSpatialDelta->toPlainText());
+    fileSettings.setValue("TEMPORAL_ALPHA", ui->textEditSettingTemporalAlpha->toPlainText());
+    fileSettings.setValue("TEMPORAL_DELTA", ui->textEditSettingTemporalDelta->toPlainText());
 }

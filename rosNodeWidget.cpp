@@ -28,14 +28,12 @@ rosNodeWidget::~rosNodeWidget()
 //creates ROS node if one doesn't already exist
 //set up topics to publish via that node
 //creates thread to actually publish messages
-bool rosNodeWidget::init(const std::string &rosMasterAddress, const std::string &rosLocalAddress,
-                         const std::string &colorTopicName, const std::string &depthTopicName,
-                         const std::string &imuTopicName, const float &publishRate)
+bool rosNodeWidget::init()
 {
     //create a map with the master and local addresses to pass to the ROS init function
     std::map<std::string, std::string> rosAddresses;
-    rosAddresses["__master"] = rosMasterAddress;
-    rosAddresses["__hostname"] = rosLocalAddress;
+    rosAddresses["__master"] = settingRosMasterAddress;
+    rosAddresses["__hostname"] = settingRosLocalAddress;
 
     //initialize a node with our addresses
     ros::init(rosAddresses, "remoteUnitNode");
@@ -48,12 +46,6 @@ bool rosNodeWidget::init(const std::string &rosMasterAddress, const std::string 
     }
     else
     {
-        //set member variables from parameters so run can access them without need to have them passed
-        mColorTopicName = colorTopicName;
-        mDepthTopicName = depthTopicName;
-        mImuTopicName = imuTopicName;
-        mPublishRate = publishRate;
-
         //starts Qt thread to run the publisher
         //does thread stuff and has thread call run()
         start();
@@ -78,12 +70,12 @@ void rosNodeWidget::run()
     //assign publishers to this node
     //color publisher
     image_transport::ImageTransport imageTransportColor(remoteUnitNodeHandle);
-    mPublisherColor = imageTransportColor.advertise(mColorTopicName, 1);
+    publisherColor = imageTransportColor.advertise(settingColorTopicName, 1);
     //depth publisher
     image_transport::ImageTransport imageTransportDepth(remoteUnitNodeHandle);
-    mPublisherDepth = imageTransportDepth.advertise(mDepthTopicName, 1);
+    publisherDepth = imageTransportDepth.advertise(settingDepthTopicName, 1);
     //imu publisher
-    mPublisherImu = remoteUnitNodeHandle.advertise<sensor_msgs::Imu>(mImuTopicName, 1);
+    publisherImu = remoteUnitNodeHandle.advertise<sensor_msgs::Imu>(settingImuTopicName, 1);
 
     //initialize camera
     //logic here is similiar to logic in mainWindow on_pushButtonPreview_Clicked
@@ -118,9 +110,9 @@ void rosNodeWidget::run()
 
         std::vector<rs2::sensor> rscSensors = rscDevice.query_sensors();
         rs2::sensor rscDepthSensor = rscSensors[0];
-        rscDepthSensor.set_option(RS2_OPTION_ENABLE_AUTO_EXPOSURE, 1);
+        rscDepthSensor.set_option(RS2_OPTION_ENABLE_AUTO_EXPOSURE, settingAutoExposure);
 
-        rs2::align align_to_color(RS2_STREAM_COLOR);
+        rs2::align rscAlign(RS2_STREAM_COLOR);
 
         //create variables used to build messages
         //height of camera output
@@ -140,25 +132,21 @@ void rosNodeWidget::run()
         rs2::frame rscTempGyroFrame;
         sensor_msgs::Imu messageImu;
 
-        rs2::decimation_filter rscDecimationFilter;
-        rscDecimationFilter.set_option(RS2_OPTION_FILTER_MAGNITUDE, 2.0);
         rs2::threshold_filter rscThresholdFilter;
-        rscThresholdFilter.set_option(RS2_OPTION_MIN_DISTANCE, 0.1);
-        rscThresholdFilter.set_option(RS2_OPTION_MAX_DISTANCE, 16.0);
-        rs2::spatial_filter rscSpatialFilter;
-        rscSpatialFilter.set_option(RS2_OPTION_FILTER_MAGNITUDE, 2);
-        rscSpatialFilter.set_option(RS2_OPTION_FILTER_SMOOTH_ALPHA, 0.5);
-        rscSpatialFilter.set_option(RS2_OPTION_FILTER_SMOOTH_DELTA, 20.0);
-        //rscSpatialFilter.set_option(RS2_OPTION_HOLES_FILL, 0);
-        rs2::temporal_filter rscTemporalFilter;
-        rscTemporalFilter.set_option(RS2_OPTION_FILTER_SMOOTH_ALPHA, 0.4);
-        rscTemporalFilter.set_option(RS2_OPTION_FILTER_SMOOTH_DELTA, 20.0);
-        //rscTemporalFilter.set_option(RS2_OPTION_FILTER, 3);
+        rscThresholdFilter.set_option(RS2_OPTION_MIN_DISTANCE, settingThresholdMin);
+        rscThresholdFilter.set_option(RS2_OPTION_MAX_DISTANCE, settingThresholdMax);
         rs2::disparity_transform rscDepthToDisparity(true);
+        rs2::spatial_filter rscSpatialFilter;
+        rscSpatialFilter.set_option(RS2_OPTION_FILTER_MAGNITUDE, settingSpatialMagnitude);
+        rscSpatialFilter.set_option(RS2_OPTION_FILTER_SMOOTH_ALPHA, settingSpatialAlpha);
+        rscSpatialFilter.set_option(RS2_OPTION_FILTER_SMOOTH_DELTA, settingSpatialDelta);
+        rs2::temporal_filter rscTemporalFilter;
+        rscTemporalFilter.set_option(RS2_OPTION_FILTER_SMOOTH_ALPHA, settingTemporalAlpha);
+        rscTemporalFilter.set_option(RS2_OPTION_FILTER_SMOOTH_DELTA, settingTemporalDelta);
         rs2::disparity_transform rscDisparityToDepth(false);
 
         //rosLoopRate is how many times the while loop will attempt to run per second
-        ros::Rate rosLoopRate(mPublishRate);
+        ros::Rate rosLoopRate(settingPublishRate);
 
         //as long as ROS hasn't been shutdown
         while(ros::ok())
@@ -168,7 +156,7 @@ void rosNodeWidget::run()
 
             if(rscPipe.poll_for_frames(&rscFrameSet))
             {
-                rscFrameSet = align_to_color.process(rscFrameSet);
+                rscFrameSet = rscAlign.process(rscFrameSet);
 
                 //TODO:add better comments for these parts - Jordan
                 //color data publisher
@@ -177,12 +165,11 @@ void rosNodeWidget::run()
                 height = rscPublishColorFrame.as<rs2::video_frame>().get_height();
                 cv::Mat imageColor(cv::Size(width, height), CV_8UC3, (void*)rscPublishColorFrame.get_data(), cv::Mat::AUTO_STEP);
                 messageColor = cv_bridge::CvImage(std_msgs::Header(), "bgr8", imageColor).toImageMsg();
-                mPublisherColor.publish(messageColor);
+                publisherColor.publish(messageColor);
 
                 //depth data publisher
                 rscPublishDepthFrame = rscFrameSet.first(RS2_STREAM_DEPTH);
 
-                //rscPublishDepthFrame = rscDecimationFilter.process(rscPublishDepthFrame);
                 rscPublishDepthFrame = rscThresholdFilter.process(rscPublishDepthFrame);
                 rscPublishDepthFrame = rscDepthToDisparity.process(rscPublishDepthFrame);
                 rscPublishDepthFrame = rscSpatialFilter.process(rscPublishDepthFrame);
@@ -194,7 +181,7 @@ void rosNodeWidget::run()
                 cv::Mat imageDepth(cv::Size(width, height), CV_16UC1, (void*)rscPublishDepthFrame.get_data(), cv::Mat::AUTO_STEP);
                 imageDepth.convertTo(imageDepth, CV_8UC1, 255.0/1000);
                 messageDepth = cv_bridge::CvImage(std_msgs::Header(), "mono8", imageDepth).toImageMsg();
-                mPublisherDepth.publish(messageDepth);
+                publisherDepth.publish(messageDepth);
 
                 //imu data publisher
                 rscTempAccelFrame = rscFrameSet.first(RS2_STREAM_ACCEL);
@@ -205,7 +192,7 @@ void rosNodeWidget::run()
                 messageImu.linear_acceleration.x = rscTempGyroFrame.as<rs2::motion_frame>().get_motion_data().x;
                 messageImu.linear_acceleration.y = rscTempGyroFrame.as<rs2::motion_frame>().get_motion_data().y;
                 messageImu.linear_acceleration.z = rscTempGyroFrame.as<rs2::motion_frame>().get_motion_data().z;
-                mPublisherImu.publish(messageImu);
+                publisherImu.publish(messageImu);
             }
 
             //run each publisher once
@@ -237,6 +224,29 @@ bool rosNodeWidget::stop()
 {
     terminate();
     return true;
+}
+
+//public: loadSettings
+//loads settings from file
+void rosNodeWidget::loadSettings()
+{
+    //settings file
+    QSettings fileSettings("./config.ini", QSettings::NativeFormat);
+
+    settingRosMasterAddress = fileSettings.value("ROS_MASTER_ADDRESS", "").toString().toStdString();
+    settingRosLocalAddress = fileSettings.value("ROS_LOCAL_ADDRESS", "").toString().toStdString();
+    settingColorTopicName = fileSettings.value("COLOR_TOPIC_NAME", "").toString().toStdString();
+    settingDepthTopicName = fileSettings.value("DEPTH_TOPIC_NAME", "").toString().toStdString();
+    settingImuTopicName = fileSettings.value("IMU_TOPIC_NAME", "").toString().toStdString();
+    settingPublishRate = fileSettings.value("PUBLISH_RATE", "").toFloat();
+    settingAutoExposure = fileSettings.value("AUTO_EXPOSURE", "").toBool();
+    settingThresholdMin = fileSettings.value("THRESHOLD_MIN", "").toFloat();
+    settingThresholdMax = fileSettings.value("THRESHOLD_MAX", "").toFloat();
+    settingSpatialMagnitude = fileSettings.value("SPATIAL_MAGNITUDE", "").toFloat();
+    settingSpatialAlpha = fileSettings.value("SPATIAL_ALPHA", "").toFloat();
+    settingSpatialDelta = fileSettings.value("SPATIAL_DELTA", "").toFloat();
+    settingTemporalAlpha = fileSettings.value("TEMPORAL_ALPHA", "").toFloat();
+    settingTemporalDelta = fileSettings.value("TEMPORAL_DELTA", "").toFloat();
 }
 
 //private: showError
