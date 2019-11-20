@@ -23,7 +23,6 @@ mainWindow::mainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::mainWi
 
     //connection to allow application to close rather than hang if ROS has to shutdown unexpectedly
     QObject::connect(&rosNode, SIGNAL(rosShutdown()), this, SLOT(close()));
-
 }
 
 //public: destructor
@@ -164,6 +163,7 @@ void mainWindow::on_pushButtonSend_clicked()
             //set publishing flag to true and update buttons
             isPublishing = true;
             ui->pushButtonSend->setText("STOP");
+            ui->pushButtonSend->setStyleSheet("QPushButton{background-color: #5BC236;color: #000000; border-radius: 10px;}");
             ui->pushButtonConfig->setVisible(false);
             ui->pushButtonTest->setVisible(false);
         }
@@ -176,6 +176,7 @@ void mainWindow::on_pushButtonSend_clicked()
             //set publishing flag to false and update button
             isPublishing = false;
             ui->pushButtonSend->setText("SEND");
+            ui->pushButtonSend->setStyleSheet("QPushButton{background-color: #E6E6E6; color: #000000; border-radius: 10px;}");
             ui->pushButtonConfig->setVisible(true);
             ui->pushButtonTest->setVisible(true);
         }
