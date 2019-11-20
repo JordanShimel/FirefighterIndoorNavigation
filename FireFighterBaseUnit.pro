@@ -40,7 +40,6 @@ export(first.depends)
 export(copyCameraSettings.commands)
 QMAKE_EXTRA_TARGETS += first copyCameraSettings copyVocabulary
 
-
 #Extra includes
 INCLUDEPATH += /usr/local/include
 DEPENDPATH += /usr/local/include
@@ -80,6 +79,11 @@ LIBS += -L/usr/lib/x86_64-linux-gnu/ -lGLEW
 
 #Boost libraries
 LIBS += -L/usr/lib/x86_64-linux-gnu/ -lboost_system
+
+#LXDO libraries
+INCLUDEPATH += /usr/lib/x86_64-linux-gnu
+DEPENDPATH += /usr/lib/x86_64-linux-gnu
+LIBS += -L/usr/lib/x86_64-linux-gnu/ -lxdo
 
 #Eigen
 INCLUDEPATH += /usr/include/eigen3

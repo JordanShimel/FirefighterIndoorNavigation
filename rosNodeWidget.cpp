@@ -96,7 +96,8 @@ void rosNodeWidget::run()
     while(ros::ok())
     {
         //check each subscribers once
-        ros::spinOnce();
+        ros::spinOnce(); ///emit a signal here (where orb-slam2 is being called) declare in header
+        Q_EMIT launchSlam();
 
         //sleep until time to rerun(specified by rosLoopRate)
         rosLoopRate.sleep();

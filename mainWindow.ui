@@ -6,22 +6,28 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>965</width>
-    <height>571</height>
+    <width>1292</width>
+    <height>724</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>FireFighterBaseUnit</string>
   </property>
+  <property name="styleSheet">
+   <string notr="true">background-color: rgb(2, 36, 60)</string>
+  </property>
   <widget class="QWidget" name="centralWidget">
    <widget class="QTextEdit" name="textEditRosMasterIP">
     <property name="geometry">
      <rect>
-      <x>170</x>
-      <y>400</y>
+      <x>190</x>
+      <y>580</y>
       <width>301</width>
       <height>31</height>
      </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">background-color: white</string>
     </property>
     <property name="html">
      <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
@@ -35,13 +41,16 @@ p, li { white-space: pre-wrap; }
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>400</y>
-      <width>161</width>
+      <y>580</y>
+      <width>181</width>
       <height>31</height>
      </rect>
     </property>
     <property name="autoFillBackground">
      <bool>false</bool>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">background-color: rgb(230, 230, 230)</string>
     </property>
     <property name="frameShape">
      <enum>QFrame::Box</enum>
@@ -60,32 +69,28 @@ p, li { white-space: pre-wrap; }
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>10</y>
-      <width>461</width>
-      <height>381</height>
+      <y>20</y>
+      <width>631</width>
+      <height>551</height>
      </rect>
     </property>
-    <layout class="QVBoxLayout" name="boxLayoutVideoStream"/>
-   </widget>
-   <widget class="QWidget" name="verticalLayoutWidget_2">
-    <property name="geometry">
-     <rect>
-      <x>480</x>
-      <y>10</y>
-      <width>461</width>
-      <height>381</height>
-     </rect>
-    </property>
-    <layout class="QVBoxLayout" name="boxLayoutPointcloud"/>
+    <layout class="QVBoxLayout" name="boxLayoutPointcloud">
+     <property name="sizeConstraint">
+      <enum>QLayout::SetMaximumSize</enum>
+     </property>
+    </layout>
    </widget>
    <widget class="QPushButton" name="pushButtonSaveConfig">
     <property name="geometry">
      <rect>
-      <x>10</x>
-      <y>500</y>
+      <x>510</x>
+      <y>650</y>
       <width>121</width>
       <height>25</height>
      </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">background-color: rgb(91, 194, 54)</string>
     </property>
     <property name="text">
      <string>SAVE CONFIG</string>
@@ -95,13 +100,16 @@ p, li { white-space: pre-wrap; }
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>430</y>
-      <width>161</width>
+      <y>610</y>
+      <width>181</width>
       <height>31</height>
      </rect>
     </property>
     <property name="autoFillBackground">
      <bool>false</bool>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">background-color: rgb(230, 230, 230)</string>
     </property>
     <property name="frameShape">
      <enum>QFrame::Box</enum>
@@ -119,11 +127,14 @@ p, li { white-space: pre-wrap; }
    <widget class="QTextEdit" name="textEditDepthTopicName">
     <property name="geometry">
      <rect>
-      <x>640</x>
-      <y>430</y>
+      <x>800</x>
+      <y>610</y>
       <width>301</width>
       <height>31</height>
      </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">background-color: rgb(249, 249, 249)</string>
     </property>
     <property name="html">
      <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
@@ -136,11 +147,14 @@ p, li { white-space: pre-wrap; }
    <widget class="QLabel" name="labelDepthTopicName">
     <property name="geometry">
      <rect>
-      <x>480</x>
-      <y>430</y>
+      <x>640</x>
+      <y>610</y>
       <width>161</width>
       <height>31</height>
      </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">background-color: rgb(230, 230, 230)</string>
     </property>
     <property name="frameShape">
      <enum>QFrame::Box</enum>
@@ -155,11 +169,14 @@ p, li { white-space: pre-wrap; }
    <widget class="QLabel" name="labelColorTopicName">
     <property name="geometry">
      <rect>
-      <x>480</x>
-      <y>400</y>
+      <x>640</x>
+      <y>580</y>
       <width>161</width>
       <height>31</height>
      </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">background-color: rgb(230, 230, 230)</string>
     </property>
     <property name="frameShape">
      <enum>QFrame::Box</enum>
@@ -174,11 +191,14 @@ p, li { white-space: pre-wrap; }
    <widget class="QTextEdit" name="textEditImuTopicName">
     <property name="geometry">
      <rect>
-      <x>640</x>
-      <y>460</y>
+      <x>800</x>
+      <y>640</y>
       <width>301</width>
       <height>31</height>
      </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">background-color: rgb(249, 249, 249)</string>
     </property>
     <property name="html">
      <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
@@ -191,11 +211,14 @@ p, li { white-space: pre-wrap; }
    <widget class="QTextEdit" name="textEditColorTopicName">
     <property name="geometry">
      <rect>
-      <x>640</x>
-      <y>400</y>
+      <x>800</x>
+      <y>580</y>
       <width>301</width>
       <height>31</height>
      </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">background-color: rgb(249, 249, 249)</string>
     </property>
     <property name="html">
      <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
@@ -208,11 +231,14 @@ p, li { white-space: pre-wrap; }
    <widget class="QTextEdit" name="textEditRefreshRate">
     <property name="geometry">
      <rect>
-      <x>170</x>
-      <y>460</y>
+      <x>190</x>
+      <y>640</y>
       <width>301</width>
       <height>31</height>
      </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">background-color: white</string>
     </property>
     <property name="html">
      <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
@@ -225,11 +251,14 @@ p, li { white-space: pre-wrap; }
    <widget class="QTextEdit" name="textEditRosLocalIP">
     <property name="geometry">
      <rect>
-      <x>170</x>
-      <y>430</y>
+      <x>190</x>
+      <y>610</y>
       <width>301</width>
       <height>31</height>
      </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">background-color: white</string>
     </property>
     <property name="html">
      <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
@@ -242,11 +271,14 @@ p, li { white-space: pre-wrap; }
    <widget class="QLabel" name="labelImuTopicName">
     <property name="geometry">
      <rect>
-      <x>480</x>
-      <y>460</y>
+      <x>640</x>
+      <y>640</y>
       <width>161</width>
       <height>31</height>
      </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">background-color: rgb(230, 230, 230)</string>
     </property>
     <property name="frameShape">
      <enum>QFrame::Box</enum>
@@ -262,10 +294,13 @@ p, li { white-space: pre-wrap; }
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>460</y>
-      <width>161</width>
+      <y>640</y>
+      <width>181</width>
       <height>31</height>
      </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">background-color: rgb(230, 230, 230)</string>
     </property>
     <property name="frameShape">
      <enum>QFrame::Box</enum>
@@ -277,13 +312,24 @@ p, li { white-space: pre-wrap; }
      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
     </property>
    </widget>
+   <widget class="QWidget" name="verticalLayoutWidget_2">
+    <property name="geometry">
+     <rect>
+      <x>640</x>
+      <y>10</y>
+      <width>641</width>
+      <height>551</height>
+     </rect>
+    </property>
+    <layout class="QVBoxLayout" name="boxLayoutVideoStream"/>
+   </widget>
   </widget>
   <widget class="QMenuBar" name="menuBar">
    <property name="geometry">
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>965</width>
+     <width>1292</width>
      <height>22</height>
     </rect>
    </property>
