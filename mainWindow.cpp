@@ -21,7 +21,7 @@ mainWindow::mainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::mainWi
                  
     /// connect to the signal sent from run after spinonce so so can do something when it sees it (single with the win id), do this only
     /// on the first time and ignore the rest, link to a function in mainwindow class to move map viewer and frame viewer into our app
-    QObject::connect(&rosNode, SIGNAL(launchSlam()), this, SLOT(importSlam()))
+    QObject::connect(&rosNode, SIGNAL(launchSlam()), this, SLOT(importSlam()));
     //connection to allow application to close rather than hang if ROS has to shutdown unexpectedly
     QObject::connect(&rosNode, SIGNAL(rosShutdown()), this, SLOT(close()));
 }
