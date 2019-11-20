@@ -51,7 +51,7 @@ INCLUDEPATH += $$PWD/ORB_SLAM2_firefighter/include
 DEPENDPATH += $$PWD/ORB_SLAM2_firefighter/include
 INCLUDEPATH += $$PWD/ORB_SLAM2_firefighter
 DEPENDPATH += $$PWD/ORB_SLAM2_firefighter
-LIBS += -L$$PWD//ORB_SLAM2_firefighter/lib -lORB_SLAM2
+LIBS += -L$$PWD/ORB_SLAM2_firefighter/lib -lORB_SLAM2
 
 #ROS libraries
 QMAKE_RPATHDIR += /opt/ros/kinetic/lib
@@ -90,9 +90,9 @@ INCLUDEPATH += /usr/include/eigen3
 DEPENDPATH += /usr/include/eigen3
 
 #PCL libraries
-INCLUDEPATH += /usr/local/include/pcl-1.9
-DEPENDPATH += /usr/local/include/pcl-1.9
-LIBS += -L/usr/local/lib/ -lpcl_common -lpcl_visualization -lpcl_octree -lpcl_filters
+INCLUDEPATH += /usr/include/pcl-1.9
+DEPENDPATH += /usr/include/pcl-1.9
+LIBS += -L/usr/lib/ -lpcl_common -lpcl_visualization -lpcl_octree -lpcl_filters
 
 #VTK libraries
 INCLUDEPATH += /usr/include/vtk-6.2

@@ -2,7 +2,6 @@
 //mainWindow handles the GUI for the base unit application
 
 #include "mainWindow.hpp"
-#include <stdio.h>
 
 //public: constructor
 //creates ui instance
@@ -11,13 +10,15 @@ mainWindow::mainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::mainWi
 {
     //initialize UI
     ui->setupUi(this);
+
     //load settings from file
     loadSettings();
 
+    //load settings in rosNode
+    rosNode.loadSettings();
+
     //create ROS node to recieve messages over
-    rosNode.init(ui->textEditRosMasterIP->toPlainText().toStdString(), ui->textEditRosLocalIP->toPlainText().toStdString(),
-                 ui->textEditColorTopicName->toPlainText().toStdString(), ui->textEditDepthTopicName->toPlainText().toStdString(),
-                 ui->textEditImuTopicName->toPlainText().toStdString(), ui->textEditRefreshRate->toPlainText().toFloat());
+    rosNode.init();
                  
     /// connect to the signal sent from run after spinonce so so can do something when it sees it (single with the win id), do this only
     /// on the first time and ignore the rest, link to a function in mainwindow class to move map viewer and frame viewer into our app
@@ -36,7 +37,7 @@ mainWindow::~mainWindow()
 
 //private slot: on_PushButtonSaveConfig_clicked
 //will eventually reinitialize pointcloud system with new values, currently placeholder
-void mainWindow::on_PushButtonSaveConfig_clicked()
+void mainWindow::on_pushButtonSaveConfig_clicked()
 {
     //TODO:make this restart thing with new config values, rather than just save them - Jordan
     saveSettings();
@@ -45,7 +46,7 @@ void mainWindow::on_PushButtonSaveConfig_clicked()
 void mainWindow::importSlam()
 {
     //when cmdCnt is == to 1 that is when the slam applications will have  launched and can be imported
-    if (cmdCnt == 1) {
+    if (cmdCnt == 15) {
 
 // --------------------------- Grab POINT CLOUD application
         // Get the output of the command that displays information on the running orb-slam2 pointcloud map application

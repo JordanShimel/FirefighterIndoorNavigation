@@ -4,8 +4,6 @@
 #ifndef MAINWINDOW_HPP
 #define MAINWINDOW_HPP
 
-
-
 //providess pointcloud functionality
 #include <pointcloudWidget.hpp>
 
@@ -26,16 +24,20 @@
 
 //QSettings is used to handle saving and loading settings
 #include <QSettings>
-#include <xdo.h>
+
+//QWindow is used to capture ui elements
 #include <QWindow>
-#include <cstdio>
-#include <iostream>
-#include <memory>
-#include <stdexcept>
-#include <string>
-#include <array>
-#include <cstdlib>
-#include <iostream>
+
+//xdo is used to capture ui elements
+#include <xdo.h>
+
+//#include <stdio.h>
+//#include <cstdio>
+//#include <memory>
+//#include <stdexcept>
+//#include <string>
+//#include <array>
+//#include <cstdlib>
 
 using namespace std;
 
@@ -61,10 +63,11 @@ class mainWindow : public QMainWindow
         //on_pushButtonSaveConfigClicked saves the settings to disk
         //TODO:eventually this should be changed to also reinitialize things with the changed settings
         //until then it's kind of pointless - Jordan
-        void on_PushButtonSaveConfig_clicked();
+        void on_pushButtonSaveConfig_clicked();
 
         void importSlam();
-    private:
+
+private:
         int cmdCnt = 0;
         //Map viewer function variables
         string mvWinID = "";

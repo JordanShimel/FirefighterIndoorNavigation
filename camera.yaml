@@ -4,10 +4,10 @@
 # Camera Parameters. Adjust them!
 #--------------------------------------------------------------------------------------------
 
-Camera.fx: 619.8997192382812
-Camera.fy: 620.1099853515625
-Camera.cx: 320.65399169921875
-Camera.cy: 241.11248779296875
+Camera.fx: 616.342
+Camera.fy: 616.683
+Camera.cx: 322.759
+Camera.cy: 248.279
 
 Camera.k1: 0
 Camera.k2: 0
@@ -24,10 +24,10 @@ Camera.fps: 30.0
 # IR projector baseline times fx (aprox.)
 #Camera.bf: 40.0
 # baseline is 55mm for D415 and 50mm for D435
-Camera.bf: 30.99498596
+Camera.bf: 30.8171
 
 # Color order of the images (0: BGR, 1: RGB. It is ignored if images are grayscale)
-Camera.RGB: 1
+Camera.RGB: 0
 
 # Close/Far threshold. Baseline times.
 ThDepth: 40.0

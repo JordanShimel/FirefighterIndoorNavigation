@@ -26,6 +26,9 @@
 //QThread allows the publishing to be done on its own thread
 #include <QThread>
 
+//QSettings is used to handle saving and loading settings
+#include <QSettings>
+
 //ORB_SLAM2 is used to create and render pointcloud
 #include "ORB_SLAM2_firefighter/include/System.h"
 
@@ -41,13 +44,13 @@ class rosNodeWidget : public QThread
         //destructor shuts down ROS node and then destroys class instance
         virtual ~rosNodeWidget();
         //init creates a ROS node if one doesn't already exist and then initiates the main subscribing loop in run
-        bool init(const std::string &rosMasterAddress, const std::string &rosLocalAddress,
-                  const std::string &colorTopicName, const std::string &depthTopicName,
-                  const std::string &imuTopicName, const float &refreshRate);
+        bool init();
         //run is called by init and handles the main subscribing loop
         void run();
         //stop terminates the QThread subscribing to ROS messages
         bool stop();
+        //loadSettings loads settings into internal variables
+        void loadSettings();
 
     Q_SIGNALS:
         //rosShutdown is used to signal an unexpected stopping of the ROS node to the main application
@@ -65,8 +68,14 @@ class rosNodeWidget : public QThread
         //ROS IMU subscriber for IMU data
         std::string mImuTopicName;
         sensor_msgs::Imu mSubscriberImu;
-        //ROS rate setting, determines how many times per second the application will attempt to fetch subscribed messages
-        float mRefreshRate;
+
+        //internal values to hold settings
+        std::string settingRosMasterAddress;
+        std::string settingRosLocalAddress;
+        std::string settingColorTopicName;
+        std::string settingDepthTopicName;
+        std::string settingImuTopicName;
+        float settingRefreshRate;
 };
 
 #endif
