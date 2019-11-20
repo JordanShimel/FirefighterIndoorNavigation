@@ -8,9 +8,6 @@
 //creates empty GLFW window
 viewerWidget::viewerWidget()
 {
-    //TODO?: change from hard coded height and width - Jordan
-    windowWidth = 640;
-    windowHeight = 480;
     //frame handles are used by the show frame functions
     motionFrameHandle = 0;
     videoFrameHandle = 0;
@@ -39,6 +36,14 @@ viewerWidget::~viewerWidget()
 void viewerWidget::close()
 {
     glfwSetWindowShouldClose(previewWindow, 1);
+}
+
+//public: setSize
+//sets internal values used to construct viewer window
+void viewerWidget::setSize(int width, int height)
+{
+    windowWidth = width;
+    windowHeight = height;
 }
 
 //public: bool

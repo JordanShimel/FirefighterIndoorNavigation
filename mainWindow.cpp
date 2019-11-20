@@ -96,6 +96,9 @@ void mainWindow::on_pushButtonTest_clicked()
         //create a viewerWidget for rendering
         class viewerWidget rscViewer;
 
+        //set viewer size
+        rscViewer.setSize(640, 480);
+
         //main app loop, run while viewerWidget is open
         while(rscViewer)
         {
@@ -214,7 +217,7 @@ void mainWindow::on_pushButtonConfig_clicked()
         ui->textEditSettingPublishRate->setVisible(true);
 
         ui->labelSettingAutoExposure->setVisible(true);
-        ui->textEditSettingAutoExposure->setVisible(true);
+        ui->checkBoxSettingAutoExposure->setVisible(true);
 
         ui->labelSettingThresholdMin->setVisible(true);
         ui->textEditSettingThresholdMin->setVisible(true);
@@ -264,7 +267,7 @@ void mainWindow::on_pushButtonConfig_clicked()
         ui->textEditSettingPublishRate->setVisible(false);
 
         ui->labelSettingAutoExposure->setVisible(false);
-        ui->textEditSettingAutoExposure->setVisible(false);
+        ui->checkBoxSettingAutoExposure->setVisible(false);
 
         ui->labelSettingThresholdMin->setVisible(false);
         ui->textEditSettingThresholdMin->setVisible(false);
@@ -331,7 +334,7 @@ void mainWindow::initUI()
     ui->textEditSettingPublishRate->setVisible(false);
 
     ui->labelSettingAutoExposure->setVisible(false);
-    ui->textEditSettingAutoExposure->setVisible(false);
+    ui->checkBoxSettingAutoExposure->setVisible(false);
 
     ui->labelSettingThresholdMin->setVisible(false);
     ui->textEditSettingThresholdMin->setVisible(false);
@@ -419,11 +422,18 @@ void mainWindow::loadSettings()
     //auto exposure
     if(fileSettings.value("AUTO_EXPOSURE", "").toString().toStdString() == "")
     {
-        ui->textEditSettingAutoExposure->setText("1");
+        ui->checkBoxSettingAutoExposure->setCheckState(Qt::CheckState::Checked);
     }
     else
     {
-        ui->textEditSettingAutoExposure->setText(fileSettings.value("AUTO_EXPOSURE", "").toString());
+        if(fileSettings.value("AUTO_EXPOSURE", "").toString() == "1")
+        {
+            ui->checkBoxSettingAutoExposure->setCheckState(Qt::CheckState::Checked);
+        }
+        else
+        {
+            ui->checkBoxSettingAutoExposure->setCheckState(Qt::CheckState::Unchecked);
+        }
     }
     //threshold min
     if(fileSettings.value("THRESHOLD_MIN", "").toString().toStdString() == "")
@@ -503,7 +513,14 @@ void mainWindow::saveSettings()
     fileSettings.setValue("DEPTH_TOPIC_NAME", ui->textEditSettingDepthTopicName->toPlainText());
     fileSettings.setValue("IMU_TOPIC_NAME", ui->textEditSettingImuTopicName->toPlainText());
     fileSettings.setValue("PUBLISH_RATE", ui->textEditSettingPublishRate->toPlainText());
-    fileSettings.setValue("AUTO_EXPOSURE", ui->textEditSettingAutoExposure->toPlainText());
+    if(ui->checkBoxSettingAutoExposure->checkState() == Qt::CheckState::Checked)
+    {
+        fileSettings.setValue("AUTO_EXPOSURE", "1");
+    }
+    else
+    {
+        fileSettings.setValue("AUTO_EXPOSURE", "0");
+    }
     fileSettings.setValue("THRESHOLD_MIN", ui->textEditSettingThresholdMin->toPlainText());
     fileSettings.setValue("THRESHOLD_MAX", ui->textEditSettingThresholdMax->toPlainText());
     fileSettings.setValue("SPATIAL_MAGNITUDE", ui->textEditSettingSpatialMagnitude->toPlainText());

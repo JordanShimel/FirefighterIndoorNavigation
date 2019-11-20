@@ -30,6 +30,8 @@ class viewerWidget
         void close();
         //bool returns true to main program while window is open, enabling the "while(rscViewer)" loop to operate
         operator bool();
+        //void setSize sets internal width and height values
+        void setSize(int width, int height);
         //show takes a map of frames and displays them in a mosaic
         void show(const std::map<int, rs2::frame> rscFrames);
 
@@ -37,8 +39,8 @@ class viewerWidget
         //the GLFW window handle for this window
         GLFWwindow *previewWindow;
         //various GLFW functions require pointers to frame size ints, so those are declared here
-        int windowWidth;
-        int windowHeight;
+        int windowWidth= 640;
+        int windowHeight = 480;
 
         //showMotionFrame and showVideoFrame each require a texture map ID
         //creating them here rather than a new one each time one of the functions is called
