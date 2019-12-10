@@ -22,7 +22,7 @@ mainWindow::mainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::mainWi
                  
     /// connect to the signal sent from run after spinonce so so can do something when it sees it (single with the win id), do this only
     /// on the first time and ignore the rest, link to a function in mainwindow class to move map viewer and frame viewer into our app
-    QObject::connect(&rosNode, SIGNAL(launchSlam()), this, SLOT(importSlam()));
+    QObject::connect(&rosNode, SIGNAL(grabSLAMWindows()), this, SLOT(mergeWindows()));
     //connection to allow application to close rather than hang if ROS has to shutdown unexpectedly
     QObject::connect(&rosNode, SIGNAL(rosShutdown()), this, SLOT(close()));
 }
@@ -31,62 +31,128 @@ mainWindow::mainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::mainWi
 //saves settings, deletes ui, and closes application
 mainWindow::~mainWindow()
 {
+    rosNode.stop();
     saveSettings();
     delete ui;
 }
 
-void mainWindow::importSlam()
+//private slot: mergeWindows
+//merges the windows created by ORB_SLAM2 into the Qt window for the main application
+void mainWindow::mergeWindows()
 {
-    //when cmdCnt is == to 1 that is when the slam applications will have  launched and can be imported
-    if (cmdCnt == 15) {
+    //sparse point cloud viewer
+    //values to store results of capturing window ID
+    string sWindowIDSparsePointCloud;
+    array<char, 128> cWindowIDSparsePointCloud;
 
-// --------------------------- Grab POINT CLOUD application
-        // Get the output of the command that displays information on the running orb-slam2 pointcloud map application
-        std::shared_ptr<FILE> pipe(popen("xwininfo -name \"ORB-SLAM2: Map Viewer\"", "r"), pclose);
+    //use xwin to open a pipe to grab the window data by name
+    std::shared_ptr<FILE> pipeSparsePointCloud(popen("xwininfo -name \"FIN_SparsePointCloudViewer\"", "r"), pclose);
 
-        //move the output of the previous command into string mvResult
-        if (!pipe) throw std::runtime_error("popen() failed!");
-             while (!feof(pipe.get())) {
-                 if (fgets(mvBuffer.data(), 128, pipe.get()) != nullptr)
-                     mvResult += mvBuffer.data();
-            }
-
-        // parse the result for the programs window id, a 9 digit hexademical number
-        mvResult = mvResult.substr(22, 9);
-        system("wmctrl -r \"ORB-SLAM2: Map Viewer\" -e 0,0,0,640,546");  // FIXME: might be dead code
-
-        //convert the 9 digit hexadecimal number into an acceptable type for fromWindId();
-        unsigned long mvWinID = std::strtoul(mvResult.c_str(), 0, 16);
-
-        //import the map viewer application
-        QWindow *window = QWindow::fromWinId(mvWinID);
-        window->setFlags(Qt::FramelessWindowHint);
-
-        QWidget *widget = QWidget::createWindowContainer(window);
-        widget->setFixedHeight(551);
-        //widget->setStyleSheet("QWidget{border: 50px solid red;}");
-
-        ui->boxLayoutPointcloud->addWidget(widget);
-
-// --------------------------- Grab VIDEO STREAM application
-        std::shared_ptr<FILE> pipe2(popen("xwininfo -name \"ORB-SLAM2: Current Frame\"", "r"), pclose);
-
-        if (!pipe2) throw std::runtime_error("popen() failed!");
-             while (!feof(pipe2.get())) {
-                 if (fgets(cfBuffer.data(), 128, pipe2.get()) != nullptr)
-                     cfResult += cfBuffer.data();
-             }
-         cfResult = cfResult.substr(22, 9);
-         system("wmctrl -r \"ORB-SLAM2: Current Frame\" -e 0,0,0,640,480");   // FIXME: might be dead code
-         unsigned long cfwinID2 = std::strtoul(cfResult.c_str(), 0, 16);
-
-         QWindow *window2 = QWindow::fromWinId(cfwinID2);
-         window2->setFlags(Qt::FramelessWindowHint);
-
-         QWidget *widget2 = QWidget::createWindowContainer(window2);
-         ui->boxLayoutVideoStream->addWidget(widget2);
+    //transfer data from the pipe to the string using the char array
+    if(!pipeSparsePointCloud)
+    {
+        throw std::runtime_error("popen() failed!");
     }
-    cmdCnt ++;
+    while(!feof(pipeSparsePointCloud.get()))
+    {
+        if(fgets(cWindowIDSparsePointCloud.data(), 128, pipeSparsePointCloud.get()) != nullptr)
+        {
+            sWindowIDSparsePointCloud += cWindowIDSparsePointCloud.data();
+        }
+    }
+
+    //pull the window id out and convert it for use in Qt
+    //parse the result for the programs window id, a 9 digit hexademical number
+    sWindowIDSparsePointCloud = sWindowIDSparsePointCloud.substr(22, 9);
+    //convert the 9 digit hexadecimal number into an acceptable type for fromWindId();
+    unsigned long lWinIDSparsePointCloud = std::strtoul(sWindowIDSparsePointCloud.c_str(), nullptr, 16);
+
+    //import the map viewer application
+    QWindow *windowSparsePointCloud = QWindow::fromWinId(lWinIDSparsePointCloud);
+    windowSparsePointCloud->setFlags(Qt::FramelessWindowHint);
+    QWidget *widgetSparsePointCloud = QWidget::createWindowContainer(windowSparsePointCloud);
+    ui->boxLayoutSparsePointCloud->addWidget(widgetSparsePointCloud);
+
+
+    //dense point cloud viewer
+    string sWindowIDDensePointCloud;
+    array<char, 128> cWindowIDDensePointCloud;
+
+    std::shared_ptr<FILE> pipeDensePointCloud(popen("xwininfo -name \"FIN_DensePointCloudViewer\"", "r"), pclose);
+
+    if(!pipeDensePointCloud)
+    {
+        throw std::runtime_error("popen() failed!");
+    }
+    while(!feof(pipeDensePointCloud.get()))
+    {
+        if(fgets(cWindowIDDensePointCloud.data(), 128, pipeDensePointCloud.get()) != nullptr)
+        {
+            sWindowIDDensePointCloud += cWindowIDDensePointCloud.data();
+        }
+    }
+
+    sWindowIDDensePointCloud = sWindowIDDensePointCloud.substr(22, 9);
+    unsigned long lWinIDDensePointCloud = std::strtoul(sWindowIDDensePointCloud.c_str(), nullptr, 16);
+
+    QWindow *windowDensePointCloud = QWindow::fromWinId(lWinIDDensePointCloud);
+    windowDensePointCloud->setFlags(Qt::FramelessWindowHint);
+    QWidget *widgetDensePointCloud = QWidget::createWindowContainer(windowDensePointCloud);
+    ui->boxLayoutDensePointCloud->addWidget(widgetDensePointCloud);
+
+
+    //top down viewer
+    string sWindowIDTopDown;
+    array<char, 128> cWindowIDTopDown;
+
+    std::shared_ptr<FILE> pipeTopDown(popen("xwininfo -name \"FIN_TopDownViewer\"", "r"), pclose);
+
+    if(!pipeTopDown)
+    {
+        throw std::runtime_error("popen() failed!");
+    }
+    while(!feof(pipeTopDown.get()))
+    {
+        if(fgets(cWindowIDTopDown.data(), 128, pipeTopDown.get()) != nullptr)
+        {
+            sWindowIDTopDown += cWindowIDTopDown.data();
+        }
+    }
+
+    sWindowIDTopDown = sWindowIDTopDown.substr(22, 9);
+    unsigned long lWinIDTopDown = std::strtoul(sWindowIDTopDown.c_str(), nullptr, 16);
+
+    QWindow *windowTopDown = QWindow::fromWinId(lWinIDTopDown);
+    windowTopDown->setFlags(Qt::FramelessWindowHint);
+    QWidget *widgetTopDown = QWidget::createWindowContainer(windowTopDown);
+    ui->boxLayoutOverheadView->addWidget(widgetTopDown);
+
+
+    //video frame viewer
+    string sWindowIDVideoFrame;
+    array<char, 128> cWindowIDVideoFrame;
+
+    std::shared_ptr<FILE> pipeVideoFrame(popen("xwininfo -name \"FIN_CurrentFrameViewer\"", "r"), pclose);
+
+    if(!pipeVideoFrame)
+    {
+        throw std::runtime_error("popen() failed!");
+    }
+    while(!feof(pipeVideoFrame.get()))
+    {
+        if(fgets(cWindowIDVideoFrame.data(), 128, pipeVideoFrame.get()) != nullptr)
+        {
+            sWindowIDVideoFrame += cWindowIDVideoFrame.data();
+        }
+    }
+
+    sWindowIDVideoFrame = sWindowIDVideoFrame.substr(22, 9);
+    unsigned long lWinIDVideoFrame = std::strtoul(sWindowIDVideoFrame.c_str(), nullptr, 16);
+
+    QWindow *windowVideoFrame = QWindow::fromWinId(lWinIDVideoFrame);
+    windowVideoFrame->setFlags(Qt::FramelessWindowHint);
+    QWidget *widgetVideoFrame = QWidget::createWindowContainer(windowVideoFrame);
+    ui->boxLayoutVideoStream->addWidget(widgetVideoFrame);
 }
 
 //private: loadSettings

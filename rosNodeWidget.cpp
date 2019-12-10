@@ -70,30 +70,42 @@ void rosNodeWidget::run()
     //code for ORB_SLAM stuff
     //create a new SLAM system, passing the prebuilt vocab and camera settings, set as type RGBD and use the built in renderer
     ORB_SLAM2::System rscSLAM("./ORBvoc.txt", "./camera.yaml", ORB_SLAM2::System::RGBD, true);
-    //create a pointcloudWidget with our SLAM system
-    pointcloudWidget rscPointcloud(&rscSLAM);
+    //create a pointCloudWidget with our SLAM system
+    pointCloudWidget rscPointCloud(&rscSLAM);
     //add the message filter subscribers for the incoming color and depth messages
     message_filters::Subscriber<sensor_msgs::Image> colorSubscriber(nodeHandleBaseUnit, settingColorTopicName, 1);
     message_filters::Subscriber<sensor_msgs::Image> depthSubscriber(nodeHandleBaseUnit, settingDepthTopicName, 1);
     //set up the system to synchronize the color and depth frames
     typedef message_filters::sync_policies::ApproximateTime<sensor_msgs::Image, sensor_msgs::Image> sync_pol;
     message_filters::Synchronizer<sync_pol> sync(sync_pol(10), colorSubscriber, depthSubscriber);
-    //finally, call the pointcloudWidget's grabRGBD function with the RGBD data
-    sync.registerCallback(boost::bind(&pointcloudWidget::processFrames, &rscPointcloud, _1, _2));
+    //finally, call the pointCloudWidget's grabRGBD function with the RGBD data
+    sync.registerCallback(boost::bind(&pointCloudWidget::processFrames, &rscPointCloud, _1, _2));
 
     //rosLoopRate is how many times the while loop will attempt to run per second
     ros::Rate rosLoopRate(settingRefreshRate);
 
+    int spinCount = 0;
     //as long as ROS hasn't been shutdown
     while(ros::ok())
     {
         //check each subscribers once
-        ros::spinOnce(); ///emit a signal here (where orb-slam2 is being called) declare in header
-        Q_EMIT launchSlam();
+        ros::spinOnce();
+
+        //after 50 spins, attempt to capture ORB_SLAM2 windows into main ui
+        if(spinCount < 50)
+        {
+            spinCount++;
+            if(spinCount == 50)
+            {
+                Q_EMIT grabSLAMWindows();
+            }
+        }
 
         //sleep until time to rerun(specified by rosLoopRate)
         rosLoopRate.sleep();
     }
+
+    rscPointCloud.shutdown();
 
     //let main application know ROS has shutdown
     Q_EMIT rosShutdown();

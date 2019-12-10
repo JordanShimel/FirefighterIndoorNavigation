@@ -61,9 +61,7 @@ System::System(const string &strVocFile, const string &strSettingsFile, const eS
        exit(-1);
     }
 
-    // TO DO
-    float resolution = fsSettings["PointCloudMapping.Resolution"];
-    resolution = 0.01;
+    float resolution = 0.0005;//TODO: pass from main application
 
     //Load ORB Vocabulary
     cout << endl << "Loading ORB Vocabulary. This could take a while..." << endl;
@@ -80,7 +78,7 @@ System::System(const string &strVocFile, const string &strSettingsFile, const eS
         cerr << "Failed to open at: " << strVocFile << endl;
         exit(-1);
     }
-    printf("Vocabulary loaded in %.2fs\n", (double)(clock() - tStart)/CLOCKS_PER_SEC);
+    printf("Vocabulary `loaded in %.2fs\n", (double)(clock() - tStart)/CLOCKS_PER_SEC);
     
     //Create KeyFrame Database
     mpKeyFrameDatabase = new KeyFrameDatabase(*mpVocabulary);
@@ -90,7 +88,8 @@ System::System(const string &strVocFile, const string &strSettingsFile, const eS
 
     //Create Drawers. These are used by the Viewer
     mpFrameDrawer = new FrameDrawer(mpMap);
-    mpMapDrawer = new MapDrawer(mpMap, strSettingsFile);
+    mpMapDrawer = new MapDrawer(mpMap, strSettingsFile, false);
+    mpMapDrawer2D = new MapDrawer(mpMap, strSettingsFile, true);    
 
     //Initialize the Tracking thread
     //(it will live in the main thread of execution, the one that called this constructor)
@@ -98,8 +97,6 @@ System::System(const string &strVocFile, const string &strSettingsFile, const eS
     mpPointCloudMapping = make_shared<PointCloudMapping>( resolution );
     mpTracker = new Tracking(this, mpVocabulary, mpFrameDrawer, mpMapDrawer,
                              mpMap, mpPointCloudMapping, mpKeyFrameDatabase, strSettingsFile, mSensor);
-    //mpTracker = new Tracking(this, mpVocabulary, mpFrameDrawer, mpMapDrawer,
-    //                         mpMap, mpKeyFrameDatabase, strSettingsFile, mSensor);
 
     //Initialize the Local Mapping thread and launch
     mpLocalMapper = new LocalMapping(mpMap, mSensor==MONOCULAR);
@@ -110,11 +107,16 @@ System::System(const string &strVocFile, const string &strSettingsFile, const eS
     mptLoopClosing = new thread(&ORB_SLAM2::LoopClosing::Run, mpLoopCloser);
 
     //Initialize the Viewer thread and launch
-    mpViewer = new Viewer(this, mpFrameDrawer,mpMapDrawer,mpTracker,strSettingsFile);
+    mpViewer = new Viewer(this, mpFrameDrawer,mpMapDrawer,mpTracker,strSettingsFile, false);//3D Viewer
+    mpViewer2D = new Viewer(this, mpFrameDrawer,mpMapDrawer2D,mpTracker,strSettingsFile, true);//2D Viewer
     if(bUseViewer)
+    {
         mptViewer = new thread(&Viewer::Run, mpViewer);
+        mptViewer2D = new thread(&Viewer::Run, mpViewer2D);
+    }
 
     mpTracker->SetViewer(mpViewer);
+    mpTracker->SetViewer(mpViewer2D);
 
     //Set pointers between threads
     mpTracker->SetLocalMapper(mpLocalMapper);
@@ -201,17 +203,15 @@ cv::Mat System::TrackRGBD(const cv::Mat &im, const cv::Mat &depthmap, const doub
             mpTracker->InformOnlyTracking(false);
             mpLocalMapper->Release();
             mbDeactivateLocalizationMode = false;
-        }
+        }        
     }
 
     // Check reset
-    {
     unique_lock<mutex> lock(mMutexReset);
     if(mbReset)
     {
         mpTracker->Reset();
         mbReset = false;
-    }
     }
 
     return mpTracker->GrabImageRGBD(im, depthmap, timestamp);
@@ -285,16 +285,15 @@ void System::Shutdown()
     mpLocalMapper->RequestFinish();
     mpLoopCloser->RequestFinish();
     mpViewer->RequestFinish();
+    mpViewer2D->RequestFinish();
     mpPointCloudMapping->shutdown();
 
     // Wait until all thread have effectively stopped
     while(!mpLocalMapper->isFinished() || !mpLoopCloser->isFinished()  ||
-          !mpViewer->isFinished()      || mpLoopCloser->isRunningGBA())
+          !mpViewer->isFinished()      || !mpViewer2D->isFinished()      || mpLoopCloser->isRunningGBA())
     {
         usleep(5000);
     }
-
-    pangolin::BindToContext("ORB-SLAM2: Map Viewer");
 }
 
 void System::SaveTrajectoryTUM(const string &filename)

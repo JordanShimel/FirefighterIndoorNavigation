@@ -4,8 +4,8 @@
 #ifndef ROSNODEWIDGET_HPP
 #define ROSNODEWIDGET_HPP
 
-//pointcloud widget is used to handled received camera data
-#include "pointcloudWidget.hpp"
+//PointCloudWidget is used to handled received camera data
+#include "pointCloudWidget.hpp"
 
 //default ROS header
 #include <ros/ros.h>
@@ -29,7 +29,7 @@
 //QSettings is used to handle saving and loading settings
 #include <QSettings>
 
-//ORB_SLAM2 is used to create and render pointcloud
+//ORB_SLAM2 is used to create and render PointCloud
 #include "ORB_SLAM2_firefighter/include/System.h"
 
 //rosNodeWidget class, manages ROS node and subscribing
@@ -55,8 +55,8 @@ class rosNodeWidget : public QThread
     Q_SIGNALS:
         //rosShutdown is used to signal an unexpected stopping of the ROS node to the main application
         void rosShutdown();
-        void launchSlam();
-                /// create a qsignal here for the slamInit signal, use the signal for the win id
+        //grabSLAMWindows is used to signal that we should integrate ORB_SLAM2 windows into the base ui
+        void grabSLAMWindows();
 
     private:
         //ROS image subsciber for color data
