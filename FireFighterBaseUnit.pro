@@ -1,7 +1,5 @@
 #indicates main Qt libraries to include
-#note: webenginewidgets is not available by default on manual Qt installs
-#make sure to use a Qt version from the installer and select web engine optional components
-QT += core gui widgets webenginewidgets
+QT += core gui widgets
 
 #indicates Qt warnings for deprecated functions should be shown
 DEFINES += QT_DEPRECATED_WARNINGS
@@ -13,13 +11,13 @@ CONFIG += c++14
 SOURCES += \
         main.cpp \
         mainWindow.cpp \
-        pointcloudWidget.cpp \
+        pointCloudWidget.cpp \
         rosNodeWidget.cpp
 
 #list of header files
 HEADERS += \
         mainWindow.hpp \
-        pointcloudWidget.hpp \
+        pointCloudWidget.hpp \
         rosNodeWidget.hpp
 
 #list of form files
@@ -32,12 +30,11 @@ DISTFILES += \
         camera.yaml \
         firefighterbaseunit.qmodel
 
-#These commands cause qmake to copy the camera settings and vocabulary files to the build directory
+#these commands cause qmake to copy the camera settings and vocabulary files to the build directory
 copyCameraSettings.commands = $(COPY_DIR) $$PWD/camera.yaml $$OUT_PWD
 copyVocabulary.commands = $(COPY_DIR) $$PWD/ORB_SLAM2_firefighter/Vocabulary/ORBvoc.txt $$OUT_PWD
 first.depends = $(first) copyCameraSettings copyVocabulary
 export(first.depends)
-export(copyCameraSettings.commands)
 QMAKE_EXTRA_TARGETS += first copyCameraSettings copyVocabulary
 
 #Extra includes
@@ -85,7 +82,7 @@ INCLUDEPATH += /usr/lib/x86_64-linux-gnu
 DEPENDPATH += /usr/lib/x86_64-linux-gnu
 LIBS += -L/usr/lib/x86_64-linux-gnu/ -lxdo
 
-#Eigen
+#Eigen libraries
 INCLUDEPATH += /usr/include/eigen3
 DEPENDPATH += /usr/include/eigen3
 

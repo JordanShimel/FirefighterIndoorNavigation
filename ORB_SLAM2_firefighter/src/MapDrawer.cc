@@ -28,7 +28,7 @@ namespace ORB_SLAM2
 {
 
 
-MapDrawer::MapDrawer(Map* pMap, const string &strSettingPath):mpMap(pMap)
+MapDrawer::MapDrawer(Map* pMap, const string &strSettingPath, const bool b2DView):mpMap(pMap), mb2DView(b2DView)
 {
     cv::FileStorage fSettings(strSettingPath, cv::FileStorage::READ);
 
@@ -60,7 +60,14 @@ void MapDrawer::DrawMapPoints()
         if(vpMPs[i]->isBad() || spRefMPs.count(vpMPs[i]))
             continue;
         cv::Mat pos = vpMPs[i]->GetWorldPos();
-        glVertex3f(pos.at<float>(0),pos.at<float>(1),pos.at<float>(2));
+	if(mb2DView == true)
+	{
+	    glVertex3f(pos.at<float>(0),0,pos.at<float>(2));
+	}
+	else
+	{
+            glVertex3f(pos.at<float>(0),pos.at<float>(1),pos.at<float>(2));
+	}
     }
     glEnd();
 
@@ -73,8 +80,14 @@ void MapDrawer::DrawMapPoints()
         if((*sit)->isBad())
             continue;
         cv::Mat pos = (*sit)->GetWorldPos();
-        glVertex3f(pos.at<float>(0),pos.at<float>(1),pos.at<float>(2));
-
+	if(mb2DView == true)
+	{
+            glVertex3f(pos.at<float>(0),0,pos.at<float>(2));
+	}
+	else
+	{
+	    glVertex3f(pos.at<float>(0),pos.at<float>(1),pos.at<float>(2));
+	}
     }
 
     glEnd();
@@ -83,7 +96,11 @@ void MapDrawer::DrawMapPoints()
 void MapDrawer::DrawKeyFrames(const bool bDrawKF, const bool bDrawGraph)
 {
     const float &w = mKeyFrameSize;
-    const float h = w*0.75;
+    float h = 0;
+    if(mb2DView == false)
+    {
+        h = w*0.75;
+    }
     const float z = w*0.6;
 
     const vector<KeyFrame*> vpKFs = mpMap->GetAllKeyFrames();
@@ -179,7 +196,11 @@ void MapDrawer::DrawKeyFrames(const bool bDrawKF, const bool bDrawGraph)
 void MapDrawer::DrawCurrentCamera(pangolin::OpenGlMatrix &Twc)
 {
     const float &w = mCameraSize;
-    const float h = w*0.75;
+    float h = 0;
+    if(mb2DView == false)
+    {
+    	h = w*0.75;
+    }
     const float z = w*0.6;
 
     glPushMatrix();

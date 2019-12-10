@@ -1,11 +1,11 @@
-//mainWindow header file
+﻿//mainWindow header file
 //mainWindow handles the GUI for the base unit application
 
 #ifndef MAINWINDOW_HPP
 #define MAINWINDOW_HPP
 
-//providess pointcloud functionality
-#include <pointcloudWidget.hpp>
+//providess PointCloud functionality
+#include <pointCloudWidget.hpp>
 
 //handles ROS node connection and subscribing to data
 #include <rosNodeWidget.hpp>
@@ -31,14 +31,6 @@
 //xdo is used to capture ui elements
 #include <xdo.h>
 
-//#include <stdio.h>
-//#include <cstdio>
-//#include <memory>
-//#include <stdexcept>
-//#include <string>
-//#include <array>
-//#include <cstdlib>
-
 using namespace std;
 
 //namespace required for access to ui elements
@@ -60,20 +52,9 @@ class mainWindow : public QMainWindow
         ~mainWindow();
 
     private slots:
-        void importSlam();
+        void mergeWindows();
 
 private:
-        int cmdCnt = 0;
-        //Map viewer function variables
-        string mvWinID = "";
-        string mvResult;
-        array<char, 128> mvBuffer;
-
-        //Current Frame function variables
-        string cfWinID = "";
-        string cfResult;
-        array<char, 128> cfBuffer;
-
         //ui is used to access all the GUI Qt elements
         Ui::mainWindow *ui;
         //rosNode is used to assign a persistent ROS node to this window

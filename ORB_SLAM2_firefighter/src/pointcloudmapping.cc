@@ -34,11 +34,9 @@ PointCloudMapping::PointCloudMapping(double resolution_)
 
 void PointCloudMapping::shutdown()
 {
-    {
-        unique_lock<mutex> lock(shutDownMutex);
-        shutDownFlag = true;
-        keyFrameUpdated.notify_one();
-    }
+    unique_lock<mutex> lock(shutDownMutex);
+    shutDownFlag = true;
+    keyFrameUpdated.notify_one();
     viewerThread->join();
 }
 
@@ -92,20 +90,16 @@ pcl::PointCloud< PointCloudMapping::PointT >::Ptr PointCloudMapping::generatePoi
 
 void PointCloudMapping::viewer()
 {
-    pcl::visualization::CloudViewer viewer("viewer");
+    pcl::visualization::CloudViewer viewer("FIN_DensePointCloudViewer");
     while(1)
     {
-        {
-            unique_lock<mutex> lck_shutdown( shutDownMutex );
-            if (shutDownFlag)
-            {
-                break;
-            }
-        }
-        {
-            unique_lock<mutex> lck_keyframeUpdated( keyFrameUpdateMutex );
-            keyFrameUpdated.wait( lck_keyframeUpdated );
-        }
+        unique_lock<mutex> lck_shutdown( shutDownMutex );
+	if (shutDownFlag)
+	{
+	    return;
+	}
+	unique_lock<mutex> lck_keyframeUpdated( keyFrameUpdateMutex );
+	keyFrameUpdated.wait( lck_keyframeUpdated );
         
         // keyframe is updated 
         size_t N=0;

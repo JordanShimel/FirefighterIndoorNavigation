@@ -143,15 +143,18 @@ private:
 
     // The viewer draws the map and the current camera pose. It uses Pangolin.
     Viewer* mpViewer;
+    Viewer* mpViewer2D;
 
     FrameDrawer* mpFrameDrawer;
     MapDrawer* mpMapDrawer;
+    MapDrawer* mpMapDrawer2D;
 
     // System threads: Local Mapping, Loop Closing, Viewer.
     // The Tracking thread "lives" in the main execution thread that creates the System object.
     std::thread* mptLocalMapping;
     std::thread* mptLoopClosing;
     std::thread* mptViewer;
+    std::thread* mptViewer2D;
 
     // Reset flag
     std::mutex mMutexReset;

@@ -34,7 +34,7 @@ namespace ORB_SLAM2
 class MapDrawer
 {
 public:
-    MapDrawer(Map* pMap, const string &strSettingPath);
+    MapDrawer(Map* pMap, const string &strSettingPath, const bool b2DView);
 
     Map* mpMap;
 
@@ -53,6 +53,8 @@ private:
     float mPointSize;
     float mCameraSize;
     float mCameraLineWidth;
+
+    bool mb2DView;
 
     cv::Mat mCameraPose;
 
