@@ -48,4 +48,3 @@ DEPENDPATH += /opt/ros/kinetic/lib/x86_64-linux-gnu
 INCLUDEPATH += /opt/ros/kinetic/include/opencv-3.3.1-dev
 DEPENDPATH += /opt/ros/kinetic/include/opencv-3.3.1-dev
 LIBS += -L/opt/ros/kinetic/lib/x86_64-linux-gnu/ -lopencv_core3 -lopencv_imgcodecs3 -lopencv_imgproc3
-
