@@ -180,7 +180,7 @@ void Viewer::Run()
         pangolin::Var<bool> menuShowKeyFrames("menu.Show KeyFrames",true,true);
         pangolin::Var<bool> menuShowGraph("menu.Show Graph",true,true);
         pangolin::Var<bool> menuLocalizationMode("menu.Localization Mode",false,true);
-        //pangolin::Var<bool> menuReset("menu.Reset",false,false);
+        pangolin::Var<bool> menuReset("menu.Reset",false,false);
 
         // Define Camera Render Object (for view / scene browsing)
         pangolin::OpenGlRenderState s_cam(
