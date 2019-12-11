@@ -123,8 +123,7 @@ void viewerWidget::showMotionFrame(const rs2::motion_frame &rscFrame, const int 
         glGenTextures(1, &motionFrameHandle);
     }
 
-    //perform OpenGL matrix math
-    //TODO: better comments here - Jordan
+    //perform OpenGL matrix math to align viewport
     glViewport(xLoc, yLoc, (windowWidth/2), (windowHeight/2));
     glLoadIdentity();
     glMatrixMode(GL_PROJECTION);
@@ -264,8 +263,7 @@ void viewerWidget::showVideoFrame(const rs2::video_frame &rscFrame, const int xL
     }
     glBindTexture(GL_TEXTURE_2D, videoFrameHandle);
 
-    //do the OpenGL voodoo
-    //TODO: Better comments here - Jordan
+    //do the OpenGL voodoo to transform the frame data into a texture and display it
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, rscFrame.get_width(), rscFrame.get_height(), 0, GL_RGB, GL_UNSIGNED_BYTE, rscFrame.get_data());
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
@@ -274,6 +272,7 @@ void viewerWidget::showVideoFrame(const rs2::video_frame &rscFrame, const int xL
     glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
     glBindTexture(GL_TEXTURE_2D, 0);
 
+    //set the viewport for the display
     glViewport(xLoc, yLoc, (windowWidth/2), (windowHeight/2));
     glLoadIdentity();
     glMatrixMode(GL_PROJECTION);
@@ -282,6 +281,7 @@ void viewerWidget::showVideoFrame(const rs2::video_frame &rscFrame, const int xL
     glBindTexture(GL_TEXTURE_2D, videoFrameHandle);
     glColor4f(1, 1, 1, 1);
 
+    //output our mapped textures
     glEnable(GL_TEXTURE_2D);
         glBegin(GL_QUADS);
             glTexCoord2f(0, 0); glVertex2f(0, 0);

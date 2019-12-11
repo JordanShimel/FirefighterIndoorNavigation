@@ -132,6 +132,7 @@ void rosNodeWidget::run()
         rs2::frame rscTempGyroFrame;
         sensor_msgs::Imu messageImu;
 
+        //detailed information on these filter can be found in Intel's RealSense documentation
         rs2::threshold_filter rscThresholdFilter;
         rscThresholdFilter.set_option(RS2_OPTION_MIN_DISTANCE, settingThresholdMin);
         rscThresholdFilter.set_option(RS2_OPTION_MAX_DISTANCE, settingThresholdMax);
@@ -156,10 +157,11 @@ void rosNodeWidget::run()
 
             if(rscPipe.poll_for_frames(&rscFrameSet))
             {
+                //this aligns the color and depth data images
                 rscFrameSet = rscAlign.process(rscFrameSet);
 
-                //TODO:add better comments for these parts - Jordan
                 //color data publisher
+                //convert the color frame from Intel's RealSense format into a CV mat so ROS can transmit it
                 rscPublishColorFrame = rscFrameSet.first(RS2_STREAM_COLOR);
                 width = rscPublishColorFrame.as<rs2::video_frame>().get_width();
                 height = rscPublishColorFrame.as<rs2::video_frame>().get_height();
@@ -167,15 +169,19 @@ void rosNodeWidget::run()
                 messageColor = cv_bridge::CvImage(std_msgs::Header(), "bgr8", imageColor).toImageMsg();
                 publisherColor.publish(messageColor);
 
+
                 //depth data publisher
                 rscPublishDepthFrame = rscFrameSet.first(RS2_STREAM_DEPTH);
 
+                //apply filters to improve depth data quality
+                //TODO: a future improvement would be to better fine tune the parameters for these
                 rscPublishDepthFrame = rscThresholdFilter.process(rscPublishDepthFrame);
                 rscPublishDepthFrame = rscDepthToDisparity.process(rscPublishDepthFrame);
                 rscPublishDepthFrame = rscSpatialFilter.process(rscPublishDepthFrame);
                 rscPublishDepthFrame = rscTemporalFilter.process(rscPublishDepthFrame);
                 rscPublishDepthFrame = rscDisparityToDepth.process(rscPublishDepthFrame);
 
+                //convert the depth frame from Intel's RealSense format into a CV mat so ROS can transmit it
                 width = rscPublishDepthFrame.as<rs2::video_frame>().get_width();
                 height = rscPublishDepthFrame.as<rs2::video_frame>().get_height();
                 cv::Mat imageDepth(cv::Size(width, height), CV_16UC1, (void*)rscPublishDepthFrame.get_data(), cv::Mat::AUTO_STEP);
@@ -183,9 +189,11 @@ void rosNodeWidget::run()
                 messageDepth = cv_bridge::CvImage(std_msgs::Header(), "mono8", imageDepth).toImageMsg();
                 publisherDepth.publish(messageDepth);
 
+
                 //imu data publisher
                 rscTempAccelFrame = rscFrameSet.first(RS2_STREAM_ACCEL);
                 rscTempGyroFrame = rscFrameSet.first(RS2_STREAM_GYRO);
+                //bundle the 6 IMU data values into ROS' IMU message format
                 messageImu.angular_velocity.x = rscTempGyroFrame.as<rs2::motion_frame>().get_motion_data().x;
                 messageImu.angular_velocity.y = rscTempGyroFrame.as<rs2::motion_frame>().get_motion_data().y;
                 messageImu.angular_velocity.z = rscTempGyroFrame.as<rs2::motion_frame>().get_motion_data().z;

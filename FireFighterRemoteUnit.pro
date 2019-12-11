@@ -4,7 +4,7 @@ QT += core gui widgets
 #indicates Qt warnings for deprecated functions should be shown
 DEFINES += QT_DEPRECATED_WARNINGS
 
-#C++14 is required for some of our features(pcl)
+#C++14 is required for some of our the base unit features, used here for consistency
 CONFIG += c++14
 
 #list of source files
@@ -24,10 +24,6 @@ HEADERS += \
 FORMS += \
         mainWindow.ui
 
-#list of model files
-DISTFILES += \
-        firefighterremoteunit.qmodel
-
 #librealsense2, Intel Camera API
 #used to collect and process camera data
 LIBS += -L/usr/lib/x86_64-linux-gnu/ -lrealsense2
@@ -37,12 +33,14 @@ LIBS += -L/usr/lib/x86_64-linux-gnu/ -lrealsense2
 LIBS += -L/usr/lib/x86_64-linux-gnu/ -lglfw
 
 #ROS libraries
+#used to transmit the data from remote to base
 QMAKE_RPATHDIR += /opt/ros/kinetic/lib
 INCLUDEPATH += /opt/ros/kinetic/include
 DEPENDPATH += /opt/ros/kinetic/include
 LIBS += -L/opt/ros/kinetic/lib/ -lroscpp -lroscpp_serialization -lrosconsole -lrostime -lcv_bridge -limage_transport
 
 #ROS OpenCV libraries
+#used to convert data prior to transmission
 INCLUDEPATH += /opt/ros/kinetic/lib/x86_64-linux-gnu
 DEPENDPATH += /opt/ros/kinetic/lib/x86_64-linux-gnu
 INCLUDEPATH += /opt/ros/kinetic/include/opencv-3.3.1-dev
