@@ -11,7 +11,6 @@
 #include <ros/ros.h>
 
 //ROS image transport header is used to subscribe to image message data
-//TODO:maybe unneeded now? - Jordan
 #include <image_transport/image_transport.h>
 
 //ROS standard messages are used to subscribe to text based message data

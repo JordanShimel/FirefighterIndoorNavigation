@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1340</width>
-    <height>657</height>
+    <height>625</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -21,9 +21,9 @@
     <property name="geometry">
      <rect>
       <x>20</x>
-      <y>0</y>
+      <y>30</y>
       <width>641</width>
-      <height>601</height>
+      <height>571</height>
      </rect>
     </property>
     <layout class="QVBoxLayout" name="boxLayoutVideoStream"/>
@@ -395,16 +395,16 @@ p, li { white-space: pre-wrap; }
     <property name="geometry">
      <rect>
       <x>20</x>
-      <y>-4</y>
+      <y>26</y>
       <width>641</width>
-      <height>601</height>
+      <height>571</height>
      </rect>
     </property>
     <property name="styleSheet">
      <string notr="true">background-color: rgb(180, 180, 180)</string>
     </property>
     <property name="text">
-     <string>Please wait while ORB_SLAM2 loads the vocabulary file.</string>
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Wait while ORB_SLAM2 loads the vocabulary file.&lt;/p&gt;&lt;p&gt;Keep camera movements to a minimum and do not change tabs&lt;/p&gt;&lt;p&gt;until all ORB_SLAM2 windows are succesfully captured.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
     </property>
    </widget>
   </widget>

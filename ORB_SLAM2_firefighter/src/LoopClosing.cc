@@ -102,7 +102,7 @@ bool LoopClosing::CheckNewKeyFrames()
 
 bool LoopClosing::DetectLoop()
 {
-    {
+    /*{
         unique_lock<mutex> lock(mMutexLoopQueue);
         mpCurrentKF = mlpLoopKeyFrameQueue.front();
         mlpLoopKeyFrameQueue.pop_front();
@@ -225,6 +225,7 @@ bool LoopClosing::DetectLoop()
     }
 
     mpCurrentKF->SetErase();
+    return false;*/
     return false;
 }
 

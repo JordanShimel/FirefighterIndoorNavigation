@@ -1,3 +1,0 @@
-/home/jordan/Projects/firefighterbaseunit/ORB_SLAM2_firefighter/build/CMakeFiles/edit_cache.dir
-/home/jordan/Projects/firefighterbaseunit/ORB_SLAM2_firefighter/build/CMakeFiles/rebuild_cache.dir
-/home/jordan/Projects/firefighterbaseunit/ORB_SLAM2_firefighter/build/CMakeFiles/ORB_SLAM2.dir

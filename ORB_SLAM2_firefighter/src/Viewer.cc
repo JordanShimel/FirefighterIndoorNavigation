@@ -66,13 +66,13 @@ void Viewer::Run()
         glEnable (GL_BLEND);
         glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-        pangolin::CreatePanel("menu").SetBounds(0.0,1.0,0.0,pangolin::Attach::Pix(175));
+        /*pangolin::CreatePanel("menu").SetBounds(0.0,1.0,0.0,pangolin::Attach::Pix(175));
         pangolin::Var<bool> menuFollowCamera("menu.Follow Camera",false,true);
         pangolin::Var<bool> menuShowPoints("menu.Show Points",true,true);
         pangolin::Var<bool> menuShowKeyFrames("menu.Show KeyFrames",true,true);
         pangolin::Var<bool> menuShowGraph("menu.Show Graph",true,true);
         pangolin::Var<bool> menuLocalizationMode("menu.Localization Mode",false,true);
-        pangolin::Var<bool> menuReset("menu.Reset",false,false);
+        pangolin::Var<bool> menuReset("menu.Reset",false,false);*/
 
         // Define Camera Render Object (for view / scene browsing)
         pangolin::OpenGlRenderState s_cam(
@@ -88,8 +88,8 @@ void Viewer::Run()
         pangolin::OpenGlMatrix Twc;
         Twc.SetIdentity();
 
-        bool bFollow = false;
-        bool bLocalizationMode = false;
+        //bool bFollow = false;
+        //bool bLocalizationMode = false;
 
         while(1)
         {
@@ -97,7 +97,7 @@ void Viewer::Run()
 
             mpMapDrawer->GetCurrentOpenGLCameraMatrix(Twc);
 
-            if(menuFollowCamera && bFollow)
+            /*if(menuFollowCamera && bFollow)
             {
                 s_cam.Follow(Twc);
             }
@@ -121,20 +121,18 @@ void Viewer::Run()
             {
                 mpSystem->DeactivateLocalizationMode();
                 bLocalizationMode = false;
-            }
+            }*/
 
             s_cam.SetModelViewMatrix(pangolin::ModelViewLookAt(mViewpointX,mViewpointY,-0.00001, 0,0,0,0.0,-1.0, 0.0));
             d_cam.Activate(s_cam);
             glClearColor(1.0f,1.0f,1.0f,1.0f);
             mpMapDrawer->DrawCurrentCamera(Twc);
-            if(menuShowKeyFrames || menuShowGraph)
-            	mpMapDrawer->DrawKeyFrames(menuShowKeyFrames,menuShowGraph);
-            if(menuShowPoints)
-            	mpMapDrawer->DrawMapPoints();
+            mpMapDrawer->DrawKeyFrames(true,true);
+            mpMapDrawer->DrawMapPoints();
 
             pangolin::FinishFrame();
 
-            if(menuReset)
+            /*if(menuReset)
             {
                 menuShowGraph = true;
                 menuShowKeyFrames = true;
@@ -147,7 +145,7 @@ void Viewer::Run()
                 menuFollowCamera = true;
                 mpSystem->Reset();
                 menuReset = false;
-            }
+            }*/
 
             if(Stop())
             {
@@ -182,7 +180,7 @@ void Viewer::Run()
         pangolin::Var<bool> menuShowKeyFrames("menu.Show KeyFrames",true,true);
         pangolin::Var<bool> menuShowGraph("menu.Show Graph",true,true);
         pangolin::Var<bool> menuLocalizationMode("menu.Localization Mode",false,true);
-        pangolin::Var<bool> menuReset("menu.Reset",false,false);
+        //pangolin::Var<bool> menuReset("menu.Reset",false,false);
 
         // Define Camera Render Object (for view / scene browsing)
         pangolin::OpenGlRenderState s_cam(
@@ -249,7 +247,7 @@ void Viewer::Run()
             cv::imshow("FIN_CurrentFrameViewer",im);
             cv::waitKey(mT);
 
-            if(menuReset)
+            /*if(menuReset)
             {
                 menuShowGraph = true;
                 menuShowKeyFrames = true;
@@ -262,7 +260,7 @@ void Viewer::Run()
                 menuFollowCamera = true;
                 mpSystem->Reset();
                 menuReset = false;
-            }
+            }*/
 
             if(Stop())
             {

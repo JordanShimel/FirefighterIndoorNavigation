@@ -12,6 +12,8 @@ mainWindow::mainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::mainWi
     ui->setupUi(this);
 
     //load settings from file
+    //TODO: a future improvement would be to add a check here, and create a new settings file on the first load,
+    //rather than having it wait until the first time saveSettings() is called
     loadSettings();
 
     //load settings in rosNode
@@ -20,8 +22,7 @@ mainWindow::mainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::mainWi
     //create ROS node to recieve messages over
     rosNode.init();
                  
-    /// connect to the signal sent from run after spinonce so so can do something when it sees it (single with the win id), do this only
-    /// on the first time and ignore the rest, link to a function in mainwindow class to move map viewer and frame viewer into our app
+    //connection to signal to the main window that it is time to integrate the ORB_SLAM2 windows
     QObject::connect(&rosNode, SIGNAL(grabSLAMWindows()), this, SLOT(mergeWindows()));
     //connection to allow application to close rather than hang if ROS has to shutdown unexpectedly
     QObject::connect(&rosNode, SIGNAL(rosShutdown()), this, SLOT(close()));

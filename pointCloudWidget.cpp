@@ -17,6 +17,7 @@ pointCloudWidget::pointCloudWidget(ORB_SLAM2::System* pSLAM)
 //destroys class instance
 pointCloudWidget::~pointCloudWidget()
 {
+    shutdown();
 }
 
 //public: shutdown
@@ -54,6 +55,6 @@ void pointCloudWidget::processFrames(const sensor_msgs::ImageConstPtr &colorMess
             return;
         }
 
-        //pass the images and timestamp to ORB_SLAM for 'MaGiC PointCloud tHiNgS'
+        //pass the images and timestamp to ORB_SLAM2 to have it do 'MaGiC PointCloud tHiNgS'
         mSLAM->TrackRGBD(cvColor->image, cvDepth->image, cvColor->header.stamp.toSec());
 }

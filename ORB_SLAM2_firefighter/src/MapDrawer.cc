@@ -32,13 +32,24 @@ MapDrawer::MapDrawer(Map* pMap, const string &strSettingPath, const bool b2DView
 {
     cv::FileStorage fSettings(strSettingPath, cv::FileStorage::READ);
 
-    mKeyFrameSize = fSettings["Viewer.KeyFrameSize"];
-    mKeyFrameLineWidth = fSettings["Viewer.KeyFrameLineWidth"];
-    mGraphLineWidth = fSettings["Viewer.GraphLineWidth"];
-    mPointSize = fSettings["Viewer.PointSize"];
-    mCameraSize = fSettings["Viewer.CameraSize"];
-    mCameraLineWidth = fSettings["Viewer.CameraLineWidth"];
-
+    if(mb2DView == false)
+    {
+	mKeyFrameSize = 0.01;//original = 0.05
+	mKeyFrameLineWidth = 1;//original = 1
+	mGraphLineWidth = 0.9;//original = 0.9
+	mPointSize = 2;//original = 2
+	mCameraSize = 0.02;//original = 0.08
+	mCameraLineWidth = 3;//original = 3
+    }
+    else
+    {
+	mKeyFrameSize = 0.001;
+	mKeyFrameLineWidth = 5;
+	mGraphLineWidth = 0.9;
+	mPointSize = 2;
+	mCameraSize = 0;
+	mCameraLineWidth = 30;
+    }
 }
 
 void MapDrawer::DrawMapPoints()
@@ -96,12 +107,8 @@ void MapDrawer::DrawMapPoints()
 void MapDrawer::DrawKeyFrames(const bool bDrawKF, const bool bDrawGraph)
 {
     const float &w = mKeyFrameSize;
-    float h = 0;
-    if(mb2DView == false)
-    {
-        h = w*0.75;
-    }
-    const float z = w*0.6;
+    const float h = w * 0.75;
+    const float z = w * 0.6;
 
     const vector<KeyFrame*> vpKFs = mpMap->GetAllKeyFrames();
 
@@ -196,12 +203,8 @@ void MapDrawer::DrawKeyFrames(const bool bDrawKF, const bool bDrawGraph)
 void MapDrawer::DrawCurrentCamera(pangolin::OpenGlMatrix &Twc)
 {
     const float &w = mCameraSize;
-    float h = 0;
-    if(mb2DView == false)
-    {
-    	h = w*0.75;
-    }
-    const float z = w*0.6;
+    const float h = w * 0.75;
+    const float z = w * 0.6;
 
     glPushMatrix();
 

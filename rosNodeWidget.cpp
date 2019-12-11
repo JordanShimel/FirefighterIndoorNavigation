@@ -67,7 +67,7 @@ void rosNodeWidget::run()
     //create a handle to our node
     ros::NodeHandle nodeHandleBaseUnit;
 
-    //code for ORB_SLAM stuff
+    //code for ORB_SLAM2 stuff
     //create a new SLAM system, passing the prebuilt vocab and camera settings, set as type RGBD and use the built in renderer
     ORB_SLAM2::System rscSLAM("./ORBvoc.txt", "./camera.yaml", ORB_SLAM2::System::RGBD, true);
     //create a pointCloudWidget with our SLAM system
@@ -92,6 +92,8 @@ void rosNodeWidget::run()
         ros::spinOnce();
 
         //after 50 spins, attempt to capture ORB_SLAM2 windows into main ui
+        //TODO: the number of spins is meant to ensure that all 4 child windows are created before
+        //capture, the timing may need to be adjusted for hardware changes, or a more robust method of checking for them developed
         if(spinCount < 50)
         {
             spinCount++;
@@ -105,6 +107,7 @@ void rosNodeWidget::run()
         rosLoopRate.sleep();
     }
 
+    //shutdown the point cloud object if ROS fails
     rscPointCloud.shutdown();
 
     //let main application know ROS has shutdown
