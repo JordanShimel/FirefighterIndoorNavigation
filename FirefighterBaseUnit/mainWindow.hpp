@@ -16,9 +16,6 @@
 //QMainWindow has the basic Qt includes for a gui application
 #include <QMainWindow>
 
-//QMainWindow isused to display video feed in main window
-#include <QtWebEngineWidgets/QWebEngineView>
-
 //QOpenGLWidget is used to show point cloud in main window
 #include <QOpenGLWidget>
 
