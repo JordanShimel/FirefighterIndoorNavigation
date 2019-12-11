@@ -18,6 +18,9 @@ mainWindow::mainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::mainWi
     //load settings from file
     loadSettings();
 
+    //save settings file, this will create one if this was first load
+    saveSettings();
+
     //load settings in rosNode
     rosNode.loadSettings();
 
