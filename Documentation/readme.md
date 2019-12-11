@@ -1,7 +1,7 @@
 ﻿Overview
 The Firefighter Indoor Navigation project is an ongoing project to develop a set of distributed applications that will allow real time 3d mapping of an interior space. The long term goal is to collect and collate data from multiple remote units into a cohesive 3d map usable from a base unit.
 Because this is an ongoing project, this readme will focus more on providing an introduction for future developers than it will on describing how to use the project in its current state. Nonetheless, a brief overview of the current functionality will be provided.
-For a detailed set of directions on how to set up a build environment to begin work on the project, see the file Firefighter_Indoor_Navigation_Environment_Guide.txt
+For a detailed set of directions on how to set up a build environment to begin work on the project, see the file "Firefighter Indoor Navigation Environment Guide.pdf"
 
 
 Current State
